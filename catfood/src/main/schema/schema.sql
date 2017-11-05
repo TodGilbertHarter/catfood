@@ -1,4 +1,6 @@
-CONNECT plocal:/home/tharter/projects/dogfood/java/workspace/catfood/orientdb/databases/CatFood admin admin;
+# CatFood OrientDB schema setup script.
+CREATE DATABASE plocal:${project.buildDir}/catfood/orientdb/databases/CatFood admin admin
+CONNECT plocal:${project.buildDir}/catfood/orientdb/databases/CatFood admin admin;
 #CREATE CLASS Hunk ABSTRACT;
 #CREATE CLASS Content EXTENDS Hunk;
 #CREATE PROPERTY Content.text STRING (MANDATORY TRUE);

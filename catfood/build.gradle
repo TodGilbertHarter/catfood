@@ -7,12 +7,8 @@
  * user guide available at https://docs.gradle.org/3.2-rc-3/userguide/tutorial_java_projects.html
  */
 
-class OrientDBPlugin implements Plugin<Project> {
-	void apply(Project project) {
-		project.task('buildorientdb') {
-		}
-	}
-}
+group = 'com.giantelectronicbrain'
+version = '0.0.1-SNAPSHOT'
 
 configurations {
 	webjars
@@ -46,6 +42,16 @@ dependencies {
 	compile 'com.orientechnologies:orientdb-server:2.2.29'
 
     testCompile 'junit:junit:4.12'
+}
+
+task copySchema(type: Copy) {
+	into "$buildDir/catfood/dbscripts"
+	from "src/main/schema"
+	expand(project.properties)
+}
+
+task createDB(type: Exec) {
+	commandLine '/bin/bash', "$ORIENTDBHOME/bin/console.sh", "$buildDir/catfood/dbscripts/schema.sql"
 }
 
 task copyWebJars(type: Copy) {
@@ -86,3 +92,6 @@ copyCatFoodJar.dependsOn(assemble)
 copyCatFoodJar.dependsOn(copyWebJars)
 copyCatFoodJar.dependsOn(copyWebContent)
 copyCatFoodJar.dependsOn(copyCatFoodScript)
+createDB.dependsOn(copySchema)
+copyCatFoodJar.dependsOn(createDB)
+
