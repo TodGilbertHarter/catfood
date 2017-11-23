@@ -20,7 +20,8 @@ package com.giantelectronicbrain.catfood.initialization;
 import java.io.File;
 import java.util.Properties;
 
-import com.giantelectronicbrain.catfood.TestDBService;
+import com.giantelectronicbrain.catfood.CatFoodDBService;
+import com.giantelectronicbrain.catfood.store.OrientDBStore;
 import com.giantelectronicbrain.catfood.templ.JSXTemplateEngine;
 
 import io.vertx.ext.web.handler.StaticHandler;
@@ -34,14 +35,21 @@ import io.vertx.ext.web.templ.TemplateEngine;
  *
  */
 public class InitializerFactory {
+	public static final String CATFOOD_DB_SERVICE = "com.giantelectronicbrain.catfood.testdbservice";
+	public static final String CATFOOD_DB_STORE = "com.giantelectronicbrain.catfood.dbstore";
 	public static final String ORIENTDB_HOME = "com.giantelectronicbrain.catfood.orientdbhome";
-	public static final String TESTDB_SERVICE = "com.giantelectronicbrain.catfood.testdbservice";
+	public static final String ORIENTDB_URL = "com.giantelectronicbrain.catfood.orientdburl";
+	public static final String ORIENTDB_USER = "com.giantelectronicbrain.catfood.orientdbuser";
+	public static final String ORIENTDB_PASSWORD = "com.giantelectronicbrain.catfood.orientdbpassword";
+	public static final String ORIENTDB_DATABASE = "com.giantelectronicbrain.catfood.orientdatabase";
 	public static final String JSX_TEMPLATEHANDLER = "com.giantelectronicbrain.catfood.jsxtemplatehandler";
 	public static final String JSX_LIBSHANDLER = "com.giantelectronicbrain.catfood.jsxlibshandler";
 	public static final String STATIC_HANDLER = "com.giantelectronicbrain.catfood.statichandler";
 	public static final String LIBS_HANDLER = "com.giantelectronicbrain.catfood.libshandler";
 	public static final String COMPONENTS_HANDLER = "com.giantelectronicbrain.catfood.componentshandler";
 	public static final String WEBROOT = "com.giantelectronicbrain.catfood.webroot";
+	public static final String PORT = "com.giantelectronicbrain.catfood.port";
+	public static final String SCRIPTBASE = "com.giantelectronicbrain.catfood.scriptbase";
 	
 	private static volatile IInitializer initializerInstance;
 	private static volatile Properties configuration;
@@ -59,7 +67,8 @@ public class InitializerFactory {
 	 */
 	public static synchronized IInitializer getInitializer() {
 		if(initializerInstance == null) {
-			initializerInstance = initialize(configuration);
+			initializerInstance = createInitializer();
+			initialize(configuration);
 		}
 		return initializerInstance;
 	}
@@ -67,40 +76,50 @@ public class InitializerFactory {
 	/**
 	 * Create an empty IInitializer. 
 	 * 
-	 * @return empty configurator
+	 * @return empty IInitializer
 	 */
 	private static IInitializer createInitializer() {
 		IInitializer config = new InitializerImpl();
 		return config;
 	}
 	
+	
 	/**
-	 * Populate a configurator with our system configuration. 
+	 * Populate the Initializer with our system configuration. 
 	 * 
-	 * @param config empty IInitializer
-	 * @return populated IInitializer
+	 * @param config The configuration for this initialization
+	 *
 	 */
-	private static IInitializer initialize(Properties config) {
-		IInitializer initializer = createInitializer();
+	private static void initialize(Properties config) {
 		
-		initializer.set(TESTDB_SERVICE, new TestDBService());
+		// Initialize OrientDB service.
+		String orientdbHome = new File(config.getProperty(ORIENTDB_HOME,"../orientdb")).getAbsolutePath();
+		initializerInstance.set(ORIENTDB_HOME,orientdbHome);
+		String orientDatabase = config.getProperty(ORIENTDB_DATABASE,"CatFood");
+		initializerInstance.set(ORIENTDB_URL, "plocal:/"+orientdbHome+"/databases/"+orientDatabase);
+		String orientdbUser = config.getProperty(ORIENTDB_USER,"admin");
+		initializerInstance.set(ORIENTDB_USER, orientdbUser);
+		String orientdbPassword = config.getProperty(ORIENTDB_PASSWORD,"admin");
+		initializerInstance.set(ORIENTDB_PASSWORD, orientdbPassword);
+		initializerInstance.set(CATFOOD_DB_STORE, new OrientDBStore()); //TODO: make the class configurable
+		initializerInstance.set(CATFOOD_DB_SERVICE, new CatFoodDBService());
+		
+		initializerInstance.set(SCRIPTBASE, config.getProperty(SCRIPTBASE,"../javascript"));
 
-		String webroot = "webroot";
-		initializer.set(WEBROOT, webroot);
-		
-		String orientdbHome = new File("orientdb").getAbsolutePath(); //Set OrientDB home to current directory
-		initializer.set(ORIENTDB_HOME,orientdbHome);
+		Integer port = Integer.parseUnsignedInt(config.getProperty(PORT,"8080"));
+		initializerInstance.set(PORT, port);
+		String webroot = config.getProperty(WEBROOT,"webroot");
+		initializerInstance.set(WEBROOT, webroot);		
 
 		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create();
-		initializer.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
+		initializerInstance.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
 
-		initializer.set(STATIC_HANDLER,StaticHandler.create().setWebRoot(webroot+"/content").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1).setCachingEnabled(false));
-		initializer.set(LIBS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/libs").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
+		initializerInstance.set(STATIC_HANDLER,StaticHandler.create().setWebRoot(webroot+"/content").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1).setCachingEnabled(false).setIndexPage("index.html"));
+		initializerInstance.set(LIBS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/libs").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
 		
 		TemplateEngine jsTemplateEngine = JSXTemplateEngine.create().setExtension("js");
-		initializer.set(JSX_LIBSHANDLER,TemplateHandler.create(jsTemplateEngine,webroot+"/components/lib","text/javascript"));
+		initializerInstance.set(JSX_LIBSHANDLER,TemplateHandler.create(jsTemplateEngine,webroot+"/components/lib","text/javascript"));
 
-		initializer.set(COMPONENTS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/components").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
-		return initializer;
+		initializerInstance.set(COMPONENTS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/components").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
 	}
 }

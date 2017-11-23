@@ -28,6 +28,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleBindings;
 
+import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import com.giantelectronicbrain.catfood.templ.JSXTemplateEngine;
 
 import io.vertx.core.AsyncResult;
@@ -50,8 +52,11 @@ import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
  *
  */
 public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> implements JSXTemplateEngine {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JSXTemplateEngineImpl.class);
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(JSXTemplateEngineImpl.class.getName());
+	private IInitializer initializer = InitializerFactory.getInitializer();
+	
+	private String scriptBase = (String) initializer.get(InitializerFactory.SCRIPTBASE);
 	private ScriptEngineManager factory;
 	private ScriptEngine engine;
 	private SimpleBindings bindings;
@@ -68,12 +73,13 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 			engine = factory.getEngineByName("nashorn");
 			bindings = new SimpleBindings();
 //			engine.eval(reader("src/main/javascript/nashorn-require.js"),bindings);
-			engine.eval("var initRequire = load('../javascript/nashorn-require.js');",bindings);
-			engine.eval("var Marker = Java.type(\"com.giantelectronicbrain.catfood.CatFood\"); var options = {mainFile : '../javascript/foo.js', debug : true,"+
+//			engine.eval("var initRequire = load('src/main/javascript/nashorn-require.js');",bindings);
+			engine.eval("var initRequire = load('"+scriptBase+"/nashorn-require.js');",bindings);
+			engine.eval("var Marker = Java.type(\"com.giantelectronicbrain.catfood.CatFood\"); var options = {mainFile : '"+scriptBase+"/foo.js', debug : true,"+
 					" ClassLoader: new Marker().getClass().getClassLoader()};",bindings);
 			engine.eval("initRequire(options)", bindings);
-			engine.eval("var babel = require('../javascript/babel.js');",bindings);
-//			engine.eval("var babel = require('babel');",bindings);
+//			engine.eval("var babel = require('"+scriptBase+"/babel.js');",bindings);
+			engine.eval("var babel = require('babel.js');",bindings);
 			
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize nashorn",e);

@@ -13,3 +13,6 @@ Vert.x 3.x forms the core of our solution. CatFood code can thus be written in a
 OrientDB provides the embedded database. This is a modern document-oriented/graph DB which has modern features, is flexible, can be run in a client-server mode and scale horizontally if desired, but also works fine as a simple in-process JVM embedded service. It understands SQL as well as some other standard query languages and seems to do what we want. We could use some embedded SQL RDBMS, but why not store documents in a document database?
 
 There are no perfect choices for Javascript front-end frameworks. In fact Javascript/HTML/CSS as a platform sucks rocks in Hell. I've chosen to utilize React. It's fast, it is relatively lightweight, and JSX templating can be leveraged to make some fairly clean UI code. It is also possible to pre-render React templates on the server side (yes, even in Nashorn, the JVM Javascript, which is about 90% as fast as Node.js, so we aren't suffering much there). We should be able to couple this with some form of data manager like Redux, but we'll see about that, one thing at a time.
+
+# license
+See the included license file, this application is licensed GPLv3 or newer. 

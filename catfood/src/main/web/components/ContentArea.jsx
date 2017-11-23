@@ -1,5 +1,3 @@
-import Button from '/components/lib/Button';
-
 class ContentArea extends React.Component {
 
     constructor(props) {

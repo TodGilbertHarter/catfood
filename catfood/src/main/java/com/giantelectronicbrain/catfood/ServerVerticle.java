@@ -23,6 +23,8 @@ import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -36,11 +38,13 @@ import io.vertx.ext.web.handler.TemplateHandler;
  */
 public class ServerVerticle extends AbstractVerticle {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ServerVerticle.class);
 	private IInitializer initializer = InitializerFactory.getInitializer();
 	
 	private HttpServer server;
-	private TestDBService testDBService = (TestDBService) initializer.get(InitializerFactory.TESTDB_SERVICE);
+	private CatFoodDBService dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
 	private String orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
+	private Integer port = (Integer) initializer.get(InitializerFactory.PORT);
 	private TemplateHandler templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
 	private StaticHandler otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 	private StaticHandler libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
@@ -55,45 +59,48 @@ public class ServerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Future<Void> startFuture) throws Exception {
-		super.start(startFuture);
 		vertx.executeBlocking( future -> {
-			server = vertx.createHttpServer();
-			Router router = Router.router(vertx);
-
-			// logging
-			router.route().handler(LoggerHandler.create());
-
-			// JSX template handling
-			router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
-
-			// handle static js components
-			router.route("/components/libs/*").handler(jsxLibsHandler);
-			
-			// handle static components (anything but JSX currently)
-			router.route("/components/*").handler(componentsHandler);
-
-			// handle static javascript loads from libs
-			router.route("/libs/*").handler(libsHandler);
-
-			// handle dynamic data queries
-			router.get("/data/content/:id").blockingHandler(testDBService::getContent);
-			router.get("/data/test").blockingHandler(testDBService::getTest);
-
-			// handle all other content as static files
-			router.route("/*").handler(otherHandler);
-			
-			server.requestHandler(router::accept).listen(8080);
-			
 			try {
 			    System.setProperty("ORIENTDB_HOME", orientdbHome);
-			    testDBService.start();
+			    dBService.start();
+			    
+				server = vertx.createHttpServer();
+				Router router = Router.router(vertx);
+	
+				// logging
+				router.route().handler(LoggerHandler.create());
+	
+				// JSX template handling
+				router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
+	
+				// handle static js components
+				router.route("/components/libs/*").handler(jsxLibsHandler);
+				
+				// handle static components (anything but JSX currently)
+				router.route("/components/*").handler(componentsHandler);
+	
+				// handle static javascript loads from libs
+				router.route("/libs/*").handler(libsHandler);
+	
+				// handle dynamic data queries
+				router.get("/data/content/:id").blockingHandler(dBService::getContent);
+	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
+	
+				// handle all other content as static files
+				router.route("/*").handler(otherHandler);
+			
+				server.requestHandler(router::accept).listen(port);
+			
 				future.complete();
 			} catch (Exception e) {
+				LOGGER.fatal("Failed to initialize CatFood ServerVerticle",e);
 				future.fail(e);
 			}
 		}, res -> {
 			if(res.failed()) {
 				startFuture.fail(res.cause());
+			} else {
+				startFuture.complete();
 			}
 		});
 	}
@@ -102,15 +109,15 @@ public class ServerVerticle extends AbstractVerticle {
 	public void stop(Future<Void> stopFuture) throws Exception {
 		vertx.executeBlocking(future -> {
 			server.close();
-			testDBService.stop();
-//			oServer.shutdown();
+			dBService.stop();
 			future.complete();
 		}, res -> {
 			if(res.failed()) {
 				stopFuture.fail(res.cause());
+			} else {
+				stopFuture.complete();
 			}
 		});
-		super.stop(stopFuture);
 	}
 
 }

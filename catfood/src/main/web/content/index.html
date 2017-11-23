@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'/>
+		<title>CatFood</title>
+		<link rel="stylesheet" href="/libs/bootstrap.min.css" />
+ 		<script type='text/javascript' src='/libs/require.js'></script>
+<!--  		<script type='text/javascript' src='/libs/react-router.js'></script> -->
+ 		<script type='text/javascript'>
+			var exports = {};
+//			require(['require','react-router'], function(require) {
+//				var Router = require('react-router').Router;
+//			});
+ 		</script>
+ 		<script type='text/javascript' src='/libs/react.js'></script>
+		<script type='text/javascript' src='/libs/react-dom.js'></script>
+		<script type='text/javascript' src='/libs/react-bootstrap.js'></script>
+		<script type='text/javascript' src='/libs/ReactRouterBootstrap.js'></script>
+<!-- 		<script type='text/javascript' src='/libs/Router.js'></script> -->
+<!-- 		<script type='text/javascript' src='/libs/HashRouter.js'></script> -->
+		<script type='text/javascript' src='/libs/react-ajax.js'></script>
+		<script type='text/javascript' src='/components/CatFood.jsx'></script>
+		<script type='text/javascript' src='/components/EditTopic.jsx'></script>
+		<script type='text/javascript' src='/components/ViewTopic.jsx'></script>
+ 		<script>
+	 		function r(f){/in/.test(document.readyState)?setTimeout(r,9,f):f()}
+	 		
+	 		r(function(){
+				ReactDOM.render(
+						React.createElement(CatFood, {title: "The Cat is Hungry"},null), document.getElementById('root')
+					);
+	 		});
+		</script>
+	</head>
+	<body>
+		<div id='root'></div>
+	</body>
+</html>

@@ -17,7 +17,11 @@
 
 package com.giantelectronicbrain.catfood;
 
-import com.giantelectronicbrain.catfood.store.TestDB;
+import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
+import com.giantelectronicbrain.catfood.model.ChunkId;
+import com.giantelectronicbrain.catfood.store.ICatFoodDBStore;
+import com.giantelectronicbrain.catfood.store.OrientDBStore;
 
 import io.vertx.ext.web.RoutingContext;
 
@@ -27,36 +31,48 @@ import io.vertx.ext.web.RoutingContext;
  * @author tharter
  *
  */
-public class TestDBService {
-
-	private TestDB testDB;
+public class CatFoodDBService {
+	private IInitializer initializer = InitializerFactory.getInitializer();
+	private ICatFoodDBStore catFoodDbStore = (ICatFoodDBStore) initializer.get(InitializerFactory.CATFOOD_DB_STORE);
 	
 	/**
-	 * 
+	 * Instantiate the service.
 	 */
-	public TestDBService() {
-		this.testDB = new TestDB();
+	public CatFoodDBService() {
+//		this.catFoodDbStore = new OrientDBStore();
 	}
 
+	/**
+	 * Start the service.
+	 */
 	public void start() {
-		this.testDB.start();
+		this.catFoodDbStore.start();
 	}
-	
+
+	/**
+	 * Stop the service.
+	 */
 	public void stop() {
-		this.testDB.stop();
+		this.catFoodDbStore.stop();
 	}
 	
-	public void getTest(final RoutingContext routingContext) {
-		String result = testDB.getTest();
+/*	public void getTest(final RoutingContext routingContext) {
+		String result = catFoodDbStore.getTest();
 		sendResult(routingContext,result);
-	}
+	} */
 	
+	/**
+	 * Given the routingContext of a request for CatFood content supply that content and
+	 * send the results back to the requesting client.
+	 * 
+	 * @param routingContext the Vert.x routing context of the content request
+	 */
 	public void getContent(final RoutingContext routingContext) {
 		final String id = routingContext.request().getParam("id");
 		if(id == null) {
-			routingContext.response().setStatusCode(400).end(TestDB.class.getName()+".getContent: no id was supplied");
+			routingContext.response().setStatusCode(400).end(OrientDBStore.class.getName()+".getContent: no id was supplied");
 		} else {
-			String result = testDB.getContent(id);
+			String result = catFoodDbStore.getJsonContent(new ChunkId(id));
 			sendResult(routingContext,result);
 		}
 	}

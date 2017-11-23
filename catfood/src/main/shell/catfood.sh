@@ -1,2 +1,2 @@
 #!/bin/bash
-java -cp ../libs/*:../webroot/libs/*:./catfood.jar com.giantelectronicbrain.catfood.CatFood
+java -cp ../libs/*:../webroot/libs/*:./${project.name}-${project.version}.jar com.giantelectronicbrain.catfood.CatFood

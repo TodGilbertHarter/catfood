@@ -49,7 +49,11 @@ public class CatFood {
 			InitializerFactory.setConfiguration(configuration);
 			System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.Log4j2LogDelegateFactory");
 			Vertx vertx = Vertx.vertx();
-			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle");
+/*			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle",res -> {
+				if(res.failed())
+					System.exit(-1);
+			});
+*/			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle");
 		} catch (ConfigurationException e) {
 			System.err.println(e.getLocalizedMessage());
 			System.err.println(e.getHelpMessage());
