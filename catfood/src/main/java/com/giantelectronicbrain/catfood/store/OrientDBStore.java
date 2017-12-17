@@ -72,16 +72,6 @@ public class OrientDBStore implements ICatFoodDBStore {
 	public OrientDBStore() {
 	}
 
-/*	public String getTest() {
-		ODatabaseRecordThreadLocal.INSTANCE.set(db);
-		StringBuffer sb = new StringBuffer("[");
-		for(ODocument doc : db.browseClass("Test")) {
-			sb.append(doc.toJSON());
-		}
-		sb.append("]");
-		return sb.toString();
-	} */
-
 	/*
 	 * (non-Javadoc)
 	 * @see com.giantelectronicbrain.catfood.store.ICatFoodDBStore#getJsonContent(com.giantelectronicbrain.catfood.model.ChunkId)
@@ -122,6 +112,25 @@ public class OrientDBStore implements ICatFoodDBStore {
 		}
 
 		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.giantelectronicbrain.catfood.store.ICatFoodDBStore#getJsonTopic(java.lang.String)
+	 */
+	@Override
+	public String getJsonTopic(String name) {
+		LOGGER.debug("Getting Topic for name "+name);
+		
+		ODatabaseRecordThreadLocal.INSTANCE.set(db);
+		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("SELECT FROM Topic WHERE name = ?");
+		List<ODocument> result = db.command(query).execute(name);
+		
+		LOGGER.debug("Got list of results of size "+result.size());
+		if(result.size() > 0)
+			LOGGER.debug("Result 0 is "+result.get(0).toString());
+
+		return result.isEmpty() ? null : result.get(0).toJSON();
 	}
 
 }

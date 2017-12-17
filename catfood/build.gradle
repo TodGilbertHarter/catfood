@@ -10,6 +10,16 @@
 group = 'com.giantelectronicbrain'
 version = '0.0.1-SNAPSHOT'
 
+buildscript {
+    repositories {
+//        mavenCentral()
+		jcenter()
+    }
+    dependencies {
+        classpath 'com.github.gtache:scalajs-plugin:sjs1.0.0-M2_2.13.0-M2_0.3.0'
+    }
+}
+
 configurations {
 	webjars
 }
@@ -17,6 +27,7 @@ configurations {
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'scalajs-plugin'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -35,6 +46,7 @@ dependencies {
 	webjars 'org.webjars.npm:babel-standalone:6.26.0'
 	webjars 'org.webjars.npm:react-router-bootstrap:0.24.4'
 	webjars 'org.webjars.npm:react-router-dom:4.2.2'
+//	webjars 'org.webjars.npm:marked:0.3.6'
 	
 	compile 'org.apache.logging.log4j:log4j-api:2.+'
 	compile 'org.apache.logging.log4j:log4j-core:2.+'

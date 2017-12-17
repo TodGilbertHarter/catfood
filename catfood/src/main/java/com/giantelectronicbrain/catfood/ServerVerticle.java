@@ -71,7 +71,8 @@ public class ServerVerticle extends AbstractVerticle {
 				router.route().handler(LoggerHandler.create());
 	
 				// JSX template handling
-				router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
+				router.routeWithRegex("/components/.*\\.js").blockingHandler(templateHandler);
+//				router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
 	
 				// handle static js components
 				router.route("/components/libs/*").handler(jsxLibsHandler);
@@ -83,7 +84,8 @@ public class ServerVerticle extends AbstractVerticle {
 				router.route("/libs/*").handler(libsHandler);
 	
 				// handle dynamic data queries
-				router.get("/data/content/:id").blockingHandler(dBService::getContent);
+				router.get("/data/topic/byid/:id").blockingHandler(dBService::getTopicByID);
+				router.get("/data/topic/byname/:name").blockingHandler(dBService::getTopicByName);
 	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
 	
 				// handle all other content as static files

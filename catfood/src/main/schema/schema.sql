@@ -11,4 +11,8 @@ CONNECT plocal:${project.buildDir}/catfood/orientdb/databases/CatFood admin admi
 
 CREATE CLASS Topic;
 CREATE PROPERTY Topic.name STRING (MANDATORY TRUE);
+CREATE PROPERTY Topic.lang STRING (MANDATORY TRUE);
 CREATE PROPERTY Topic.content STRING;
+
+INSERT INTO Topic (name,lang,content) VALUES('Home','markdown','This is the home topic');
+INSERT INTO Topic (name,lang,content) VALUES('TestTopic','markdown','# This is some stuff to test with');

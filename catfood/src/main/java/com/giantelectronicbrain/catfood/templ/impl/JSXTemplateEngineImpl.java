@@ -134,6 +134,14 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 		}
 	}
 
+	@Override
+	protected String adjustLocation(String location) {
+		String superLocation = super.adjustLocation(location);
+		superLocation += "x";
+		LOGGER.debug("Adjusting location from "+location+", to "+superLocation);
+		return superLocation;
+	}
+
 	private long getFileModified(String location, RoutingContext context) {
 		Vertx vertx = context.vertx();
 		return vertx.fileSystem().propsBlocking(location).lastModifiedTime();
@@ -146,8 +154,8 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 			Buffer input = findTemplateSource(fileLocation,context);
 			if(input != null) {
 				bindings.put("input",input.toString());
-	//			result = engine.eval("babel.transform(input,{ presets: ['react', 'es2015'], plugins: ['transform-es2015-modules-amd'] }).code;",bindings);
-				result = engine.eval("babel.transform(input,{ presets: ['react', 'es2015'] }).code;",bindings);
+				result = engine.eval("babel.transform(input,{ presets: ['react', 'es2015'], plugins: ['transform-es2015-classes'] }).code;",bindings);
+//				result = engine.eval("babel.transform(input,{ presets: ['react', 'es2015'] }).code;",bindings);
 			}
 		} catch (Exception e) {
 			LOGGER.warn("Failed to parse JSX "+e.getLocalizedMessage(),e);

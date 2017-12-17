@@ -49,4 +49,11 @@ public interface ICatFoodDBStore {
 	 */
 	public abstract String getJsonContent(ChunkId id);
 
+	/**
+	 * Get a CatFood Topic by name and return it as JSON.
+	 * 
+	 * @param name topic name.
+	 * @return String the topic.
+	 */
+	public abstract String getJsonTopic(String name);
 }

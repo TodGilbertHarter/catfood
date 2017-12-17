@@ -111,7 +111,7 @@ public class InitializerFactory {
 		String webroot = config.getProperty(WEBROOT,"webroot");
 		initializerInstance.set(WEBROOT, webroot);		
 
-		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create();
+		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create().setExtension("js");
 		initializerInstance.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
 
 		initializerInstance.set(STATIC_HANDLER,StaticHandler.create().setWebRoot(webroot+"/content").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1).setCachingEnabled(false).setIndexPage("index.html"));

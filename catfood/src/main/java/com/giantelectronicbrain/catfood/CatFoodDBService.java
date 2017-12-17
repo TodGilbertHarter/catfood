@@ -67,13 +67,28 @@ public class CatFoodDBService {
 	 * 
 	 * @param routingContext the Vert.x routing context of the content request
 	 */
-	public void getContent(final RoutingContext routingContext) {
+	public void getTopicByID(final RoutingContext routingContext) {
 		final String id = routingContext.request().getParam("id");
 		if(id == null) {
 			routingContext.response().setStatusCode(400).end(OrientDBStore.class.getName()+".getContent: no id was supplied");
 		} else {
 			String result = catFoodDbStore.getJsonContent(new ChunkId(id));
 			sendResult(routingContext,result);
+		}
+	}
+	
+	public void getTopicByName(final RoutingContext routingContext) {
+		final String name = routingContext.request().getParam("name");
+		if(name == null) {
+			routingContext.response().setStatusCode(400);
+				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no name was supplied</div>");
+		} else {
+			String result = catFoodDbStore.getJsonTopic(name);
+			if(result == null) {
+				routingContext.response().setStatusCode(404);
+				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no topic was found with the given name</div>");
+			} else
+				sendResult(routingContext,result);
 		}
 	}
 	
