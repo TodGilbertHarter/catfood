@@ -1,0 +1,6 @@
+/.gradle/
+/orientdb/
+/webroot/
+/bin/
+/.vertx/
+/build/
