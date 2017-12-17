@@ -4,3 +4,5 @@
 /bin/
 /.vertx/
 /build/
+/.cache-main/
+/.cache-tests/

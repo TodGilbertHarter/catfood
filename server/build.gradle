@@ -10,16 +10,6 @@
 group = 'com.giantelectronicbrain'
 version = '0.0.1-SNAPSHOT'
 
-buildscript {
-    repositories {
-//        mavenCentral()
-		jcenter()
-    }
-    dependencies {
-        classpath 'com.github.gtache:scalajs-plugin:sjs1.0.0-M2_2.13.0-M2_0.3.0'
-    }
-}
-
 configurations {
 	webjars
 }
@@ -27,7 +17,6 @@ configurations {
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'scalajs-plugin'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
