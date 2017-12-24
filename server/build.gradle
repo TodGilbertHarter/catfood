@@ -10,7 +10,45 @@
 group = 'com.giantelectronicbrain'
 version = '0.0.1-SNAPSHOT'
 
-configurations {
+buildscript {
+	repositories {
+	    maven {
+	      url "https://plugins.gradle.org/m2/"
+	    }
+    	jcenter()
+        mavenCentral()
+	}
+	dependencies {
+		classpath "gradle.plugin.io.vertx:vertx-gradle-plugin:0.0.6"
+	}
+}
+
+apply plugin: 'io.vertx.vertx-plugin'
+apply plugin: 'eclipse'
+
+repositories {
+	jcenter()
+    mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	compile 'org.apache.logging.log4j:log4j-api:2.+'
+	compile 'org.apache.logging.log4j:log4j-core:2.+'
+	compile 'io.vertx:vertx-web'
+	compile 'io.vertx:vertx-web-templ-freemarker'
+	compile 'com.orientechnologies:orientdb-jdbc:2.2.29'
+	compile 'com.orientechnologies:orientdb-server:2.2.29'
+
+    testCompile 'junit:junit:4.12'
+}
+
+vertx {
+	vertxVersion = '3.5.0'
+	launcher = 'com.giantelectronicbrain.catfood.CatFood'
+}
+
+/* configurations {
 	webjars
 }
 
@@ -99,3 +137,4 @@ copyCatFoodJar.dependsOn(copyCatFoodScript)
 createDB.dependsOn(copySchema)
 copyCatFoodJar.dependsOn(createDB)
 
+*/
