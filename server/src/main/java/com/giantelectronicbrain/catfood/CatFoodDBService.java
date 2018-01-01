@@ -18,6 +18,7 @@
 package com.giantelectronicbrain.catfood;
 
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import com.giantelectronicbrain.catfood.model.ChunkId;
 import com.giantelectronicbrain.catfood.store.ICatFoodDBStore;
@@ -33,14 +34,15 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class CatFoodDBService {
 	private IInitializer initializer = InitializerFactory.getInitializer();
-	private ICatFoodDBStore catFoodDbStore = (ICatFoodDBStore) initializer.get(InitializerFactory.CATFOOD_DB_STORE);
+	private ICatFoodDBStore catFoodDbStore; // = (ICatFoodDBStore) initializer.get(InitializerFactory.CATFOOD_DB_STORE);
 	
 	/**
 	 * Instantiate the service.
+	 * @throws InitializationException 
 	 */
-	public CatFoodDBService() {
-//		this.catFoodDbStore = new OrientDBStore();
-	}
+	public CatFoodDBService() throws InitializationException {
+		catFoodDbStore = (ICatFoodDBStore) initializer.get(InitializerFactory.CATFOOD_DB_STORE);
+		}
 
 	/**
 	 * Start the service.

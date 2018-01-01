@@ -29,6 +29,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.SimpleBindings;
 
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import com.giantelectronicbrain.catfood.templ.JSXTemplateEngine;
 
@@ -54,9 +55,9 @@ import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
 public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> implements JSXTemplateEngine {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JSXTemplateEngineImpl.class);
 	
-	private IInitializer initializer = InitializerFactory.getInitializer();
+	private IInitializer initializer; // = InitializerFactory.getInitializer();
 	
-	private String scriptBase = (String) initializer.get(InitializerFactory.SCRIPTBASE);
+	private String scriptBase; // = (String) initializer.get(InitializerFactory.SCRIPTBASE);
 	private ScriptEngineManager factory;
 	private ScriptEngine engine;
 	private SimpleBindings bindings;
@@ -66,8 +67,12 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 	 * currently starting up Nashorn and compiling Babel is relatively time-consuming.
 	 * TODO: Make this push the time-consuming part into another thread or a background operation.
 	 */
-	public JSXTemplateEngineImpl() {
+	public JSXTemplateEngineImpl() throws InitializationException {
 		super(DEFAULT_TEMPLATE_EXTENSION, DEFAULT_MAX_CACHE_SIZE);
+
+		initializer = InitializerFactory.getInitializer();
+		scriptBase = (String) initializer.get(InitializerFactory.SCRIPTBASE);
+		
 		try {
 			factory = new ScriptEngineManager();
 			engine = factory.getEngineByName("nashorn");

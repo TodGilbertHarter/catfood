@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>CatFood</title>
+		<link rel="stylesheet" href="/libs/bootstrap.min.3.3.6.css" />
+ 		<script type='text/javascript' src='/libs/require.js'></script>
+ 		<script type='text/javascript'>
+ 			var exports = {};
+			require.config({
+			    paths: {
+			        'react': '/libs/react',
+			        'client': './client_fastopt',
+			        'react-dom' : '/libs/react-dom',
+/*			        'react-router': '/libs/react-router',
+			        'react-bootstrap' : '/libs/react-bootstrap',
+			        'ReactRouterBootstrap' : '/libs/ReactRouterBootstrap',
+			        'react-router-dom' : '/libs/react-router-dom',
+			        'react-ajax' : '/libs/react-ajax',
+			        'warning' : '/libs/warning',
+			        'prop-types' : '/libs/prop-types',
+			        'history' : '/libs/history',
+			        'Router' : '/libs/Router',
+			        'HashRouter' : '/libs/HashRouter',
+			        'CatFood' : '/components/CatFood',
+			        'ViewTopic' : '/components/ViewTopic',
+			        'EditTopic' : '/components/EditTopic',
+			        'Home' : '/components/Home',
+			        'react-markdown' : '/libs/react-markdown', */
+			    }
+			});			
+ 		</script>
+<!-- 		<script type='text/javascript' src='./client_fastopt.js'></script> -->
+ 		<script type='text/javascript'>
+			require(['react','react-dom'],function(React,ReactDOM){
+				require(['client'], function(client) {
+					var CatFood = exports.CatFood;
+					CatFood.main();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id='app-node'></div>
+	</body>
+</html>

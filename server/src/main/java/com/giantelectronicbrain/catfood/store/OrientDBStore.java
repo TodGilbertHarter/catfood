@@ -20,6 +20,7 @@ package com.giantelectronicbrain.catfood.store;
 import java.util.List;
 
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import com.giantelectronicbrain.catfood.model.Chunk;
 import com.giantelectronicbrain.catfood.model.ChunkId;
@@ -40,12 +41,26 @@ import io.vertx.core.logging.LoggerFactory;
 public class OrientDBStore implements ICatFoodDBStore {
 	private static Logger LOGGER = LoggerFactory.getLogger(OrientDBStore.class);
 	
-	private IInitializer initializer = InitializerFactory.getInitializer();
+	private IInitializer initializer; // = InitializerFactory.getInitializer();
 	
 	private ODatabaseDocumentTx db;
-	private String dbUrl = (String) initializer.get(InitializerFactory.ORIENTDB_URL);
-	private String dbUser = (String) initializer.get(InitializerFactory.ORIENTDB_USER);
-	private String dbPassword = (String) initializer.get(InitializerFactory.ORIENTDB_PASSWORD);
+	private String dbUrl; // = (String) initializer.get(InitializerFactory.ORIENTDB_URL);
+	private String dbUser; // = (String) initializer.get(InitializerFactory.ORIENTDB_USER);
+	private String dbPassword; // = (String) initializer.get(InitializerFactory.ORIENTDB_PASSWORD);
+
+	/**
+	 * Instantiate database connector. It is necessary to call start in order to initialize
+	 * the connection.
+	 * 
+	 * @throws InitializationException 
+	 */
+	public OrientDBStore() throws InitializationException {
+		initializer = InitializerFactory.getInitializer();
+		
+		dbUrl = (String) initializer.get(InitializerFactory.ORIENTDB_URL);
+		dbUser = (String) initializer.get(InitializerFactory.ORIENTDB_USER);
+		dbPassword = (String) initializer.get(InitializerFactory.ORIENTDB_PASSWORD);
+	}
 
 	/**
 	 * Open database connection.
@@ -63,13 +78,6 @@ public class OrientDBStore implements ICatFoodDBStore {
 	@Override
 	public void stop() {
 		db.close();
-	}
-
-	/**
-	 * Instantiate database connector. It is necessary to call start in order to initialize
-	 * the connection.
-	 */
-	public OrientDBStore() {
 	}
 
 	/*

@@ -17,8 +17,7 @@
 
 package com.giantelectronicbrain.catfood.initialization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.Properties;
 
@@ -39,9 +38,19 @@ public class InitializerFactoryTest {
 	@Test
 	public void testGetConfiguration() {
 		InitializerFactory.setConfiguration(new Properties());
-		IInitializer config = InitializerFactory.getInitializer();
+		IInitializer config = null;
+		try {
+			config = InitializerFactory.getInitializer();
+		} catch (InitializationException e) {
+			fail("initialization failed");
+		}
 		assertNotNull("Config should be constructed",config);
-		String actual = (String) config.get(InitializerFactory.WEBROOT);
+		String actual = null;
+		try {
+			actual = (String) config.get(InitializerFactory.WEBROOT);
+		} catch (InitializationException e) {
+			fail("Initialized object could not be recovered");
+		}
 		assertEquals("Parameter should be initialized","webroot", actual);
 	}
 

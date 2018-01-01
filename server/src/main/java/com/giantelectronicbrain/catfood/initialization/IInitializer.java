@@ -18,11 +18,33 @@
 package com.giantelectronicbrain.catfood.initialization;
 
 /**
+ * An initializer holds the initialized state of the application as a set of key/value
+ * pairs. 
+ * 
  * @author tharter
  *
  */
 public interface IInitializer {
 
-	public abstract Object get(Object configKey);
+	/**
+	 * Given a key return the corresponding initialized state object
+	 * 
+	 * @param configKey
+	 * @return initialized object
+	 * 
+	 * @throws InitializationException if no object of the given key exists or can be initialized
+	 */
+	public abstract Object get(Object configKey) throws InitializationException;
+	
+	/**
+	 * Store an initialized object on the initializer.
+	 * @param configKey the key this object instance will be known by
+	 * @param configValue the initialized object
+	 */
 	public abstract void set(Object configKey, Object configValue);
+	
+	/**
+	 * Dump a copy of the entire initialized state to standard output.
+	 */
+	public abstract void print();
 }

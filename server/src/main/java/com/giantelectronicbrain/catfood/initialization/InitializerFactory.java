@@ -35,6 +35,7 @@ import io.vertx.ext.web.templ.TemplateEngine;
  *
  */
 public class InitializerFactory {
+	public static final String WRITE = "write";
 	public static final String CATFOOD_DB_SERVICE = "com.giantelectronicbrain.catfood.testdbservice";
 	public static final String CATFOOD_DB_STORE = "com.giantelectronicbrain.catfood.dbstore";
 	public static final String ORIENTDB_HOME = "com.giantelectronicbrain.catfood.orientdbhome";
@@ -64,11 +65,14 @@ public class InitializerFactory {
 	 * 
 	 * @param configuration Properties object containing the desired configuration
 	 * @return IInitializer containing system's global configuration
+	 * @throws InitializationException if initialization cannot be performed successfully
 	 */
-	public static synchronized IInitializer getInitializer() {
+	public static synchronized IInitializer getInitializer() throws InitializationException {
 		if(initializerInstance == null) {
 			initializerInstance = createInitializer();
 			initialize(configuration);
+			if("true".equals(configuration.getProperty(WRITE)))
+				write();
 		}
 		return initializerInstance;
 	}
@@ -83,14 +87,30 @@ public class InitializerFactory {
 		return config;
 	}
 	
+	/**
+	 * Write a copy of the 
+	 * @param config
+	 */
+	private static void write() {
+		initializerInstance.print();
+	}
 	
 	/**
-	 * Populate the Initializer with our system configuration. 
+	 * Populate the Initializer with our system initialized state.
 	 * 
 	 * @param config The configuration for this initialization
+	 * @throws InitializationException if a component cannot initialize
 	 *
 	 */
-	private static void initialize(Properties config) {
+	private static void initialize(Properties config) throws InitializationException {
+		/**
+		 * Note: Things need to be initialized in dependency order here, because when a component
+		 * which itself relies on other components (IE calls initializer.get(key)) then it will fail
+		 * unless its dependencies were already initialized (because it will be looking them up in the
+		 * same initializer we are setting up here). The main disadvantage of this is order may be 
+		 * dependent on implementation of some of these objects, thus leaking implementation side-effects
+		 * back here. Oh well...
+		 */
 		
 		// Initialize OrientDB service.
 		String orientdbHome = new File(config.getProperty(ORIENTDB_HOME,"../orientdb")).getAbsolutePath();

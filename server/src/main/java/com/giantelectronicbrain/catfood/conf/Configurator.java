@@ -37,6 +37,8 @@ import io.vertx.core.cli.Option;
 public class Configurator {
 
 	private static Option configOption = new Option().setLongName("config").setShortName("c");
+	private static Option dumpOption = new Option().setLongName("dump").setShortName("d").setFlag(true);
+	private static Option writeOption = new Option().setLongName("write").setShortName("w").setFlag(true);
 	
 	/**
 	 * Create a set of properties derived from a Properties file and command line parameters.
@@ -79,21 +81,51 @@ public class Configurator {
 		} else {
 			throw new ConfigurationException("invalid command line",cli.getSummary());
 		}
+		
 		Properties finalConfig = createConfiguration(config,commandLine);
+		if(commandLine.isSeenInCommandLine(dumpOption)) {
+			dumpConfiguration(finalConfig);
+		}
 		
 		return finalConfig;
 	}
 	
+	/**
+	 * Dump a copy of the configuration properties given to the standard output.
+	 * 
+	 * @param config Properties to dump
+	 */
+	private static void dumpConfiguration(Properties config) {
+		config.keySet().stream().sorted().forEachOrdered((key) -> {
+			System.out.println(key+"="+config.getProperty((String) key));
+		});
+	}
+
+	/**
+	 * Create a Properties object containing options which need to be set due to command line flags.
+	 * 
+	 * @param config the Properties to be added to
+	 * @param commandLine the CommandLine object to scan
+	 * @return Properties containing any extra options set due to command line flags
+	 */
 	private static Properties createConfiguration(Properties config, CommandLine commandLine) {
+		if(commandLine.isSeenInCommandLine(writeOption))
+			config.setProperty("write", Boolean.TRUE.toString());
 		//TODO: query each command line option and override properties where provided.
 		return config;
 	}
 
+	/**
+	 * Create a CLI object to parse the CatFood command line.
+	 * 
+	 * @return a CLI object which understands our options
+	 */
 	private static CLI createCLI() {
 		CLI cli = CLI.create("commandline");
 		cli.addOption(configOption);
-		
-		//TODO: add options here.
+		cli.addOption(dumpOption);
+		cli.addOption(writeOption);
+		//TODO: add options here. Might also need to add usage/help/name, not sure how that works...
 		return cli;
 	}
 }

@@ -31,7 +31,9 @@ public class InitializerImpl implements IInitializer {
 	 * @see com.boeing.aims.vertxdemo.config.IConfigurator#get(java.lang.Object)
 	 */
 	@Override
-	public Object get(Object configKey) {
+	public Object get(Object configKey) throws InitializationException {
+		if(!configMap.containsKey(configKey))
+			throw new InitializationException("Cannot initialize object with key "+configKey);
 		return configMap.get(configKey);
 	}
 
@@ -41,6 +43,13 @@ public class InitializerImpl implements IInitializer {
 	@Override
 	public void set(Object configKey, Object configValue) {
 		configMap.put(configKey, configValue);
+	}
+
+	@Override
+	public void print() {
+		configMap.keySet().stream().sorted().forEachOrdered(key -> {
+			System.out.println(key+"="+configMap.get(key));
+		});
 	}
 
 }

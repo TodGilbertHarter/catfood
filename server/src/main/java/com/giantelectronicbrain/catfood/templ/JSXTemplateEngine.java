@@ -17,6 +17,7 @@
 
 package com.giantelectronicbrain.catfood.templ;
 
+import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.templ.impl.JSXTemplateEngineImpl;
 
 import io.vertx.ext.web.templ.TemplateEngine;
@@ -26,39 +27,40 @@ import io.vertx.ext.web.templ.TemplateEngine;
  *
  */
 public interface JSXTemplateEngine extends TemplateEngine {
-	  /**
-	   * Default max number of templates to cache
-	   */
-	  int DEFAULT_MAX_CACHE_SIZE = 10000;
+  /**
+   * Default max number of templates to cache
+   */
+  int DEFAULT_MAX_CACHE_SIZE = 10000;
 
-	  /**
-	   * Default template extension
-	   */
-	  String DEFAULT_TEMPLATE_EXTENSION = "jsx";
+  /**
+   * Default template extension
+   */
+  String DEFAULT_TEMPLATE_EXTENSION = "jsx";
 
-	  /**
-	   * Create a template engine using defaults
-	   *
-	   * @return  the engine
-	   */
-	  static JSXTemplateEngine create() {
-	    return new JSXTemplateEngineImpl();
-	  }
+  /**
+   * Create a template engine using defaults
+   *
+   * @return  the engine
+   * @throws InitializationException 
+   */
+  static JSXTemplateEngine create() throws InitializationException {
+    return new JSXTemplateEngineImpl();
+  }
 
-	  /**
-	   * Set the extension for the engine
-	   *
-	   * @param extension  the extension
-	   * @return a reference to this for fluency
-	   */
-	  JSXTemplateEngine setExtension(String extension);
+  /**
+   * Set the extension for the engine
+   *
+   * @param extension  the extension
+   * @return a reference to this for fluency
+   */
+  JSXTemplateEngine setExtension(String extension);
 
-	  /**
-	   * Set the max cache size for the engine
-	   *
-	   * @param maxCacheSize  the maxCacheSize
-	   * @return a reference to this for fluency
-	   */
-	  JSXTemplateEngine setMaxCacheSize(int maxCacheSize);
+  /**
+   * Set the max cache size for the engine
+   *
+   * @param maxCacheSize  the maxCacheSize
+   * @return a reference to this for fluency
+   */
+  JSXTemplateEngine setMaxCacheSize(int maxCacheSize);
 
 }

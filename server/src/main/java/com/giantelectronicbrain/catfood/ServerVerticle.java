@@ -18,6 +18,7 @@
 package com.giantelectronicbrain.catfood;
 
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
+import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 
 import io.vertx.core.AbstractVerticle;
@@ -42,19 +43,28 @@ public class ServerVerticle extends AbstractVerticle {
 	private IInitializer initializer = InitializerFactory.getInitializer();
 	
 	private HttpServer server;
-	private CatFoodDBService dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
-	private String orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
-	private Integer port = (Integer) initializer.get(InitializerFactory.PORT);
-	private TemplateHandler templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
-	private StaticHandler otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
-	private StaticHandler libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
-	private TemplateHandler jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
-	private StaticHandler componentsHandler = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
+	private CatFoodDBService dBService; // = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
+	private String orientdbHome; // = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
+	private Integer port; // = (Integer) initializer.get(InitializerFactory.PORT);
+	private TemplateHandler templateHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
+	private StaticHandler otherHandler; // = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
+	private StaticHandler libsHandler; // = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
+	private TemplateHandler jsxLibsHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
+	private StaticHandler componentsHandler; // = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 	
 	/**
 	 * Instantiate the CatFood HTTP Server Verticle.
+	 * @throws InitializationException 
 	 */
-	public ServerVerticle() {
+	public ServerVerticle() throws InitializationException {
+		dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
+		orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
+		port = (Integer) initializer.get(InitializerFactory.PORT);
+		templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
+		otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
+		libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
+		jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
+		componentsHandler = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 	}
 
 	@Override
