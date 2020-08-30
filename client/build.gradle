@@ -21,24 +21,18 @@
  * environment for in-place edit and debug.
  */
 
-import org.scalajs.jsenv.nodejs.*
-import com.github.gtache.Scalajsld$
+//import org.scalajs.jsenv.nodejs.*
+//import com.github.gtache.Scalajsld$
 
 group = 'com.giantelectronicbrain'
 version = '0.0.1-SNAPSHOT'
 
 apply plugin: 'eclipse'
-apply plugin: 'scalajs-plugin'
+apply plugin: 'java'
 
 sourceCompatibility = 1.8
 
 buildscript {
-    String scalaVersion = project.hasProperty('scalaVersion') ? project.property('scalaVersion') : '2.12'
-    String scalaJSVersion = project.hasProperty('scalaJSVersion') ? project.property('scalaJSVersion') : '0.6.21'
-    String scalaJSM = scalaJSVersion.substring(0,3)
-
-    String pluginVersion = '0.3.4'
-    String pluginFullVersion = 'sjs'+scalaJSM+'_'+scalaVersion+'_'+pluginVersion
     repositories {
     	maven {
     		url = uri('../../mvnrepo')
@@ -47,23 +41,9 @@ buildscript {
         mavenLocal()
         mavenCentral()
     }
-    dependencies {
-		classpath 'com.github.gtache:scalajs-plugin:'+pluginFullVersion    
-        // classpath 'com.github.machaval:scalajs-plugin:'+pluginFullVersion
-    }
 }
 
-configurations {
-    scalaTestCompile
-}
-
-//Duplication because buildscript{} and the rest of the build file don't share variables
-String scalaVersion = project.hasProperty('scalaVersion') ? project.property('scalaVersion') : '2.12'
-String subVersion = project.hasProperty('subVersion') ? project.property('subVersion') : '1'
-String scalaFullVersion = scalaVersion + '.' + subVersion
-String scalaJSVersion = project.hasProperty('scalaJSVersion') ? project.property('scalaJSVersion') : '0.6.15'
-String scalaJSM = scalaJSVersion.substring(0,3)
-String scalaJSV = scalaJSM+'_'+scalaVersion
+String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.0'
 
 repositories {
 	mavenLocal()
@@ -72,63 +52,7 @@ repositories {
 }
 
 dependencies {
-	compile 'org.scala-lang:scala-library:2.12.4'
-	compile 'com.github.japgolly.scalajs-react:core_sjs0.6_2.12:1.1.1'
-	compile 'com.github.japgolly.scalajs-react:extra_sjs0.6_2.12:1.1.1'
-	compile 'com.lihaoyi:upickle_sjs0.6_2.12:0.5.1'
-	
-/*	compile 'io.github.shogowada:scalajs-reactjs_sjs0.6_2.12:0.14.0'
-	compile 'org.scala-lang:scala-library:2.12.2'
-	compile 'org.scala-js:scalajs-library_2.12:0.6.16'
-	compile 'org.scala-js:scalajs-test-interface_2.12:0.6.15'
-	compile 'org.scala-js:scalajs-dom_sjs0.6_2.12:[0.9,0.10)'
-	compile 'io.github.shogowada:statictags_sjs0.6_2.12:[2.4.0,3.0.0)' */
-
-
-//	compile 'io.github.shogowada:scalajs-reactjs-router-dom:0.14.0'
-	
-/*    compile group: 'com.lihaoyi', name: 'scalatags_sjs'+scalaJSV, version: '0.6.3'
-    testCompile group: 'org.scala-js', name: 'scalajs-junit-test-runtime_'+scalaVersion, version: scalaJSVersion
-    testCompile group: 'org.scalactic', name: 'scalactic_sjs'+scalaJSV, version: '3.0.1'
-    testCompile group: 'org.scalatest', name: 'scalatest_sjs'+scalaJSV, version: '3.0.1'
-    testCompile group: 'org.scalacheck', name: 'scalacheck_sjs'+scalaJSV, version: '1.13.4'
-    testCompile group: 'com.lihaoyi', name: 'utest_sjs'+scalaJSV, version: '0.4.5'
-    testCompile group: 'io.monix', name: 'minitest_sjs'+scalaJSV, version: '0.27'
-    testCompile group: 'com.github.japgolly.nyaya', name: 'nyaya-prop_sjs'+scalaJSV, version: '0.8.1'
-    testCompile group: 'com.github.japgolly.nyaya', name: 'nyaya-gen_sjs'+scalaJSV, version: '0.8.1'
-    testCompile group: 'com.github.japgolly.nyaya', name: 'nyaya-test_sjs'+scalaJSV, version: '0.8.1'
-    testCompile group: 'com.github.scalaprops', name: 'scalaprops_sjs'+scalaJSV, version: '0.4.1'
-    testCompile group: 'com.github.scalaprops', name: 'scalaprops-scalazlaws_sjs'+scalaJSV, version: '0.4.1'
-    scalaTestCompile group: 'org.scala-js', name: 'scalajs-junit-test-plugin_'+scalaFullVersion, version: scalaJSVersion */
-}
-
-//Necessary to make JUnit work
-tasks.findByPath('compileTestScala').doFirst {
-    scalaCompileOptions.additionalParameters = scalaCompileOptions.additionalParameters +
-            ["-Xplugin:" + project.configurations.scalaTestCompile.findAll {
-                it.absolutePath.contains("junit-test-plugin")
-            }.get(0).absolutePath]
-}
-
-ext {
-    testFrameworks = ["utest.runner.Framework"]
-    testFrameworks += "minitest.runner.Framework"
-    testFrameworks += "org.scalacheck.ScalaCheckFramework"
-    testFrameworks += "scalaprops.ScalapropsFramework"
-    testFrameworks += "scalaprops.ScalapropsFramework"
-    linkLogLevel = "Debug"
-    testLogLevel = "Debug"
-
-    //You can configure a custom JSEnv (selenium,...), don't forget to import the classes
-    //jsEnv = new NodeJSEnv("node", Seq$.MODULE$.empty(), Map$.MODULE$.empty())
-    //jsEnv.loadLibs(...)
-    //jsEnv.withSourceMap(...)
-
-    //You can configure custom Semantics
-    //semantics = Semantics.Defaults().withProductionMode(true).with...
-
-    //You can configure optimizer options
-    //oOptions = Scalajsld$.MODULE$.defaultOptions().withParallel(false)...
+	compile 'live.connector:vertxui-core:1.0'
 }
 
 task copyWebContent(type: Copy) {
@@ -139,13 +63,4 @@ task copyWebContent(type: Copy) {
 task copyWebLibs(type: Copy) {
 	from "src/main/web/libs"
 	into "$buildDir/jslibs"
-}
-
-defaultTasks += 'FastOptJS'
-defaultTasks += 'FullOptJS'
-tasks.FastOptJS.outputs.upToDateWhen { return false }
-tasks.FullOptJS.outputs.upToDateWhen { return false }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.3'
 }
