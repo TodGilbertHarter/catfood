@@ -21,9 +21,6 @@
  * fire up an instance in content development mode so we can perform short
  * cycle interactive development in the client project.
  */
-group = 'com.giantelectronicbrain'
-version = '0.0.1-SNAPSHOT'
-
 buildscript {
 	repositories {
 	    maven {
@@ -33,12 +30,17 @@ buildscript {
         mavenCentral()
 	}
 	dependencies {
-		classpath "gradle.plugin.io.vertx:vertx-gradle-plugin:0.0.6"
+		classpath "gradle.plugin.io.vertx:vertx-gradle-plugin:1.1.1"
 	}
 }
 
 apply plugin: 'io.vertx.vertx-plugin'
 apply plugin: 'eclipse'
+
+group = 'com.giantelectronicbrain'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	jcenter()
@@ -47,116 +49,21 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.logging.log4j:log4j-api:2.+'
-	compile 'org.apache.logging.log4j:log4j-core:2.+'
-	compile 'io.vertx:vertx-web'
-	compile 'io.vertx:vertx-web-templ-freemarker'
-	compile 'com.orientechnologies:orientdb-jdbc:2.2.29'
-	compile 'com.orientechnologies:orientdb-server:2.2.29'
-
-    testCompile 'junit:junit:4.12'
+	implementation 'org.apache.logging.log4j:log4j-api:2.+'
+	implementation 'org.apache.logging.log4j:log4j-core:2.+'
+	implementation 'io.vertx:vertx-web'
+	implementation 'io.vertx:vertx-web-templ-freemarker'
+	implementation 'com.orientechnologies:orientdb-jdbc:2.2.29'
+	implementation 'com.orientechnologies:orientdb-server:2.2.29'
+	implementation 'live.connector:vertxui-core:1.0'
+	implementation project(':client')
+    testImplementation 'junit:junit:4.12'
 }
 
 vertx {
-	vertxVersion = '3.5.0'
+	vertxVersion = '3.9.2'
 	launcher = 'com.giantelectronicbrain.catfood.CatFood'
 	args = ["-c=${rootProject.buildDir}/catfood/conf/reloading.properties".toString(), "-write"]
 //	jvmArgs = ['-Xdebug', '-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y']
 	workDirectory = "${rootProject.buildDir}/catfood"
 }
-
-/*vertx {
-	vertxVersion = '3.5.0'
-	launcher = 'com.giantelectronicbrain.catfood.CatFood'
-} */
-
-/* configurations {
-	webjars
-}
-
-// Apply the java plugin to add support for Java
-apply plugin: 'java'
-apply plugin: 'eclipse'
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use 'jcenter' for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
-    mavenLocal()
-}
-
-// In this section you declare the dependencies for your production and test code
-dependencies {
-	webjars('org.webjars.npm:react-bootstrap:0.31.3') {
-		exclude module: 'prop-types-extra' // no idea why this is missing, may actually need it, but at least we can continue this little experiment.
-	}
-	webjars 'org.webjars.npm:requirejs:2.3.5'
-	webjars 'org.webjars.npm:babel-standalone:6.26.0'
-	webjars 'org.webjars.npm:react-router-bootstrap:0.24.4'
-	webjars 'org.webjars.npm:react-router-dom:4.2.2'
-//	webjars 'org.webjars.npm:marked:0.3.6'
-	
-	compile 'org.apache.logging.log4j:log4j-api:2.+'
-	compile 'org.apache.logging.log4j:log4j-core:2.+'
-	compile 'io.vertx:vertx-web:3.5.0'
-	compile 'io.vertx:vertx-web-templ-freemarker:3.5.0'
-	compile 'com.orientechnologies:orientdb-jdbc:2.2.29'
-	compile 'com.orientechnologies:orientdb-server:2.2.29'
-
-    testCompile 'junit:junit:4.12'
-}
-
-task copySchema(type: Copy) {
-	into "$buildDir/catfood/dbscripts"
-	from "src/main/schema"
-	expand(project.properties)
-}
-
-task createDB(type: Exec) {
-	commandLine '/bin/bash', "$ORIENTDBHOME/bin/console.sh", "$buildDir/catfood/dbscripts/schema.sql"
-}
-
-task copyWebJars(type: Copy) {
-	into "$buildDir/catfood/webroot/libs"
-	from configurations.webjars
-}
-
-task copyJars(type: Copy) {
-	into "$buildDir/catfood/libs"
-	from configurations.compile
-}
-
-task copyWebContent(type: Copy) {
-	into "$buildDir/catfood/webroot/"
-	from "src/main/web"
-}
-
-task copyCatFoodJar(type: Copy) {
-	into "$buildDir/catfood/bin"
-	from "$buildDir/libs"
-}
-
-task copyCatFoodScript(type: Copy) {
-	into "$buildDir/catfood/bin"
-	from "src/main/shell"
-	expand(project.properties)
-}
-
-task copyJavascript(type: Copy) {
-	into "$buildDir/catfood/javascript"
-	from "src/main/javascript"
-}
-
-// assemble.dependsOn(copyWebJars)
-// assemble.dependsOn(copyWebContent)
-copyCatFoodJar.dependsOn(copyJavascript)
-copyCatFoodJar.dependsOn(copyJars)
-copyCatFoodJar.dependsOn(assemble)
-copyCatFoodJar.dependsOn(copyWebJars)
-copyCatFoodJar.dependsOn(copyWebContent)
-copyCatFoodJar.dependsOn(copyCatFoodScript)
-createDB.dependsOn(copySchema)
-copyCatFoodJar.dependsOn(createDB)
-
-*/

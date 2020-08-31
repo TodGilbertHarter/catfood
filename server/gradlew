@@ -6,6 +6,8 @@
 ##
 ##############################################################################
 
+JAVA_HOME=/home/tharter/projects/graal/graalvm-ce-java11-20.2.0
+
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
 PRG="$0"

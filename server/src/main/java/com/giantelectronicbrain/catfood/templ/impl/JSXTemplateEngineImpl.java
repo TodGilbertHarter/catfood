@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Map;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -41,7 +42,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
+import io.vertx.ext.web.templ.CachingTemplateEngine;
+//import io.vertx.ext.web.templ.impl.CachingTemplateEngine;
 
 /**
  * Provides a caching JSX service engine. JSX modules are loaded from disk, transpiled to 
@@ -107,6 +109,12 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 	public void render(RoutingContext context, String templateDirectory, String templateFileName,
 			Handler<AsyncResult<Buffer>> handler) {
 		render(context,templateDirectory+"/"+templateFileName,handler);
+	}
+	
+	@Override
+	public void render(Map<String, Object> context, String templateFileName, Handler<AsyncResult<Buffer>> handler) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
@@ -188,6 +196,7 @@ public class JSXTemplateEngineImpl extends CachingTemplateEngine<ProcessedJSX> i
 	      throw new IOException(e);
 	    }
 	  }
+
 
 
 }

@@ -17,11 +17,11 @@ import static live.connector.vertxui.client.fluent.Fluent.*;
  * @author tharter
  *
  */
-public class CatFood implements EntryPoint {
+public class Client implements EntryPoint {
 
 	private Element mainDiv;
 	
-	public CatFood() {
+	public Client() {
 		mainDiv = Fluent.document.getElementById("app-node");
 		
 		Fluent div = Div(null,"Hello World");

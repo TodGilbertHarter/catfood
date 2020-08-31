@@ -36,8 +36,8 @@ task copyServerScriptFiles(type: Copy) {
 }
 
 task copyServerJar(type: Copy) {
-	into "$buildDir/catfood/libs"
-	from "$serverBuildDir/libs/server-${version}-fat.jar"
+	into "$buildDir/catfood/lib"
+	from "$serverBuildDir/libs/server-${version}-all.jar"
 }
 
 task copyDatabase(type: Copy) {
@@ -74,8 +74,8 @@ task buildCatFood(dependsOn: [':server:build', ':database:buildCatFoodDB',
 
 copyWebLibs.dependsOn(':client:copyWebLibs')
 copyWebContent.dependsOn(':client:copyWebContent')
-copyClient.dependsOn(':client:FastOptJS')
-copyClient.dependsOn(':client:FullOptJS')
+//copyClient.dependsOn(':client:FastOptJS')
+//copyClient.dependsOn(':client:FullOptJS')
 copyClient.dependsOn(':client:build')
 copyServerJar.dependsOn(':server:build')
 copyServerScriptFiles.dependsOn(':server:build')

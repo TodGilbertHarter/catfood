@@ -21,11 +21,11 @@
  * scripts to update schema non-destructively.
  */
 
-group = 'com.giantelectronicbrain'
-version = '0.0.1-SNAPSHOT'
-
 apply plugin: 'base'
 apply plugin: 'eclipse'
+
+group = 'com.giantelectronicbrain'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     jcenter()

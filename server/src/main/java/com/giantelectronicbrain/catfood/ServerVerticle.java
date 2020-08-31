@@ -17,6 +17,7 @@
 
 package com.giantelectronicbrain.catfood;
 
+import com.giantelectronicbrain.catfood.client.Client;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
@@ -30,6 +31,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
+import live.connector.vertxui.server.VertxUI;
 
 /**
  * Verticle which acts as a CatFood HTTP server.
@@ -99,7 +101,8 @@ public class ServerVerticle extends AbstractVerticle {
 	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
 	
 				// handle all other content as static files
-				router.route("/*").handler(otherHandler);
+//				router.route("/*").handler(otherHandler);
+				router.get("/*").handler(VertxUI.with(Client.class, "/", false, false));
 			
 				server.requestHandler(router::accept).listen(port);
 			
