@@ -17,7 +17,7 @@
 
 package com.giantelectronicbrain.catfood;
 
-import com.giantelectronicbrain.catfood.client.Client;
+import com.giantelectronicbrain.catfood.Client;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
@@ -48,25 +48,28 @@ public class ServerVerticle extends AbstractVerticle {
 	private CatFoodDBService dBService; // = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
 	private String orientdbHome; // = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
 	private Integer port; // = (Integer) initializer.get(InitializerFactory.PORT);
-	private TemplateHandler templateHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
+//	private TemplateHandler templateHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
 	private StaticHandler otherHandler; // = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 	private StaticHandler libsHandler; // = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
 	private TemplateHandler jsxLibsHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 	private StaticHandler componentsHandler; // = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
+	private Boolean debugClient;
 	
 	/**
 	 * Instantiate the CatFood HTTP Server Verticle.
+	 * 
 	 * @throws InitializationException 
 	 */
 	public ServerVerticle() throws InitializationException {
 		dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
 		orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
 		port = (Integer) initializer.get(InitializerFactory.PORT);
-		templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
+//		templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
 		otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 		libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
 		jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 		componentsHandler = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
+		debugClient = (Boolean) initializer.get(InitializerFactory.CLIENT_DEBUG);
 	}
 
 	@Override
@@ -83,7 +86,7 @@ public class ServerVerticle extends AbstractVerticle {
 				router.route().handler(LoggerHandler.create());
 	
 				// JSX template handling
-				router.routeWithRegex("/components/.*\\.js").blockingHandler(templateHandler);
+//				router.routeWithRegex("/components/.*\\.js").blockingHandler(templateHandler);
 //				router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
 	
 				// handle static js components
@@ -102,7 +105,9 @@ public class ServerVerticle extends AbstractVerticle {
 	
 				// handle all other content as static files
 //				router.route("/*").handler(otherHandler);
-				router.get("/*").handler(VertxUI.with(Client.class, "/", false, false));
+				VertxUI.folderSource = "client/src/main/java";
+				VertxUI.setTargetFolder("webroot/content");
+				router.get("/*").handler(VertxUI.with(Client.class, "/", debugClient, true));
 			
 				server.requestHandler(router::accept).listen(port);
 			

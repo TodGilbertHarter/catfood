@@ -32,16 +32,33 @@ buildscript {
     }
 }
 
+plugins {
+	id "fr.brouillard.oss.gradle.jgitver" // version "0.10.0-rc03"
+	id "com.github.johnrengelman.shadow" version "6.0.0"
+	id 'maven-publish'
+}
+
 apply plugin: 'eclipse'
 apply plugin: 'java'
 
 group = 'com.giantelectronicbrain'
-version = '0.0.1-SNAPSHOT'
+//version = '0.0.1-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.0'
+String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.04-tgh'
+
+/*configurations {
+	shadowJars {
+		canBeConsumed = true
+		canBeResolved = false
+	}
+}
+	
+artifacts {
+	shadowJars(shadowJar)
+} */
 
 repositories {
 	mavenLocal()
@@ -49,13 +66,26 @@ repositories {
     jcenter()
 }
 
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
+}
+
 dependencies {
-	implementation 'live.connector:vertxui-core:1.0'
+	implementation 'live.connector:vertxui-core:1.05-tgh'
 }
 
 task copyWebContent(type: Copy) {
 	from "src/main/web/content"
 	into "$buildDir/content"
+}
+
+task copyClientSource(type: Copy) {
+	from "src/main/java"
+	into "$buildDir/client/src/main/java"
 }
 
 task copyWebLibs(type: Copy) {

@@ -21,12 +21,18 @@
  * of the sub-projects is then assembled into a final distributable binary
  * package which can be dropped onto any machine with a new enough JRE.
  */
+
+plugins {
+	id "fr.brouillard.oss.gradle.jgitver" version "0.10.0-rc03"
+}
+
 group = 'com.giantelectronicbrain'
-version = '0.0.1-SNAPSHOT'
+//version = '0.0.1-SNAPSHOT'
 def serverBuildDir = project(':server').buildDir
 def databaseBuildDir = project(':database').buildDir
 // def clientBuildDir = project(':client').buildDir
 ext.clientBuildDir = project(':client').buildDir
+
 
 apply plugin: 'base'
 
@@ -60,6 +66,11 @@ task copyWebContent(type: Copy) {
 	from "$clientBuildDir/content"
 }
 
+task copyClientSource(type: Copy) {
+	from "client/src/main/java"
+	into "$buildDir/catfood/client/src/main/java"
+}
+
 // REALLY need to sort out webjars...
 task copyWebLibs(type: Copy) {
 	into "$buildDir/catfood/webroot/libs"
@@ -68,8 +79,8 @@ task copyWebLibs(type: Copy) {
 
 task buildCatFood(dependsOn: [':server:build', ':database:buildCatFoodDB', 
 		':client:build', 'copyServerScriptFiles', 'copyServerJar', 'copyDatabase', 'copyClient',
-		'copyConfiguration', 'copyWebContent', 'copyWebLibs' ]) {
-	println "building all of CatFood!"
+		'copyClientSource','copyConfiguration', 'copyWebContent', 'copyWebLibs' ]) {
+//	println "building all of CatFood!"
 }
 
 copyWebLibs.dependsOn(':client:copyWebLibs')

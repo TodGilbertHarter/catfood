@@ -47,7 +47,7 @@ public class CatFood {
 		try {
 			Properties configuration = Configurator.createConfiguration(Arrays.asList(args));
 			InitializerFactory.setConfiguration(configuration);
-			System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.Log4j2LogDelegateFactory");
+			System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.SLF4JLogDelegateFactory");
 			Vertx vertx = Vertx.vertx();
 /*			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle",res -> {
 				if(res.failed())

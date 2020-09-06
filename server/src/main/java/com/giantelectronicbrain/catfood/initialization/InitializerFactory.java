@@ -51,6 +51,7 @@ public class InitializerFactory {
 	public static final String WEBROOT = "com.giantelectronicbrain.catfood.webroot";
 	public static final String PORT = "com.giantelectronicbrain.catfood.port";
 	public static final String SCRIPTBASE = "com.giantelectronicbrain.catfood.scriptbase";
+	public static final String CLIENT_DEBUG = "com.giantelectronicbrain.catfood.clientdebug";
 	
 	private static volatile IInitializer initializerInstance;
 	private static volatile Properties configuration;
@@ -125,14 +126,14 @@ public class InitializerFactory {
 		initializerInstance.set(CATFOOD_DB_SERVICE, new CatFoodDBService());
 		
 		initializerInstance.set(SCRIPTBASE, config.getProperty(SCRIPTBASE,"../javascript"));
-
+		initializerInstance.set(CLIENT_DEBUG, Boolean.parseBoolean(config.getProperty(CLIENT_DEBUG,"false")));
 		Integer port = Integer.parseUnsignedInt(config.getProperty(PORT,"8080"));
 		initializerInstance.set(PORT, port);
 		String webroot = config.getProperty(WEBROOT,"webroot");
 		initializerInstance.set(WEBROOT, webroot);		
 
-		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create().setExtension("js");
-		initializerInstance.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
+//		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create().setExtension("js");
+//		initializerInstance.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
 
 		initializerInstance.set(STATIC_HANDLER,StaticHandler.create().setWebRoot(webroot+"/content").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1).setCachingEnabled(false).setIndexPage("index.html"));
 		initializerInstance.set(LIBS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/libs").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));

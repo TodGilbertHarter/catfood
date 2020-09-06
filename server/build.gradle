@@ -34,11 +34,15 @@ buildscript {
 	}
 }
 
+plugins {
+  id "fr.brouillard.oss.gradle.jgitver" //version "0.10.0-rc03"
+}
+
 apply plugin: 'io.vertx.vertx-plugin'
 apply plugin: 'eclipse'
 
 group = 'com.giantelectronicbrain'
-version = '0.0.1-SNAPSHOT'
+//version = '0.0.1-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
@@ -48,22 +52,32 @@ repositories {
 	mavenLocal()
 }
 
+configurations.all {
+    // Check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
 	implementation 'org.apache.logging.log4j:log4j-api:2.+'
 	implementation 'org.apache.logging.log4j:log4j-core:2.+'
+	implementation 'org.slf4j:slf4j-api:1.7.30'
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.+'
 	implementation 'io.vertx:vertx-web'
 	implementation 'io.vertx:vertx-web-templ-freemarker'
-	implementation 'com.orientechnologies:orientdb-jdbc:2.2.29'
-	implementation 'com.orientechnologies:orientdb-server:2.2.29'
-	implementation 'live.connector:vertxui-core:1.0'
-	implementation project(':client')
+	implementation 'com.orientechnologies:orientdb-jdbc:3.1.2'
+	implementation 'com.orientechnologies:orientdb-server:3.1.2'
+	implementation project(':client') //path: ':client', configuration: 'shadowJars')
+	implementation 'live.connector:vertxui-core:1.05-tgh'
+//	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
+    
 }
 
 vertx {
 	vertxVersion = '3.9.2'
 	launcher = 'com.giantelectronicbrain.catfood.CatFood'
 	args = ["-c=${rootProject.buildDir}/catfood/conf/reloading.properties".toString(), "-write"]
+	watch = ["client/src/**/*","server/src/**/*","src/**/*"]
 //	jvmArgs = ['-Xdebug', '-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y']
 	workDirectory = "${rootProject.buildDir}/catfood"
 }

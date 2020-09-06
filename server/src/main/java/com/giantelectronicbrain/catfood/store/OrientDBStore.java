@@ -88,7 +88,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 	public String getJsonContent(ChunkId id) {
 		LOGGER.debug("Getting Content for id "+id);
 		
-		ODatabaseRecordThreadLocal.INSTANCE.set(db);
+		ODatabaseRecordThreadLocal.instance().set(db);
 		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("SELECT FROM Topic WHERE @RID = ?");
 		List<ODocument> result = db.command(query).execute(id.getChunkId());
 		
@@ -107,7 +107,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 		LOGGER.debug("Getting Content for id "+id);
 		
 		Chunk result = null;
-		ODatabaseRecordThreadLocal.INSTANCE.set(db);
+		ODatabaseRecordThreadLocal.instance().set(db);
 		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("SELECT FROM Topic WHERE @RID = ?");
 		List<ODocument> dbResults = db.command(query).execute(id);
 		if(dbResults.isEmpty()) {
@@ -130,7 +130,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 	public String getJsonTopic(String name) {
 		LOGGER.debug("Getting Topic for name "+name);
 		
-		ODatabaseRecordThreadLocal.INSTANCE.set(db);
+		ODatabaseRecordThreadLocal.instance().set(db);
 		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("SELECT FROM Topic WHERE name = ?");
 		List<ODocument> result = db.command(query).execute(name);
 		
