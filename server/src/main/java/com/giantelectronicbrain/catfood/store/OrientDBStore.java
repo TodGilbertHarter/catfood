@@ -19,11 +19,12 @@ package com.giantelectronicbrain.catfood.store;
 
 import java.util.List;
 
+import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
+import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
-import com.giantelectronicbrain.catfood.model.Chunk;
-import com.giantelectronicbrain.catfood.model.ChunkId;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -114,7 +115,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 			
 		} else {
 			ODocument dbResult = dbResults.get(0);
-			result = new Chunk(dbResult.field(""),new ChunkId(dbResult.getIdentity().toString()));			
+			result = new Chunk(dbResult.field("content"),new ChunkId(dbResult.getIdentity().toString()),dbResult.field("name"),Language.valueOf(dbResult.field("lang")));
 			LOGGER.debug("Got list of results of size "+dbResults.size());
 			LOGGER.debug("Result 0 is "+dbResult.toString());
 		}
@@ -127,7 +128,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 	 * @see com.giantelectronicbrain.catfood.store.ICatFoodDBStore#getJsonTopic(java.lang.String)
 	 */
 	@Override
-	public String getJsonTopic(String name) {
+	public String getJsonChunk(String name) {
 		LOGGER.debug("Getting Topic for name "+name);
 		
 		ODatabaseRecordThreadLocal.instance().set(db);

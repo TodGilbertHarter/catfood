@@ -1,17 +1,14 @@
 /**
  * 
  */
-package com.giantelectronicbrain.catfood;
+package com.giantelectronicbrain.catfood.client;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 
-import com.giantelectronicbrain.catfood.client.view.ChunkView;
-import com.giantelectronicbrain.catfood.model.Chunk;
-import com.giantelectronicbrain.catfood.model.ChunkId;
+import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.dom.Element;
-import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 
@@ -22,10 +19,12 @@ import live.connector.vertxui.client.fluent.Fluent;
  *
  */
 public class Client implements EntryPoint {
+	
+	public static final IPlatform PLATFORM = new GWTPlatform();
 
 	private Element mainDiv;
 	private Fluent root;
-	private ChunkView chunkView;
+	private ChunkController chunkController;
 
 	public Client() {
 		mainDiv = Fluent.document.getElementById("app-node");
@@ -40,12 +39,11 @@ public class Client implements EntryPoint {
 		
 		root.p().txt("Some text").css(Css.color, "green");
 		
-		Chunk chunk = new Chunk("chunk contents",new ChunkId("cid"));
-		chunkView = new ChunkView(chunk,root);
+		chunkController = new ChunkController(root,"Home");
 	}
 
 	@Override
 	public void onModuleLoad() {
-		chunkView.getVO().sync();
+//		chunkController.draw();
 	}
 }

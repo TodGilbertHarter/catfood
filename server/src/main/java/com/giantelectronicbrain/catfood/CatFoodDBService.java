@@ -17,10 +17,10 @@
 
 package com.giantelectronicbrain.catfood;
 
+import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
-import com.giantelectronicbrain.catfood.model.ChunkId;
 import com.giantelectronicbrain.catfood.store.ICatFoodDBStore;
 import com.giantelectronicbrain.catfood.store.OrientDBStore;
 
@@ -85,7 +85,7 @@ public class CatFoodDBService {
 			routingContext.response().setStatusCode(400);
 				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no name was supplied</div>");
 		} else {
-			String result = catFoodDbStore.getJsonTopic(name);
+			String result = catFoodDbStore.getJsonChunk(name);
 			if(result == null) {
 				routingContext.response().setStatusCode(404);
 				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no topic was found with the given name</div>");

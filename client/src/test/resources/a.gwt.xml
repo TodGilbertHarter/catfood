@@ -1,0 +1,9 @@
+<module rename-to='a'>
+	<inherits name='live.connector.vertxui.Vertxui'/>
+	<entry-point class='com.giantelectronicbrain.catfood.client.Client'/>
+	<source path='com/giantelectronicbrain/catfood/client'/>
+	<set-property name='compiler.stackMode' value='emulated' />
+	<set-configuration-property name='compiler.emulatedStack.recordLineNumbers' value='true' />
+	<set-configuration-property name='compiler.emulatedStack.recordFileNames' value='true'/>
+	<extend-configuration-property name="gwtjackson.configuration.extension" value="com.giantelectronicbrain.catfood.client.JsonConfiguration"/>
+</module>

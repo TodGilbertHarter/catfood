@@ -76,6 +76,10 @@ publishing {
 
 dependencies {
 	implementation 'live.connector:vertxui-core:1.05-tgh'
+	compileOnly 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.12'
+	testCompileOnly 'org.projectlombok:lombok:1.18.12'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 task copyWebContent(type: Copy) {

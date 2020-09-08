@@ -17,8 +17,8 @@
 
 package com.giantelectronicbrain.catfood.store;
 
-import com.giantelectronicbrain.catfood.model.Chunk;
-import com.giantelectronicbrain.catfood.model.ChunkId;
+import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 
 /**
  * Interface for CatFood Database modules to implement.
@@ -50,10 +50,10 @@ public interface ICatFoodDBStore {
 	public abstract String getJsonContent(ChunkId id);
 
 	/**
-	 * Get a CatFood Topic by name and return it as JSON.
+	 * Get a CatFood Chunk by topic and return it as JSON.
 	 * 
 	 * @param name topic name.
 	 * @return String the topic.
 	 */
-	public abstract String getJsonTopic(String name);
+	public abstract String getJsonChunk(String name);
 }

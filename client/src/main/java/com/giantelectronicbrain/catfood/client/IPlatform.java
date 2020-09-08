@@ -1,5 +1,5 @@
 /**
- * This software is Copyright (C) 2017 Tod G. Harter. All rights reserved.
+ * This software is Copyright (C) 2020 Tod G. Harter. All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,34 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-package com.giantelectronicbrain.catfood.model;
+package com.giantelectronicbrain.catfood.client;
 
 /**
- * Representation of the id of a chunk.
+ * Hides away all things which may depend on where we are executing, or under which
+ * transpiling architecture (IE GWT vs J2CL or TeaVM, etc. or Client side vs Server side/JUnit). 
+ * This is intended to help keep the rest of the code decoupled from these factors.
  * 
  * @author tharter
  *
  */
-public class ChunkId {
+public interface IPlatform {
 
-	private final String chunkId;
-	
 	/**
-	 * Instantiate a chunk id.
-	 */
-	public ChunkId(String chunkId) {
-		this.chunkId = chunkId;
-	}
-	
-	/**
-	 * Get the String representation of a ChunkId
+	 * Are we executing in a browser, or in some Java non-browser environment, such as JUnit.
 	 * 
-	 * @return chunkId string
+	 * @return boolean true if we are in the browser running in Javascript.
 	 */
-	public String getChunkId() {
-		return chunkId;
-	}
-
-	
+	public abstract boolean isClient();
 }
