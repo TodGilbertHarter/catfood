@@ -56,7 +56,7 @@ public class ChunkDeserializer extends JsonDeserializer<Chunk> {
 
 	private void addValue(Chunk chunk, String name, String value) {
 		if("@rid".equals(name)) {
-			chunk.setChunkId(new ChunkId(value));
+			chunk.setChunkId(new ChunkId(value.substring(1)));
 		} else if("name".equals(name)) {
 			chunk.setName(value);
 		} else if("content".equals(name)) {

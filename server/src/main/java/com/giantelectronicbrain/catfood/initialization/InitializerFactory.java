@@ -117,7 +117,8 @@ public class InitializerFactory {
 		String orientdbHome = new File(config.getProperty(ORIENTDB_HOME,"../orientdb")).getAbsolutePath();
 		initializerInstance.set(ORIENTDB_HOME,orientdbHome);
 		String orientDatabase = config.getProperty(ORIENTDB_DATABASE,"CatFood");
-		initializerInstance.set(ORIENTDB_URL, "plocal:/"+orientdbHome+"/databases/"+orientDatabase);
+		initializerInstance.set(ORIENTDB_DATABASE,orientDatabase);
+		initializerInstance.set(ORIENTDB_URL, "plocal:/"+orientdbHome+"/databases/");
 		String orientdbUser = config.getProperty(ORIENTDB_USER,"admin");
 		initializerInstance.set(ORIENTDB_USER, orientdbUser);
 		String orientdbPassword = config.getProperty(ORIENTDB_PASSWORD,"admin");

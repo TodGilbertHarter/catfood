@@ -42,6 +42,7 @@ public class InitializerFactoryTest {
 		try {
 			config = InitializerFactory.getInitializer();
 		} catch (InitializationException e) {
+			e.printStackTrace();
 			fail("initialization failed");
 		}
 		assertNotNull("Config should be constructed",config);

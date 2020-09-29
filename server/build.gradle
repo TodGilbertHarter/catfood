@@ -75,7 +75,7 @@ build.dependsOn(copyDependencies)
 } */
 
 dependencies {
-	implementation 'live.connector:vertxui-core:1.05-tgh'
+	implementation 'live.connector:vertxui-core:2.0.8-tgh'
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
@@ -89,7 +89,6 @@ dependencies {
 	implementation 'com.orientechnologies:orientdb-jdbc:3.1.2'
 	implementation 'com.orientechnologies:orientdb-server:3.1.2'
 	implementation project(':client') //path: ':client', configuration: 'shadowJars')
-	implementation 'live.connector:vertxui-core:1.05-tgh'
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
     

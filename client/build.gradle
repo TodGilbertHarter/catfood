@@ -49,14 +49,24 @@ targetCompatibility = JavaVersion.VERSION_11
 
 String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.04-tgh'
 
-/*configurations {
-	shadowJars {
+test {
+	testLogging.showStandardStreams = true
+	systemProperty 'gwt.args', "-logdir build -deploy $buildDir/gwt/deploy -extra $buildDir/gwt/extra -workDir $buildDir/gwt/ -war $buildDir/gwt/war"
+	onOutput { descriptor, event ->
+		logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+	}
+	
+}
+
+configurations {
+//	sources
+/*	shadowJars {
 		canBeConsumed = true
 		canBeResolved = false
-	}
+	} */
 }
-	
-artifacts {
+
+/*artifacts {
 	shadowJars(shadowJar)
 } */
 
@@ -75,12 +85,25 @@ publishing {
 }
 
 dependencies {
-	implementation 'live.connector:vertxui-core:1.05-tgh'
+	implementation 'live.connector:vertxui-core:2.0.8-tgh'
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+	testRuntime files('src/test/java')
+	testRuntime files('src/main/java')
+	implementation 'org.webjars.bowergithub.markdown-it:markdown-it:10.0.0'
 }
+
+/*task copySourceLibs(type: Copy) {
+
+	def zipPath = configurations.sources.find { it =~ /commonmark/ }
+	println("THE ZIP PATH IS: "+zipPath)
+	def zipFile = file(zipPath)
+	
+	from zipTree(zipFile)
+	into "$buildDir/sourcelibs"
+} */
 
 task copyWebContent(type: Copy) {
 	from "src/main/web/content"

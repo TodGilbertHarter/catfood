@@ -67,6 +67,11 @@ task copyClientSource(type: Copy) {
 	into "$buildDir/catfood/client/src/main/java"
 }
 
+task copyClientSourceLibs(type: Copy) {
+	from "$clientBuildDir/sourcelibs/org/commonmark"
+	into "$buildDir/catfood/client/org/commonmark"
+}
+
 // REALLY need to sort out webjars...
 task copyWebLibs(type: Copy) {
 	into "$buildDir/catfood/webroot/libs"
@@ -98,4 +103,4 @@ copyServerJar.dependsOn(':server:build')
 copyServerScriptFiles.dependsOn(':server:build')
 copyDatabase.dependsOn(':database:buildCatFoodDB')
 copyLombok.dependsOn(':server:build')
-
+//copyClientSourceLibs.dependsOn(':client:copySourceLibs')

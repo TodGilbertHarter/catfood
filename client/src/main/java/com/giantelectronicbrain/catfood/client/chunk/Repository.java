@@ -34,8 +34,10 @@ import com.google.gwt.xhr.client.XMLHttpRequest;
  */
 public class Repository {
 
-	private final String GET_BYID_CHUNK_PORT = "http://localhost:8080/data/chunk/byid";
-	private final String GET_BYNAME_CHUNK_PORT = "http://localhost:8080/data/chunk/byname";
+	private final String GET_BYID_CHUNK_PORT = "/data/chunk/byid";
+	private final String GET_BYNAME_CHUNK_PORT = "/data/chunk/byname";
+	private final String POST_CHUNK_PORT = "/data/chunk";
+	private final String PUT_CHUNK_PORT = "/data/chunk";
 
 	/**
 	 * Get a chunk, given a chunk id.
@@ -56,7 +58,21 @@ public class Repository {
 	 */
 	public void findChunkByName(String name, BiConsumer<Integer, Chunk> handler) {
 		String url = GET_BYNAME_CHUNK_PORT + "/" + name;
-		getObject(CHUNK_MAP,url.toString(),handler);
+		getObject(CHUNK_MAP,url,handler);
+	}
+	
+	public void saveChunk(Chunk chunk, BiConsumer<Integer,ChunkId> handler) {
+		String url = POST_CHUNK_PORT;
+		postObject(chunk,CHUNK_MAP,CHUNKID_MAP,url,handler);
+	}
+	
+	public void deleteChunk(ChunkId id) {
+		
+	}
+	
+	public void updateChunk(Chunk chunk, BiConsumer<Integer,ChunkId> handler) {
+		String url = PUT_CHUNK_PORT;
+		putObject(chunk,CHUNK_MAP,CHUNKID_MAP,url,handler);
 	}
 	
 	/**
@@ -83,8 +99,41 @@ public class Repository {
 		xhr.open("GET", query);
 		xhr.send();
 	}
+	
+	private <K,O> void postObject(O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
+		_sendObject("POST",object,inMapper,outMapper,query,handler);
+	}
+	
+	private <K,O> void putObject(O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
+		_sendObject("PUT",object,inMapper,null,query,handler);
+	}
+	
+	private <K,O> void _sendObject(String method, O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
+		String requestData = in(object,inMapper);
+		XMLHttpRequest xhr = XMLHttpRequest.create();
+		xhr.setOnReadyStateChange(a -> {
+			if(handler == null || xhr.getReadyState() != 4) {
+				return;
+			}
+			K result = null;
+			if(xhr.getStatus() == 200) {
+				result = out(xhr.getResponseText(),outMapper);
+			}
+			handler.accept(xhr.getStatus(), result);
+		});
 		
+		xhr.open(method, query);
+		xhr.send(requestData);
+	}
 
+	private static <O> String in(O object, ObjectMapper<O> inMapper) {
+		if(object == null || inMapper == null) {
+			return null;
+		} else {
+			return inMapper.write(object);
+		}
+	}
+	
 	private static <O> O out(String message, ObjectMapper<O> outMapper) {
 		if (message == null || outMapper == null) {
 			return null;
@@ -103,18 +152,6 @@ public class Repository {
 	public static final ObjectMapper<ChunkId> CHUNKID_MAP = Client.PLATFORM.isClient() ? GWT.create(ChunkIdMap.class) : null;
 	
 	public interface ChunkIdMap extends ObjectMapper<ChunkId> {
-		
-	}
-	
-	public void saveChunk(Chunk chunk) {
-		
-	}
-	
-	public void deleteChunk(ChunkId id) {
-		
-	}
-	
-	public void updateChunk(Chunk chunk) {
 		
 	}
 	

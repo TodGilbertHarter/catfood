@@ -25,6 +25,10 @@ import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;
 
+import live.connector.vertxui.client.fluent.Att;
+import live.connector.vertxui.client.fluent.Css;
+import live.connector.vertxui.client.fluent.Fluent;
+
 /**
  * Test Chunk serialization and deserialization.
  * 
@@ -37,6 +41,23 @@ public class ChunkTest extends GWTTestCase {
 		TestChunkMapper INSTANCE = GWT.create(TestChunkMapper.class);
 	}
 
+	public interface TestChunkIdMapper extends ObjectMapper<ChunkId> {
+		TestChunkIdMapper INSTANCE = GWT.create(TestChunkIdMapper.class);
+	}
+	
+	@Test
+	public void testCssAdditionAndRemoval() {
+		Fluent div = Fluent.body.div().css(Css.display, "none", Css.color, "red");
+		String style = div.att(Att.style);
+		assertEquals("display: none",style);
+		div.css(Css.display,"block");
+		style = div.att(Att.style);
+		assertEquals("display: block",style);
+		div.css(Css.display,"none");
+		style = div.att(Att.style);
+		assertEquals("display: none",style);
+	}
+	
 	@Test
 	public void testSerialization() {
 		ChunkId chunkId = new ChunkId("idvalue");
@@ -51,15 +72,33 @@ public class ChunkTest extends GWTTestCase {
 	public void testDeserialization() {
 		ChunkId chunkIdExpected = new ChunkId("idvalue");
 		Chunk chunkExpected = new Chunk("the content", chunkIdExpected, "topic name", Language.MARKDOWN);
-		String json = "{\"content\":\"the content\",\"name\":\"topic name\",\"lang\":\"MARKDOWN\",\"@rid\":\"idvalue\"}";
+		String json = "{\"content\":\"the content\",\"name\":\"topic name\",\"lang\":\"MARKDOWN\",\"@rid\":\"#idvalue\"}";
 		Chunk result = TestChunkMapper.INSTANCE.read(json);
 		assertNotNull(result);
 		assertEquals(chunkExpected,result);
+	}
+	
+	@Test
+	public void testChunkIdDeserialization() {
+		ChunkId chunkIdExpected = new ChunkId("idvalue");
+		String json = "{\"chunkId\":\"idvalue\"}";
+		ChunkId result = TestChunkIdMapper.INSTANCE.read(json);
+		assertNotNull(result);
+		assertEquals(chunkIdExpected,result);
+	}
+	
+	@Test
+	public void testChunkIdSerialization() {
+		ChunkId chunkId = new ChunkId("idvalue");
+		String json = TestChunkIdMapper.INSTANCE.write(chunkId);
+		assertNotNull(json);
+		String expected = "{\"chunkId\":\"idvalue\"}";
+		assertEquals(expected,json);
 	}
 	
 //	@Override
 	public String getModuleName() {
 		return "a";
 	}
-
+	
 }

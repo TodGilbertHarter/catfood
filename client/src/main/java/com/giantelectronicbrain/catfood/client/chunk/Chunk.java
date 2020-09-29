@@ -65,6 +65,16 @@ public class Chunk {
 	}
 
 	/**
+	 * Get the id of the chunk as an html legal id attribute value. If no id exists
+	 * for this chunk, then return "null_chunk_id". 
+	 * 
+	 * @return legal chunk id string value
+	 */
+	public String getChunkIdAsHtml() {
+		return getChunkId() == null ? "null_chunk_id" : getChunkId().getChunkIdAsHtml(); 
+	}
+	
+	/**
 	 * @return the topic
 	 */
 	public String getName() {
@@ -148,6 +158,11 @@ public class Chunk {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Chunk [chunkId=" + chunkId + ", content=" + content + ", name=" + name + ", lang=" + lang + "]";
 	}
 	
 	

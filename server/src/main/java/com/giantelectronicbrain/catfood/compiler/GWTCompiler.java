@@ -72,6 +72,7 @@ public class GWTCompiler {
 	static {
 		librariesGwt = new ArrayList<>();
 		librariesGwt.add("live.connector.vertxui.Vertxui");
+//		librariesGwt.add("commonmark");
 	}
 
 	private static boolean compiling = false;
@@ -439,7 +440,8 @@ public class GWTCompiler {
 		html.append("</head><body><script>");
 		html.append("document.addEventListener('DOMContentLoaded', function(event) { ");
 		html.append("var x = document.createElement('script'); ");
-		html.append("x.setAttribute('src','a/a.nocache.js?time=' + Math.random() ); ");
+//		html.append("x.setAttribute('src','a/a.nocache.js?time=' + Math.random() ); ");
+		html.append("x.setAttribute('src','/a/a.nocache.js?time=' + Math.random() ); ");
 		html.append("document.body.appendChild(x); ");
 		html.append("}); </script><div id='app-node'/></body></html>");
 

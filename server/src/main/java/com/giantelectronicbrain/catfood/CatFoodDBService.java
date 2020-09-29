@@ -17,13 +17,17 @@
 
 package com.giantelectronicbrain.catfood;
 
+import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 import com.giantelectronicbrain.catfood.store.ICatFoodDBStore;
 import com.giantelectronicbrain.catfood.store.OrientDBStore;
+import com.giantelectronicbrain.catfood.store.StorageException;
 
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -94,10 +98,36 @@ public class CatFoodDBService {
 		}
 	}
 	
+	public void saveTopicByName(final RoutingContext routingContext) {
+		routingContext.request().bodyHandler(bodyHandler -> {
+			final JsonObject body = bodyHandler.toJsonObject();
+			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")));
+			ChunkId result = catFoodDbStore.postContent(chunk);
+			String resultJson = new JsonObject().put("@RID", result.getChunkId()).encode();
+			sendResult(routingContext,resultJson);
+		});
+	}
+	
+	public void updateTopicById(final RoutingContext routingContext) {
+		routingContext.request().bodyHandler(bodyHandler -> {
+			final JsonObject body = bodyHandler.toJsonObject();
+			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")));
+			ChunkId chunkId = new ChunkId(body.getString("@rid"));
+			chunk.setChunkId(chunkId);
+			try {
+				catFoodDbStore.putContent(chunk);
+			} catch (StorageException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			sendResult(routingContext,null);
+		});
+	}
+
 	private void sendResult(final RoutingContext routingContext, final String json) {
 		routingContext.response()
 			.putHeader("content-type","application/json; charset=utf-8")
-			.end(json);
+			.end(json == null ? "" : json);
 		
 	}
 }

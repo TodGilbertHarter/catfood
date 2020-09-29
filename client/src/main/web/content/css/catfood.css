@@ -1,0 +1,32 @@
+:root {
+	--main-bg-color: white;
+}
+
+@media screen and (min-device-width: 481px) {
+	.cf-pfont { font-size: 1vw; }
+	.cf-h1font { font-size: 3vw; }
+}
+
+@media screen and (max-device-width: 480px) {
+	.cf-pfont { font-size: 36px; }
+	.cf-h1font { font-size: 56px; }
+}
+
+.menu-view { 
+	background-color: var(--main-bg-color);
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+.menu {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 10%;
+	display: none;
+}
+
+.menu > ul > li > a {
+	display: block;
+}

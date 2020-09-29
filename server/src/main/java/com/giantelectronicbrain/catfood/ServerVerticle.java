@@ -25,10 +25,12 @@ import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
@@ -101,15 +103,26 @@ public class ServerVerticle extends AbstractVerticle {
 				// handle dynamic data queries
 				router.get("/data/chunk/byid/:id").blockingHandler(dBService::getTopicByID);
 				router.get("/data/chunk/byname/:name").blockingHandler(dBService::getTopicByName);
+				router.post("/data/chunk").blockingHandler(dBService::saveTopicByName);
+				router.put("/data/chunk").blockingHandler(dBService::updateTopicById);
 	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
 	
 				// handle all other content as static files
 //				router.route("/*").handler(otherHandler);
+				
+				// handle webjars, these are located in the classpath
+				StaticHandler webjarStaticHandler = StaticHandler.create("META-INF/resources/webjars");
+				router.route("/webjars/*").handler(webjarStaticHandler);
+
 				GWTCompiler.folderSource = "client/src/main/java";
 				GWTCompiler.setTargetFolder("webroot/content");
-				router.get("/*").handler(GWTCompiler.with(Client.class, "/", debugClient, true));
+				Handler<RoutingContext> gwtHandler = GWTCompiler.with(Client.class, "/", debugClient, true);
+				router.get("/*").handler(gwtHandler);
+				// in case a client loads one of the internal routes, then give them the main page
+				router.get("/edit/*").handler(context -> context.reroute("/")); 
+				router.get("/view/*").handler(context -> context.reroute("/"));
 			
-				server.requestHandler(router::accept).listen(port);
+				server.requestHandler(router::accept).listen(port, "0.0.0.0");
 			
 				future.complete();
 			} catch (Exception e) {

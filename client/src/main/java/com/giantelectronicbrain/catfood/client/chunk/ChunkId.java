@@ -18,6 +18,8 @@
 package com.giantelectronicbrain.catfood.client.chunk;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Representation of the id of a chunk.
@@ -25,14 +27,23 @@ import com.fasterxml.jackson.annotation.JsonGetter;
  * @author tharter
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChunkId {
 
-	private final String chunkId;
+	private String chunkId;
+	
+	public ChunkId() {
+		
+	}
 	
 	/**
 	 * Instantiate a chunk id.
 	 */
 	public ChunkId(String chunkId) {
+		this.chunkId = chunkId;
+	}
+	
+	public void setChunkId(String chunkId) {
 		this.chunkId = chunkId;
 	}
 	
@@ -46,6 +57,11 @@ public class ChunkId {
 		return chunkId;
 	}
 
+	@JsonIgnore
+	public String getChunkIdAsHtml() {
+		return this.getChunkId().replace(':', '_');
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -69,6 +85,11 @@ public class ChunkId {
 		} else if (!chunkId.equals(other.chunkId))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ChunkId [chunkId=" + chunkId + "]";
 	}
 
 	

@@ -33,6 +33,16 @@ public interface ICatFoodDBStore {
 	public abstract void stop();
 	
 	/**
+	 * Save a chunk with a new id. If the chunk has an existing id, it
+	 * will be ignored, but no changes will be made to the id in the
+	 * input chunk.
+	 * 
+	 * @param chunk the chunk to save.
+	 * @return id allocated to the chunk
+	 */
+	public abstract ChunkId postContent(Chunk chunk);
+	
+	/**
 	 * Get a chunk of CatFood content with the given id.
 	 * 
 	 * @param id the identifier for this chunk.
@@ -56,4 +66,10 @@ public interface ICatFoodDBStore {
 	 * @return String the topic.
 	 */
 	public abstract String getJsonChunk(String name);
+
+	/**
+	 * @param chunk
+	 * @throws StorageException
+	 */
+	public abstract void putContent(Chunk chunk) throws StorageException;
 }
