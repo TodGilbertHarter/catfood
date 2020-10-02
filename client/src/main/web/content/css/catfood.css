@@ -43,6 +43,13 @@
 	width: 1600px
 }
 
+.menu-bar {
+	position: relative;
+	opacity: 0.0;
+	margin: 0;
+	padding: 0;
+}
+
 .menu-view { 
 	background-color: var(--main-bg-color);
 	position: relative;

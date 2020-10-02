@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
+package com.giantelectronicbrain.catfood.client.menu;
 
 import com.giantelectronicbrain.catfood.client.fluent.Css;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
@@ -27,16 +27,17 @@ public class MenuController {
 	private Fluent root;
 	private Fluent menu;
 	private boolean active;
-	
-	public MenuController(Fluent root, boolean active) {
+		
+	public MenuController(Fluent root, boolean active, String imageStyling) {
 		this.active = active;
 		this.root = root;
-		this.menu = MenuViewFactory.createMenuView(root,active,this::handleMainButtonClick);
+		imageStyling = imageStyling == null ? MenuViewFactory.DEFAULT_IMAGE_STYLING : imageStyling;
+		this.menu = MenuViewFactory.createMenuView(root,active,imageStyling,this::handleMainButtonClick);
 		activate(active);
 	}
 	
-	public MenuController(Fluent root) {
-		this(root,false);
+	public MenuController(Fluent root, String imageStyling) {
+		this(root,false, imageStyling);
 	}
 	
 	private void activate(boolean activate) {

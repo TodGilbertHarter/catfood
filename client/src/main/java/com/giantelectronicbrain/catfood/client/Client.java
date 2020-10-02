@@ -13,6 +13,8 @@ import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.menu.MenuController;
+import com.giantelectronicbrain.catfood.client.menu.MenuViewFactory;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.regexp.shared.RegExp;
 
@@ -127,7 +129,8 @@ public class Client implements IClient {
 		}
 		
 		createRouter();
-		MenuController mc = new MenuController(menu,false);
+		MenuController mc = new MenuController(menu,false,MenuViewFactory.DEFAULT_IMAGE_STYLING);
+		
 		router.kick();
 	}
 }
