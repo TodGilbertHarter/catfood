@@ -14,33 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
-import org.junit.Test;
-
 /**
  * @author tharter
  *
  */
-public class ClientTest {
-
-	/**
-	 * Test method for {@link com.giantelectronicbrain.catfood.client.Client#getScripts()}.
-	 */
-	@Test
-	public void testGetScripts() {
-		Client client = new Client();
-		List<String> scripts = client.getScripts();
-		assertNotNull(scripts);
-		assertTrue(1<=scripts.size());
-		String script = scripts.get(0);
-		assertNotNull(script);
-		assertTrue(!script.isEmpty());
-	}
-
-}
+package com.giantelectronicbrain.catfood.client.test;

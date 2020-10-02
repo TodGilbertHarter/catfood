@@ -18,9 +18,8 @@ package com.giantelectronicbrain.catfood.client.chunk;
 
 import com.giantelectronicbrain.catfood.client.Router;
 import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
-
-import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.ViewOn;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
 
 /**
  * The Controller for Chunks.

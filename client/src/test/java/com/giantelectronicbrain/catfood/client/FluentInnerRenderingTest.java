@@ -1,18 +1,19 @@
 package com.giantelectronicbrain.catfood.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.Li;
-import static live.connector.vertxui.client.fluent.Fluent.Ul;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Li;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Ul;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.giantelectronicbrain.catfood.client.fluent.Att;
+import com.giantelectronicbrain.catfood.client.fluent.Css;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import elemental2.dom.Element;
 import elemental2.dom.NodeList;
-import live.connector.vertxui.client.fluent.Att;
-import live.connector.vertxui.client.fluent.Css;
-import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.ViewOn;
 
 public class FluentInnerRenderingTest extends GWTTestCase {
 
@@ -20,16 +21,60 @@ public class FluentInnerRenderingTest extends GWTTestCase {
 	@Test
 	public void testCssAdditionAndRemoval() {
 		Fluent div = Fluent.body.div().css(Css.display, "none", Css.color, "red");
-		String style = div.att(Att.style);
-		assertEquals("display: none",style);
+		String displayStyle = div.css(Css.display);
+		String colorStyle = div.css(Css.color);
+		assertEquals("none",displayStyle);
+		assertEquals("red",colorStyle);
 		div.css(Css.display,"block");
-		style = div.att(Att.style);
-		assertEquals("display: block",style);
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals("block",displayStyle);
+		assertEquals("red",colorStyle);
 		div.css(Css.display,"none");
-		style = div.att(Att.style);
-		assertEquals("display: none",style);
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals("none",displayStyle);
+		assertEquals("red",colorStyle);
 	}
 	
+	@Test
+	public void testCssDelete() {
+		Fluent div = Fluent.body.div().css(Css.display, "none", Css.color, "red");
+		String displayStyle = div.css(Css.display);
+		String colorStyle = div.css(Css.color);
+		assertEquals("none",displayStyle);
+		assertEquals("red",colorStyle);
+		div.css(Css.display,null);
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals(null,displayStyle);
+		assertEquals("red",colorStyle);
+		div.css(Css.display,"none");
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals("none",displayStyle);
+		assertEquals("red",colorStyle);
+	}
+	
+	@Test
+	public void testHide() {
+		Fluent div = Fluent.body.div().css(Css.display, "block", Css.color, "red");
+		String displayStyle = div.css(Css.display);
+		String colorStyle = div.css(Css.color);
+		assertEquals("block",displayStyle);
+		assertEquals("red",colorStyle);
+		div.hide(true);
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals("none",displayStyle);
+		assertEquals("red",colorStyle);
+		div.hide(false);
+		displayStyle = div.css(Css.display);
+		colorStyle = div.css(Css.color);
+		assertEquals(null,displayStyle);
+		assertEquals("red",colorStyle);
+	}
+
 	@Test
 	public void testMiddleChildRemoval() {
 		ViewOn<Integer> children = Fluent.body.add(0, i -> {

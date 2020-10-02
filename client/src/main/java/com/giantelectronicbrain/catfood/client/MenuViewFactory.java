@@ -16,11 +16,11 @@
 */
 package com.giantelectronicbrain.catfood.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.Div;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Div;
 
 import java.util.function.Supplier;
 
-import live.connector.vertxui.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 
 /**
  * Construct the CatFood action menu.
@@ -30,13 +30,13 @@ import live.connector.vertxui.client.fluent.Fluent;
  */
 public class MenuViewFactory {
 
-	public static Fluent createMenuView(boolean active, Supplier<Void> mainClickHandler) {
-		Fluent menu = Div("menu-view fas fa-cat fa-4x").click((fluent,event) -> {
+	public static Fluent createMenuView(Fluent parent, boolean active, Supplier<Void> mainClickHandler) {
+		Fluent menu = parent.div("menu-view fas fa-cat fa-2x w3-round-large w3-card-4").click((fluent,event) -> {
 			mainClickHandler.get();
 		});
-		Fluent ul = menu.ul("main-menu menu");
-				ul.li();
-				ul.li();
+		Fluent ul = menu.ul("menu");
+				ul.li("").a("w3-button w3-round-large cf-intfont", "something", "/something", null);
+				ul.li("").a("w3-button w3-round-large cf-intfont", "something", "/something", null);
 				
 		return menu;
 	}

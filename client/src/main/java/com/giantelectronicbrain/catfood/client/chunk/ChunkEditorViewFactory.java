@@ -16,15 +16,15 @@
 */
 package com.giantelectronicbrain.catfood.client.chunk;
 
-import static live.connector.vertxui.client.fluent.Fluent.Div;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Div;
 
 import java.util.function.Consumer;
 
+import com.giantelectronicbrain.catfood.client.fluent.Att;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
+
 import elemental2.dom.HTMLTextAreaElement;
-//import elemental.events.UIEvent;
-import live.connector.vertxui.client.fluent.Att;
-import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.ViewOn;
 
 /**
  * @author tharter

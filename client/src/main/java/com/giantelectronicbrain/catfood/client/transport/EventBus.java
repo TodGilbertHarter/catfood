@@ -3,12 +3,12 @@ package com.giantelectronicbrain.catfood.client.transport;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.google.gwt.core.client.JavaScriptObject;
 
-import elemental2.dom.EventListener;
 //import elemental.events.EventListener;
 import elemental.json.JsonObject;
-import live.connector.vertxui.client.fluent.Fluent;
+import elemental2.dom.EventListener;
 
 /**
  * A Vert.X sockJs EventBus wrapper for

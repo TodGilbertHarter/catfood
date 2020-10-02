@@ -2,9 +2,10 @@ package com.giantelectronicbrain.catfood.client.transport;
 
 import java.util.function.Consumer;
 
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+
 //import elemental.js.html.JsWebSocket;
 import elemental2.dom.WebSocket;
-import live.connector.vertxui.client.fluent.Fluent;
 
 /**
  * A wrapper around websocket with lots of shockwave-less fallback methods -

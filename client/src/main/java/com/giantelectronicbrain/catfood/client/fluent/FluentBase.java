@@ -11,11 +11,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.giantelectronicbrain.catfood.client.test.ConsoleTester;
 import com.google.gwt.core.client.GWT;
 
 import elemental2.dom.Console;
-
-//import com.google.gwt.core.client.GWT;
 
 import elemental2.dom.Document;
 import elemental2.dom.Element;
@@ -29,7 +28,6 @@ import elemental2.dom.MouseEvent;
 import elemental2.dom.Node;
 import elemental2.dom.UIEvent;
 import elemental2.dom.Window;
-import live.connector.vertxui.client.test.ConsoleTester;
 
 public class FluentBase implements Viewable {
 
@@ -613,31 +611,28 @@ public class FluentBase implements Viewable {
 	 * @return this
 	 */
 	public Fluent css(Css name, String value) {
+console.log("GOT INTO CSS SETTING LOGIC: ",name,value);
 		if (styles == null) {
 			styles = new TreeMap<>();
 		}
 		String oldValue = styles.get(name);
-
+console.log("OLD VALUE IS:",oldValue);
 		if (value != null) { // set it
-
+console.log("SETTING NEW VALUE: ",value);
 			// if does not exist yet or has a different value
 			if (oldValue == null || !oldValue.equals(value)) {
+console.log("OLD VALUE NOT EQUAL TO NEW VALUE, CALLING SETSTYLE WITH:",element,name,value);				
 				styles.put(name, value);
-				if (element != null) { // if visual
-//					((Element) element).getStyle().setProperty(name.nameValid(), value);
-					setStyle((Element)element,name,value);
-				}
+				setStyle((Element)element,name,value);
 			}
 
 		} else { // remove it
-
+console.log("REMOVING OLD VALUE");
 			// if old value exists
 			if (oldValue != null) {
+console.log("OLD VALUE WAS NOT NULL, CALLING removeStyle with:",element,name);				
 				styles.remove(name);
-				if (element != null) { // if visual
-//					((Element) element).getStyle().removeProperty(name.nameValid());
-					removeStyle((Element)element,name);
-				}
+				removeStyle((Element)element,name);
 			}
 
 		}
@@ -646,18 +641,25 @@ public class FluentBase implements Viewable {
 
 	/* tgh convenience method to replace Element.setStyle().setProperty(name.nameValid(), value) from Elemental1 Fluent */
 	static void setStyle(Element element, Css name, String value) {
+console.log("ENTERING setStyle with",element,name,value);
 		if(element == null) return;
 		String styles = element.getAttribute("style");
-		String[] stylesArry = styles == null ? new String[0] : styles.split(";");
-		Map<String,String> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((avalue) -> { return avalue; }, Function.identity()));
-		String sname = name.name();
-		styleMap.put(sname,sname+":"+value);
+		String[] stylesArry = (styles == null || styles.isEmpty()) ? new String[0] : styles.split(";");
+		Map<Object,Object> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((avalue) -> { return avalue.split("\\:")[0].trim(); }, (avalue) -> { return avalue.split("\\:")[1].trim(); }));
+		String sname = name.nameValid();
+console.log("SETTING STYLEMAP VALUE TO",sname,value);
+		styleMap.put(sname,value);
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
-		for(String key : styleMap.keySet()) {
-			if(!first) { first = false; sb.append(';');}
+		for(Object k : styleMap.keySet()) {
+			String key = (String) k;
+			if(!first) { sb.append(';');}
+			first = false;
+			sb.append(key);
+			sb.append(":");
 			sb.append(styleMap.get(key));
 		}
+console.log("SETTING STYLE TO: ",sb.toString());
 		element.setAttribute("style", sb.toString());
 	}
 	
@@ -665,20 +667,29 @@ public class FluentBase implements Viewable {
 	static void removeStyle(Element element, Css name) {
 		if(element == null) return;
 		String styles = element.getAttribute("style");
-		String[] stylesArry = styles == null ? new String[0] : styles.split(";");
-		Map<String,String> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((value) -> { return value; }, Function.identity()));
-		String sname = name.name();
-		if(null != styleMap.remove(name)) {
+		String[] stylesArry = (styles == null || styles.isEmpty()) ? new String[0] : styles.split(";");
+		Map<Object,Object> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((avalue) -> { return avalue.split("\\:")[0].trim(); }, (avalue) -> { return avalue.split("\\:")[1].trim(); }));
+		String sname = name.nameValid();
+console.log("REMOVING FROM STYLEMAP",sname);
+		if(null != styleMap.remove(sname)) {
+console.log("GOT A NON-NULL RESULT FROM REMOVE, REWRITING STYLE ATTRIBUTE");
 			if(styleMap.size() > 0) {
+console.log("STYLE MAP HAS ENTRIES, BUILDING NEW VALUE");
 				StringBuilder sb = new StringBuilder();
 				boolean first = true;
-				for(String key : styleMap.keySet()) {
-					if(!first) { first = false; sb.append(';');}
+				for(Object k : styleMap.keySet()) {
+					String key = (String) k;
+					if(!first) { sb.append(';');}
+					first = false; 
+					sb.append(key);
+					sb.append(":");
 					sb.append(styleMap.get(key));
 				}
+console.log("SETTING STYLE TO: ",sb.toString());
 				element.setAttribute("style", sb.toString());
 			} else {
-				element.setAttribute("style", (String) null);
+console.log("SETTING STYLE TO: null");
+				element.setAttribute("style",""); //null doesn't work, as such, in javascript... (String) null);
 			}
 		}
 		

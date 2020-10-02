@@ -16,8 +16,8 @@
 */
 package com.giantelectronicbrain.catfood.client;
 
-import live.connector.vertxui.client.fluent.Css;
-import live.connector.vertxui.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.Css;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 
 /**
  * @author tharter
@@ -31,21 +31,32 @@ public class MenuController {
 	public MenuController(Fluent root, boolean active) {
 		this.active = active;
 		this.root = root;
-		this.menu = MenuViewFactory.createMenuView(active,this::handleMainButtonClick);
-		this.root.add(this.menu);
+		this.menu = MenuViewFactory.createMenuView(root,active,this::handleMainButtonClick);
+		activate(active);
 	}
 	
 	public MenuController(Fluent root) {
 		this(root,false);
 	}
 	
+	private void activate(boolean activate) {
+		this.active = activate;
+		Fluent mblock = (Fluent) this.menu.getChildren().get(0);
+Fluent.console.log("WTF IS mblock: ",mblock,",",mblock.tag());
+Fluent.console.log("Before hide call activate is: ",true,", mblock display style is now: ",mblock.css(Css.display));
+		activate = !activate;
+Fluent.console.log("calling hide with ",activate);
+		mblock.hide(activate);
+Fluent.console.log("After hide call mblock display style is now: ",mblock.css(Css.display));
+	}
+	
+	private void activate() {
+		activate(!this.active);
+	}
+	
 	private Void handleMainButtonClick() {
 		Fluent.console.log("main button was clicked, active is ",active);
-		if(active)
-			menu.css(Css.display,"none");
-		else
-			menu.css(Css.display,"block");
-		active = !active;
+		activate();
 		return null;
 	}
 }

@@ -85,7 +85,16 @@ publishing {
 }
 
 dependencies {
-	implementation 'live.connector:vertxui-core:2.0.8-tgh'
+//	implementation 'live.connector:vertxui-core:2.0.8-tgh'
+	implementation 'com.google.gwt:gwt-dev:2.9.0'
+	implementation 'com.google.gwt:gwt-elemental:2.9.0'
+	implementation 'com.google.elemental2:elemental2-core:1.1.0'
+	implementation 'com.google.elemental2:elemental2-dom:1.1.0'
+	implementation 'com.github.nmorel.gwtjackson:gwt-jackson:0.15.4'
+	testRuntime 'org.slf4j:slf4j-simple:1.7.30'
+	implementation 'org.slf4j:slf4j-api:1.7.30'
+//	compileOnly 'com.machinepublishers:jbrowserdriver:1.0.1'
+//	testImplementation 'com.machinepublishers:jbrowserdriver:1.0.1'
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
@@ -93,6 +102,7 @@ dependencies {
 	testRuntime files('src/test/java')
 	testRuntime files('src/main/java')
 	implementation 'org.webjars.bowergithub.markdown-it:markdown-it:10.0.0'
+	testImplementation 'junit:junit:4.12'
 }
 
 /*task copySourceLibs(type: Copy) {
@@ -108,6 +118,11 @@ dependencies {
 task copyWebContent(type: Copy) {
 	from "src/main/web/content"
 	into "$buildDir/content"
+}
+
+task copyWebTemplates(type: Copy) {
+	from "src/main/web/templates"
+	into "$buildDir/templates"
 }
 
 task copyClientSource(type: Copy) {

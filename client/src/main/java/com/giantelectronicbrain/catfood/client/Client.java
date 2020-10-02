@@ -3,7 +3,7 @@
  */
 package com.giantelectronicbrain.catfood.client;
 
-import static live.connector.vertxui.client.fluent.FluentBase.body;
+import static com.giantelectronicbrain.catfood.client.fluent.FluentBase.body;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +12,11 @@ import java.util.Map;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.regexp.shared.RegExp;
 
 import elemental2.dom.Element;
-import live.connector.vertxui.client.fluent.Fluent;
 
 /**
  * Main entry point for the CatFood VertxUI client.
@@ -24,11 +24,11 @@ import live.connector.vertxui.client.fluent.Fluent;
  * @author tharter
  *
  */
-public class Client implements EntryPoint {
+public class Client implements IClient {
 	
 	public static final IPlatform PLATFORM = new GWTPlatform();
 
-	private Element mainDiv;
+	private Fluent menu;
 	private Fluent root;
 	private ChunkController chunkController;
 	private Router router;
@@ -47,28 +47,23 @@ public class Client implements EntryPoint {
 		STYLESHEETS.add("/css/catfood.css");
 	}
 	
-	public static ArrayList<String> getCss() {
+	public ArrayList<String> getCss() {
 		return STYLESHEETS;
 	}
 	
-	public static ArrayList<String> getScripts() {
+	public ArrayList<String> getScripts() {
 		return SCRIPTS;
 	}
 	
+	public String getApplicationTitle() {
+		return "CatFood: Intelligent Wiki";
+	}
+	
 	/**
-	 * Create the client. Normally we only do this on client-side.
+	 * Note that this might be instantiated by the server in order to
+	 * determine how to build the home page.
 	 */
 	public Client() {
-		mainDiv = Fluent.document.getElementById("app-node");
-		root = Fluent.getElementById("app-node");
-		
-		if(root == null) {
-			root = body;
-		}
-		if(mainDiv == null) {
-			mainDiv = Fluent.document.parentElement;
-		}
-		createRouter();
 	}
 
 	private void createRouter() {
@@ -124,9 +119,15 @@ public class Client implements EntryPoint {
 	
 	@Override
 	public void onModuleLoad() {
-//		chunkController = new ChunkController(router,repo,root,"Home",false);
-//		router.replaceState(null,"CatFood","/");
-		MenuController mc = new MenuController(root,false);
+		root = Fluent.getElementById("chunk-node");
+		menu = Fluent.getElementById("menu");
+		
+		if(root == null) {
+			root = body;
+		}
+		
+		createRouter();
+		MenuController mc = new MenuController(menu,false);
 		router.kick();
 	}
 }

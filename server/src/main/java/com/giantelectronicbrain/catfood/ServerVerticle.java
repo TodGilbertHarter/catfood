@@ -31,6 +31,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.FaviconHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
@@ -114,13 +115,17 @@ public class ServerVerticle extends AbstractVerticle {
 				StaticHandler webjarStaticHandler = StaticHandler.create("META-INF/resources/webjars");
 				router.route("/webjars/*").handler(webjarStaticHandler);
 
+				FaviconHandler fih = FaviconHandler.create();
+				router.get("/favicon.ico").handler(fih);
+				
 				GWTCompiler.folderSource = "client/src/main/java";
 				GWTCompiler.setTargetFolder("webroot/content");
-				Handler<RoutingContext> gwtHandler = GWTCompiler.with(Client.class, "/", debugClient, true);
-				router.get("/*").handler(gwtHandler);
+				Handler<RoutingContext> gwtHandler = GWTCompiler.with(new Client(), "/", debugClient, true, vertx);
+				router.get("/").handler(gwtHandler);
 				// in case a client loads one of the internal routes, then give them the main page
 				router.get("/edit/*").handler(context -> context.reroute("/")); 
 				router.get("/view/*").handler(context -> context.reroute("/"));
+				router.get("/*").handler(otherHandler);
 			
 				server.requestHandler(router::accept).listen(port, "0.0.0.0");
 			

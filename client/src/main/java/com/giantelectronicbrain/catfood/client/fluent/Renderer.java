@@ -1,6 +1,6 @@
 package com.giantelectronicbrain.catfood.client.fluent;
 
-import static live.connector.vertxui.client.fluent.Fluent.document;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.document;
 
 import java.util.TreeMap;
 

@@ -45,11 +45,17 @@ task copyServerScriptFiles(type: Copy) {
 task copyDatabase(type: Copy) {
 	into "$buildDir/catfood/orientdb"
 	from "$databaseBuildDir/catfood/orientdb"
+	outputs.upToDateWhen { file("$buildDir/catfood/orientdb").exists() }
 }
 
 task copyClient(type: Copy) {
 	into "$buildDir/catfood/webroot/content"
 	from "$clientBuildDir/js"
+}
+
+task copyClientTemplates(type: Copy) {
+	from "$clientBuildDir/templates"
+	into "$buildDir/catfood/webroot/templates"
 }
 
 task copyConfiguration(type: Copy) {
@@ -90,7 +96,7 @@ task copyServerJar(type: Copy) {
 
 task buildCatFood(dependsOn: [':server:build', ':database:buildCatFoodDB', 
 		':client:build', 'copyServerScriptFiles', 'copyServerJar', 'copyLombok', 'copyDatabase', 'copyClient',
-		'copyClientSource','copyConfiguration', 'copyWebContent', 'copyWebLibs' ]) {
+		'copyClientSource','copyConfiguration', 'copyWebContent', 'copyClientTemplates', 'copyWebLibs' ]) {
 //	println "building all of CatFood!"
 }
 
@@ -104,3 +110,5 @@ copyServerScriptFiles.dependsOn(':server:build')
 copyDatabase.dependsOn(':database:buildCatFoodDB')
 copyLombok.dependsOn(':server:build')
 //copyClientSourceLibs.dependsOn(':client:copySourceLibs')
+copyClientTemplates.dependsOn(':client:copyWebTemplates')
+

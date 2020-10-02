@@ -91,6 +91,7 @@ dependencies {
 	implementation project(':client') //path: ':client', configuration: 'shadowJars')
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
+    implementation 'io.vertx:vertx-web-templ-thymeleaf:3.9.3'
     
 }
 

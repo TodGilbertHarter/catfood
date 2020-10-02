@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+<!-- 	<link rel="manifest" href="/site.webmanifest"> -->
+		
+		<link rel=stylesheet href='/css/w3.css'/>
+		<link rel=stylesheet href='/css/all.css'/>
+		<link rel=stylesheet href='/css/catfood.css'/>
+		<script src='/webjars/markdown-it/dist/markdown-it.js'></script>
+		<script src='/libs/initialize.js'></script>
+		<title th:text="${catfoodclient.applicationTitle}"></title>
+	</head>
+	<body class="body">
+		<script>
+			document.addEventListener('DOMContentLoaded', function(event) { 
+				var x = document.createElement('script'); 
+				x.setAttribute('src','/a/a.nocache.js?time=' + Math.random() ); 
+				document.body.appendChild(x); 
+			}); 
+		</script>
+		<div id='app-node'>
+			<div class="header-center"><div id="menu" class="main-header"></div></div>
+			<div id="chunk-node"></div>
+		</div>
+	</body>
+</html>

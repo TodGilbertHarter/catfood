@@ -16,31 +16,19 @@
 */
 package com.giantelectronicbrain.catfood.client;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 
-import org.junit.Test;
+import com.google.gwt.core.client.EntryPoint;
 
 /**
  * @author tharter
  *
  */
-public class ClientTest {
+public interface IClient extends EntryPoint {
 
-	/**
-	 * Test method for {@link com.giantelectronicbrain.catfood.client.Client#getScripts()}.
-	 */
-	@Test
-	public void testGetScripts() {
-		Client client = new Client();
-		List<String> scripts = client.getScripts();
-		assertNotNull(scripts);
-		assertTrue(1<=scripts.size());
-		String script = scripts.get(0);
-		assertNotNull(script);
-		assertTrue(!script.isEmpty());
-	}
-
+	public List<String> getScripts();
+	
+	public List<String> getCss();
+	
+	public String getApplicationTitle();
 }

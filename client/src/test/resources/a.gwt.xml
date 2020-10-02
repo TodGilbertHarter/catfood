@@ -1,5 +1,8 @@
 <module rename-to='a'>
-	<inherits name='live.connector.vertxui.Vertxui'/>
+<!-- 	<inherits name='live.connector.vertxui.Vertxui'/> -->
+	<inherits name="elemental.Elemental" />
+	<inherits name="elemental2.dom.Dom" />
+	<inherits name="com.github.nmorel.gwtjackson.GwtJackson" />
 	<entry-point class='com.giantelectronicbrain.catfood.client.Client'/>
 	<source path='com/giantelectronicbrain/catfood/client'/>
 	<set-property name='compiler.stackMode' value='emulated' />

@@ -25,19 +25,26 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.FileTemplateResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import com.giantelectronicbrain.catfood.client.IClient;
 import com.giantelectronicbrain.catfood.figwheely.FigWheelyServer;
 
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.TemplateHandler;
+import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 
 /**
  * @author tharter
@@ -148,9 +155,11 @@ public class GWTCompiler {
 	 *            with a generated .html file or not (advisable)
 	 * @return the static file handler.
 	 */
-	public static Handler<RoutingContext> with(Class<?> classs, String urlWithoutAsterix, boolean debug,
-			boolean withHtml) {
+	public static Handler<RoutingContext> with(IClient iClient, String urlWithoutAsterix, boolean debug,
+			boolean withHtml, Vertx vertx) {
 
+		Class<? extends IClient> classs = iClient.getClass();
+		
 		// Look for a sourcefolder. If none, we are in production so we don't do
 		// anything at all.
 		String clientFile = classs.getName().replace(".", "/") + ".java";
@@ -177,13 +186,30 @@ public class GWTCompiler {
 			}
 		}
 		if (urlWithoutAsterix != null) { // only serve files when a target-URL is given
-			return StaticHandler.create(GWTCompiler.getTargetFolder(debug)).setCachingEnabled(false)
-					.setDefaultContentEncoding(GWTCompiler.charset);
+/*			return StaticHandler.create(GWTCompiler.getTargetFolder(debug)).setCachingEnabled(false)
+					.setDefaultContentEncoding(GWTCompiler.charset); */
+			return createTemplateHandler(vertx, iClient);
 		} else {
 			return null;
 		}
 	}
 
+	private static Handler<RoutingContext> createTemplateHandler(Vertx vertx, IClient iClient) {
+		ThymeleafTemplateEngine engine = ThymeleafTemplateEngine.create(vertx);
+		engine.setMode(TemplateMode.HTML);
+		TemplateEngine tEngine = engine.getThymeleafTemplateEngine();
+		FileTemplateResolver resolver = new FileTemplateResolver();
+		resolver.setTemplateMode(TemplateMode.HTML);
+		resolver.setPrefix("webroot/");
+		resolver.setSuffix(".html");
+		tEngine.setTemplateResolver(resolver);
+		TemplateHandler handler = TemplateHandler.create(engine);
+		return (r) -> { 
+			r.put("catfoodclient", iClient);
+			handler.handle(r); 
+		};
+	}
+	
 	/**
 	 * Start the translate. Continues asynchronously.
 	 * 
@@ -370,7 +396,8 @@ public class GWTCompiler {
 		// Break
 		if (!process.isAlive()) {
 //			gwtXml.delete();
-			writeHtml();
+			//TGH: using template engine now instead
+			//writeHtml();
 			String result = info.toString();
 			if (result.contains("[ERROR]")) {
 				System.err.println("Compile error(s): " + info);

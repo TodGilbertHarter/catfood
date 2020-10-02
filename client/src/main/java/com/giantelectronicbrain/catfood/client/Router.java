@@ -20,11 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 
 import elemental2.dom.Event;
-import live.connector.vertxui.client.fluent.Fluent;
 
 /**
  * Javascript Router. This is a simple router which should 

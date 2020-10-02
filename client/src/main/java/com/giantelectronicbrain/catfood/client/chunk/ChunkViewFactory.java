@@ -16,24 +16,15 @@
 */
 package com.giantelectronicbrain.catfood.client.chunk;
 
-import static live.connector.vertxui.client.fluent.Fluent.Div;
+import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Div;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.giantelectronicbrain.catfood.client.chunk.syntax.Syntax;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;
-
-import elemental2.dom.MouseEvent;
-import elemental2.dom.UIEvent;
-
-//import org.commonmark.node.Node;
-//import org.commonmark.parser.Parser;
-//import org.commonmark.renderer.html.HtmlRenderer;
-
-import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.ViewOn;
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
 
 /**
  * @author tharter
@@ -54,7 +45,7 @@ public class ChunkViewFactory {
 		Function<Chunk,Fluent> builder = (chunk)-> { 
 				Fluent.console.log("Rendering with chunk {}",chunk);
 				Fluent wrapper = Div("chunk-view w3-container");
-				wrapper.h1("chunk-title w3-light-green cf-h1font", chunk == null ? "loading" : chunk.getName());
+				wrapper.h1("chunk-title cf-h1font", chunk == null ? "loading" : chunk.getName());
 				Fluent chunkTextDiv = wrapper.div("chunk-text cf-pfont");
 				if(chunk == null) {
 					chunkTextDiv.txt("...");
