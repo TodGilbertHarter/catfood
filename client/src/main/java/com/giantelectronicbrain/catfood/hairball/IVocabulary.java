@@ -14,24 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.hairball;
 
 /**
+ * Interface for vocabularies, which are simply collections of definitions we
+ * can look up by parserToken.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
-
-	public List<String> getScripts();
+public interface IVocabulary {
+	/**
+	 * Look up a parserToken in this vocabulary. If it exists
+	 * then return its Definition, otherwise return null.
+	 * 
+	 * @param word to search for
+	 * @return its definition, or null
+	 */
+	public abstract Definition lookUp(Word parserToken);
 	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
-
+	public abstract void add(Definition newDefinition);
 }

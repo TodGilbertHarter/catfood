@@ -14,24 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.hairball;
 
 /**
+ * Literal tokens hold arbitrary literal data in the form of a Java object. This allows
+ * 'static' data to be compiled into a definition. Its behavior is to push the data onto
+ * the parameter stack.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public class LiteralToken implements Token {
+	private Object data;
 
-	public List<String> getScripts();
-	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
+	@Override
+	public void execute(Interpreter interpreter) {
+		interpreter.push(data);
+	}
 
 }

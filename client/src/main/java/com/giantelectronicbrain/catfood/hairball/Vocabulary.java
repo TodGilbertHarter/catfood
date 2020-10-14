@@ -14,22 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client.menu;
+package com.giantelectronicbrain.catfood.hairball;
 
-import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * A vocabulary is a collection of hairball words.
+ * 
  * @author tharter
  *
  */
-public class MenuBarController {
-	Fluent root;
-	Fluent menuBar;
+public class Vocabulary implements IVocabulary {
+	private final String name;
+	private final Map<Word,Definition> definitions = new HashMap<>(); 
 	
-	public MenuBarController(Fluent root) {
-		this.root = root;
-		this.menuBar = MenuBarFactory.createMenuBarView(root);
+	public Vocabulary(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public Definition lookUp(Word word) {
+		return definitions.get(word);
 	}
 	
-	public MenuBarController addMenu()
+	/**
+	 * Add a new definition to the vocabulary. If there is an
+	 * existing definition assigned to this token, it is forgotten.
+	 * 
+	 * @param newDefinition
+	 */
+	public void add(Definition newDefinition) {
+		this.definitions.put(newDefinition.getName(), newDefinition);
+	}
+	
 }

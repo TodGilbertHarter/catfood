@@ -19,6 +19,8 @@ package com.giantelectronicbrain.catfood.client;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.google.gwt.regexp.shared.MatchResult;
@@ -36,6 +38,7 @@ import elemental2.dom.Event;
  *
  */
 public class Router {
+	private static final Logger logger = Client.PLATFORM.getLogger(Router.class.getName());
 	private Map<RegExp,Consumer<String[]>> routes = new HashMap<>();
 	private String root = "/";
 	private String current; // simply holds the current path
@@ -151,11 +154,8 @@ public class Router {
 	
 	private String getFragment() {
 		String uri = Fluent.window.location.pathname + Fluent.window.location.search;
-Fluent.console.log("uri is ",uri);
 		String decoded = decodeURI(uri);
-Fluent.console.log("decoded is ",decoded);
 		String fragment = clearSlashes(decoded);
-Fluent.console.log("We have a fragment of ",fragment);
 		fragment = fragment.replace("\\?(.*)$", "");
 		return (!"/".equals(this.root)) ? fragment.replace(this.root, "") : fragment;
 	}
@@ -167,12 +167,11 @@ Fluent.console.log("We have a fragment of ",fragment);
 	
 	private void handleChanged() {
 		String fragment = this.getFragment();
-Fluent.console.log("Router handling changed event",fragment,current);
+		logger.log(Level.FINER,"Router handling changed event "+fragment+","+current);
 		if(this.current.equals(fragment)) return; // we are already on this page
 		this.current = fragment;
 		for(RegExp p : routes.keySet()) {
 			MatchResult m = p.exec(this.current);
-Fluent.console.log("Router attempting to match to route ",p.getSource());
 			if(m != null) {
 				int gc = m.getGroupCount();
 				String[] captures = new String[gc];
@@ -180,7 +179,6 @@ Fluent.console.log("Router attempting to match to route ",p.getSource());
 					captures[i] = m.getGroup(i);
 				}
 				Consumer<String[]> handler = routes.get(p);
-Fluent.console.log("Route matched, running with arguments ",captures);
 				handler.accept(captures);
 				return;
 			}

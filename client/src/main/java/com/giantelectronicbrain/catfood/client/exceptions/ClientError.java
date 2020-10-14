@@ -14,24 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.client.exceptions;
 
 /**
+ * Base class of catfood client exceptions. Since MOST exceptions on the
+ * client side are going to be "this is just broken, lets tell the developer
+ * as much as we can" this is intended to be useful as a catch-all at a level
+ * where we can generate some sort of useful report.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
-
-	public List<String> getScripts();
+public class ClientError extends RuntimeException {
 	
-	public List<String> getCss();
+	public ClientError() {
+		super();
+	}
 	
-	public String getApplicationTitle();
+	public ClientError(String message) {
+		super(message);
+	}
 	
-	public Boolean isMobile();
-
+	public ClientError(String message, Throwable cause) {
+		super(message,cause);
+	}
 }

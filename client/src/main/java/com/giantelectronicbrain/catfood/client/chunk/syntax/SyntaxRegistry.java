@@ -19,15 +19,27 @@ package com.giantelectronicbrain.catfood.client.chunk.syntax;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.client.chunk.syntax.html.Html;
+import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;
+
 /**
  * Acts as a registry for chunk syntax classes. They can register with it
  * by calling 'registerSyntax' statically when loaded.
+ * 
+ * NOTE: as far as I can determine the whole static registering thing doesn't translate
+ * to javascript, so we are hard-coding syntaxes here now, but some other options should
+ * be developed at some point to allow dynamic additions.
  * 
  * @author tharter
  *
  */
 public class SyntaxRegistry {
 	private static final Map<String,Syntax> registryMap = new HashMap<>();
+	{
+		registryMap.put(Chunk.Language.MARKDOWN.name(), new MarkDownIt());
+		registryMap.put(Chunk.Language.HTML.name(), new Html());
+	}
 	
 	public static synchronized void register(String name, Syntax syntax) {
 		registryMap.put(name,syntax);

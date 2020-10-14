@@ -14,24 +14,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.hairball;
 
 /**
+ * A hairball dictionary entry. This defines a hairball word.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public class Definition {
+	private final Word name; //Name of this word
+	private final Token compileTime; //compile time behavior of this word
+	private final Token runTime; // runtime behavior of this word
+	
+	public Definition(Word name, Token compileTime, Token runTime) {
+		this.name = name;
+		this.compileTime = compileTime;
+		this.runTime = runTime;
+	}
 
-	public List<String> getScripts();
-	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
+	/**
+	 * @return the name
+	 */
+	public Word getName() {
+		return name;
+	}
+
+	/**
+	 * @return the compileTime
+	 */
+	public Token getCompileTime() {
+		return compileTime;
+	}
+
+	/**
+	 * @return the runTime
+	 */
+	public Token getRunTime() {
+		return runTime;
+	}
 
 }

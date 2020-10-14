@@ -14,24 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
+package com.giantelectronicbrain.catfood.hairball;
 
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+import java.io.IOException;
 
 /**
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public interface WordStream {
 
-	public List<String> getScripts();
-	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
+	/**
+	 * @return
+	 * @throws IOException 
+	 */
+	Word getNextToken() throws IOException;
+
+	/**
+	 * @return
+	 */
+	boolean hasMoreTokens();
 
 }

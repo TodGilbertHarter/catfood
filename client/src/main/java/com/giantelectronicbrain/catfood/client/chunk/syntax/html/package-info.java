@@ -14,24 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
-
 /**
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
-
-	public List<String> getScripts();
-	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
-
-}
+package com.giantelectronicbrain.catfood.client.chunk.syntax.html;

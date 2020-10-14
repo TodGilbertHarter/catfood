@@ -98,6 +98,9 @@ public class FluentBase implements Viewable {
 		this.innerHTML = innerHTML;
 	}
 	
+	public Viewable getParent() {
+		return this.parent;
+	}
 	/**
 	 * Remove this fluent, and all of it's children. They will be
 	 * removed from the DOM and should be subject to garbage
@@ -611,26 +614,20 @@ public class FluentBase implements Viewable {
 	 * @return this
 	 */
 	public Fluent css(Css name, String value) {
-console.log("GOT INTO CSS SETTING LOGIC: ",name,value);
 		if (styles == null) {
 			styles = new TreeMap<>();
 		}
 		String oldValue = styles.get(name);
-console.log("OLD VALUE IS:",oldValue);
 		if (value != null) { // set it
-console.log("SETTING NEW VALUE: ",value);
 			// if does not exist yet or has a different value
 			if (oldValue == null || !oldValue.equals(value)) {
-console.log("OLD VALUE NOT EQUAL TO NEW VALUE, CALLING SETSTYLE WITH:",element,name,value);				
 				styles.put(name, value);
 				setStyle((Element)element,name,value);
 			}
 
 		} else { // remove it
-console.log("REMOVING OLD VALUE");
 			// if old value exists
 			if (oldValue != null) {
-console.log("OLD VALUE WAS NOT NULL, CALLING removeStyle with:",element,name);				
 				styles.remove(name);
 				removeStyle((Element)element,name);
 			}
@@ -641,13 +638,11 @@ console.log("OLD VALUE WAS NOT NULL, CALLING removeStyle with:",element,name);
 
 	/* tgh convenience method to replace Element.setStyle().setProperty(name.nameValid(), value) from Elemental1 Fluent */
 	static void setStyle(Element element, Css name, String value) {
-console.log("ENTERING setStyle with",element,name,value);
 		if(element == null) return;
 		String styles = element.getAttribute("style");
 		String[] stylesArry = (styles == null || styles.isEmpty()) ? new String[0] : styles.split(";");
 		Map<Object,Object> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((avalue) -> { return avalue.split("\\:")[0].trim(); }, (avalue) -> { return avalue.split("\\:")[1].trim(); }));
 		String sname = name.nameValid();
-console.log("SETTING STYLEMAP VALUE TO",sname,value);
 		styleMap.put(sname,value);
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
@@ -659,7 +654,6 @@ console.log("SETTING STYLEMAP VALUE TO",sname,value);
 			sb.append(":");
 			sb.append(styleMap.get(key));
 		}
-console.log("SETTING STYLE TO: ",sb.toString());
 		element.setAttribute("style", sb.toString());
 	}
 	
@@ -670,11 +664,8 @@ console.log("SETTING STYLE TO: ",sb.toString());
 		String[] stylesArry = (styles == null || styles.isEmpty()) ? new String[0] : styles.split(";");
 		Map<Object,Object> styleMap = Arrays.stream(stylesArry).collect(Collectors.toMap((avalue) -> { return avalue.split("\\:")[0].trim(); }, (avalue) -> { return avalue.split("\\:")[1].trim(); }));
 		String sname = name.nameValid();
-console.log("REMOVING FROM STYLEMAP",sname);
 		if(null != styleMap.remove(sname)) {
-console.log("GOT A NON-NULL RESULT FROM REMOVE, REWRITING STYLE ATTRIBUTE");
 			if(styleMap.size() > 0) {
-console.log("STYLE MAP HAS ENTRIES, BUILDING NEW VALUE");
 				StringBuilder sb = new StringBuilder();
 				boolean first = true;
 				for(Object k : styleMap.keySet()) {
@@ -685,10 +676,8 @@ console.log("STYLE MAP HAS ENTRIES, BUILDING NEW VALUE");
 					sb.append(":");
 					sb.append(styleMap.get(key));
 				}
-console.log("SETTING STYLE TO: ",sb.toString());
 				element.setAttribute("style", sb.toString());
 			} else {
-console.log("SETTING STYLE TO: null");
 				element.setAttribute("style",""); //null doesn't work, as such, in javascript... (String) null);
 			}
 		}

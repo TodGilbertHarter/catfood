@@ -14,24 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
+package com.giantelectronicbrain.catfood.hairball;
 
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+import java.util.function.Consumer;
 
 /**
+ * A token which simply executes native Java code. Its behavior is a lambda which
+ * implements the Consumer<Interpreter> functional interface. Any inputs or outputs
+ * will be to the stack, or operations on the Context, etc.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public class NativeToken implements Token {
+	private final Consumer<Interpreter> behavior;
 
-	public List<String> getScripts();
+	public NativeToken(Consumer<Interpreter> behavior) {
+		this.behavior = behavior;
+	}
 	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
+	@Override
+	public void execute(Interpreter interpreter) {
+		behavior.accept(interpreter);
+	}
 
 }

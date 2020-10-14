@@ -16,7 +16,8 @@ public class ViewOn<A> extends ViewOnBase {
 		this.translate = translate;
 	}
 
-	protected Fluent generate(Fluent parent) {
+	//NOTE: I made this public because hierarchies of Viewables appear to need a way to build their children when the tree changes.
+	public Fluent generate(Fluent parent) {
 		this.parent = parent;
 		Fluent result = Fluent.getRootOf(translate.apply(state));
 		this.view = result;

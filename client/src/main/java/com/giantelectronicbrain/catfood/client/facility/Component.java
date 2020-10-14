@@ -14,24 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.client.facility;
 
 /**
+ * A component is more general than a Facility. It may not be able
+ * to act as a Facility itself, but it can be contributed to a facility
+ * for use by it at a contribution point.
+ * 
+ * Note that components don't provide Capabilities. 
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
-
-	public List<String> getScripts();
+public interface Component {
 	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
-
+	/**
+	 * Get the component's signal broker. This is really only abstract because
+	 * we can't make Component a base class, silly Java...
+	 * 
+	 * @return The SignalBroker for this Component. You better have/make one...
+	 */
+	public abstract SignalBroker getSignalBroker();
 }

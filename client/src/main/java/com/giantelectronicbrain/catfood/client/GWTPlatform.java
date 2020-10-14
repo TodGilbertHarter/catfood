@@ -16,6 +16,8 @@
 */
 package com.giantelectronicbrain.catfood.client;
 
+import java.util.logging.Logger;
+
 import com.google.gwt.core.client.GWT;
 
 /**
@@ -33,4 +35,7 @@ public class GWTPlatform implements IPlatform {
 		return GWT.isClient();
 	}
 
+	public Logger getLogger(String name) {
+		return Logger.getLogger(name);
+	}
 }

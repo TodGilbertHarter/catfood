@@ -8,14 +8,18 @@ import static com.giantelectronicbrain.catfood.client.fluent.FluentBase.body;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
+import com.giantelectronicbrain.catfood.client.dialog.Dialog;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
-import com.giantelectronicbrain.catfood.client.menu.MenuController;
-import com.giantelectronicbrain.catfood.client.menu.MenuViewFactory;
-import com.google.gwt.core.client.EntryPoint;
+import com.giantelectronicbrain.catfood.client.menu.Menu;
+import com.giantelectronicbrain.catfood.client.menu.MenuBar;
+import com.giantelectronicbrain.catfood.client.menu.MenuBarButton;
+import com.giantelectronicbrain.catfood.client.menu.MenuButton;
 import com.google.gwt.regexp.shared.RegExp;
 
 import elemental2.dom.Element;
@@ -29,6 +33,7 @@ import elemental2.dom.Element;
 public class Client implements IClient {
 	
 	public static final IPlatform PLATFORM = new GWTPlatform();
+	private static final Logger logger = PLATFORM.getLogger(Client.class.getName());
 
 	private Fluent menu;
 	private Fluent root;
@@ -39,6 +44,7 @@ public class Client implements IClient {
 	private static ArrayList<String> SCRIPTS = new ArrayList<>();
 	static {
 		SCRIPTS.add("/webjars/markdown-it/dist/markdown-it.js");
+		SCRIPTS.add("/libs/markdown-it-wikilinks.js");
 		SCRIPTS.add("/libs/initialize.js");
 	}
 	
@@ -60,6 +66,7 @@ public class Client implements IClient {
 	public String getApplicationTitle() {
 		return "CatFood: Intelligent Wiki";
 	}
+
 	
 	/**
 	 * Note that this might be instantiated by the server in order to
@@ -68,6 +75,19 @@ public class Client implements IClient {
 	public Client() {
 	}
 
+	/*
+	 * Mobile browser detection, see https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
+	 * for details about this detection method. It is most recommended currently...
+	 */
+	private static native boolean ISMOBILE() /*-{
+		return navigator.userAgent.indexOf("Mobi" !== -1);
+	}-*/;
+	
+	/*
+	 * Read this to tell you if this is a mobile browser.
+	 */
+	public Boolean isMobile() { return ISMOBILE(); }
+	
 	private void createRouter() {
 		Map<String,String> options = new HashMap<>();
 		options.put("root", "/");
@@ -123,13 +143,23 @@ public class Client implements IClient {
 	public void onModuleLoad() {
 		root = Fluent.getElementById("chunk-node");
 		menu = Fluent.getElementById("menu");
+		logger.log(Level.INFO,"Performing onModuleLoad, root is "+((Element)root.dom()).innerHTML);
 		
 		if(root == null) {
 			root = body;
 		}
 		
+		
 		createRouter();
-		MenuController mc = new MenuController(menu,false,MenuViewFactory.DEFAULT_IMAGE_STYLING);
+		logger.log(Level.INFO,"Going to attach menubar to"+((Element)menu.dom()).innerHTML);
+		MenuBar mBar = MenuBar.createMenuBar(menu);
+		Menu aMenu = Menu.createMenu(mBar);
+		MenuButton mButton = MenuButton.createMenuButton(aMenu);
+
+		Dialog aboutDialog = Dialog.createDialog(root);
+		MenuBarButton infoButton = MenuBarButton.createMenuBarButton(mBar,aboutDialog,"fas fa-cat fa-2x w3-right");
+		
+//		MenuController mc = new MenuController(menu,false,MenuViewFactory.DEFAULT_IMAGE_STYLING);
 		
 		router.kick();
 	}

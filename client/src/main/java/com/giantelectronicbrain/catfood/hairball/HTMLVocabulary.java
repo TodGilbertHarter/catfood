@@ -14,17 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client.menu;
+package com.giantelectronicbrain.catfood.hairball;
 
-import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * This is a factory which creates the HTML
+ * output vocabulary for Hairball.
+ * 
  * @author tharter
  *
  */
-public class MenuBarFactory {
+public class HTMLVocabulary {
+
+	public static IVocabulary create() {
+		IVocabulary htmlVocab = new Vocabulary("HTML");
+		
+		return htmlVocab;
+	}
 	
-	public static Fluent createMenuBarView(Fluent root) {
-		return root.div("menu-bar");
+	private static final List<Definition> defList = new ArrayList<>();
+	{
+		Token emit = new NativeToken((interpreter) -> {
+				interpreter.getParserContext().getOutput().emit((String)interpreter.pop());
+			});
+		defList.add(new Definition(new Word("/P"), null, emit));
+		defList.add(new Definition(new Word("P/"), null, emit));
 	}
 }

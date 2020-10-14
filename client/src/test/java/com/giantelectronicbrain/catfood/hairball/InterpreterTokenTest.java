@@ -14,24 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
+package com.giantelectronicbrain.catfood.hairball;
 
-import java.util.List;
+import static org.junit.Assert.*;
 
-import com.google.gwt.core.client.EntryPoint;
+import org.junit.Test;
 
 /**
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public class InterpreterTokenTest {
 
-	public List<String> getScripts();
+	int didIt = 0;
 	
-	public List<String> getCss();
+	public void behavior(Interpreter interp) {
+		didIt++;
+	}
 	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
+	@Test
+	public void test() {
+		InterpreterToken uut = new InterpreterToken();
+		NativeToken firstToken = new NativeToken(this::behavior);
+		uut.add(firstToken);
+		assertEquals(1,uut.size());
+	}
 
 }

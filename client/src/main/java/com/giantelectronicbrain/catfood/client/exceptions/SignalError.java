@@ -14,24 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
+package com.giantelectronicbrain.catfood.client.exceptions;
 
 /**
+ * An exception encountered during signal handling.
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
+public class SignalError extends ClientError {
 
-	public List<String> getScripts();
+	public SignalError() {
+		super();
+	}
 	
-	public List<String> getCss();
+	public SignalError(String message) {
+		super(message);
+	}
 	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
-
+	public SignalError(String message, Throwable cause) {
+		super(message,cause);
+	}
 }

@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-import lombok.Data;
-
 /**
  * DTO representing a chunk of CatFood content.
  * 
@@ -34,7 +32,7 @@ import lombok.Data;
 public class Chunk {
 	public enum Language {
 		MARKDOWN,
-		
+		HTML
 	}
 
 	@JsonUnwrapped

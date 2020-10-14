@@ -14,24 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
-
-import java.util.List;
-
-import com.google.gwt.core.client.EntryPoint;
-
 /**
+ * Facilities are UI components which can produce or consume events and provide
+ * functionality of various sorts. This could include visualization, selection,
+ * etc. Any given facility may define its capabilities, offer to provide extension
+ * points, etc. 
+ * 
  * @author tharter
  *
  */
-public interface IClient extends EntryPoint {
-
-	public List<String> getScripts();
-	
-	public List<String> getCss();
-	
-	public String getApplicationTitle();
-	
-	public Boolean isMobile();
-
-}
+package com.giantelectronicbrain.catfood.client.facility;

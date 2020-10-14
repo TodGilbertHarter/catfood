@@ -16,11 +16,15 @@
 */
 package com.giantelectronicbrain.catfood.client.menu;
 
+import com.giantelectronicbrain.catfood.client.fluent.Fluent;
+
 /**
  * @author tharter
  *
  */
 public class MenuItemViewFactory {
 
-	
+	public static Fluent createMenuItemView(Fluent root) {
+		return null; //root.li().a(classs, inner, href, clickListener);
+	}
 }

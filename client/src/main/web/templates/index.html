@@ -6,13 +6,13 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
-<!-- 	<link rel="manifest" href="/site.webmanifest"> -->
 		
-		<link rel=stylesheet href='/css/w3.css'/>
-		<link rel=stylesheet href='/css/all.css'/>
-		<link rel=stylesheet href='/css/catfood.css'/>
-		<script src='/webjars/markdown-it/dist/markdown-it.js'></script>
-		<script src='/libs/initialize.js'></script>
+		<th:block th:each="sheet : ${catfoodclient.css}">
+			<link rel=stylesheet th:href="${sheet}"/>
+		</th:block>
+		<th:block th:each="script : ${catfoodclient.scripts}">
+			<script th:src="${script}"></script>
+		</th:block>
 		<title th:text="${catfoodclient.applicationTitle}"></title>
 	</head>
 	<body class="body">
@@ -25,7 +25,7 @@
 		</script>
 		<div id='app-node'>
 			<div class="header-center"><div id="menu" class="main-header"></div></div>
-			<div id="chunk-node"></div>
+			<div class="content-center"><div id="chunk-node" class="content"></div></div>
 		</div>
 	</body>
 </html>

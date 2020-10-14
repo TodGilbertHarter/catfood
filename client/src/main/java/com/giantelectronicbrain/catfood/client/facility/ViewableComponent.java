@@ -14,26 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client;
+package com.giantelectronicbrain.catfood.client.facility;
 
-import java.util.logging.Logger;
+import com.giantelectronicbrain.catfood.client.fluent.Viewable;
 
 /**
- * Hides away all things which may depend on where we are executing, or under which
- * transpiling architecture (IE GWT vs J2CL or TeaVM, etc. or Client side vs Server side/JUnit). 
- * This is intended to help keep the rest of the code decoupled from these factors.
+ * A component is more general than a Facility. It may not be able
+ * to act as a Facility itself, but it can be contributed to a facility
+ * for use by it at a contribution point.
+ * 
+ * Note that components don't provide Capabilities. 
  * 
  * @author tharter
  *
  */
-public interface IPlatform {
-
-	/**
-	 * Are we executing in a browser, or in some Java non-browser environment, such as JUnit.
-	 * 
-	 * @return boolean true if we are in the browser running in Javascript.
-	 */
-	public abstract boolean isClient();
+public interface ViewableComponent {
 	
-	public abstract Logger getLogger(String name);
+	/**
+	 * Get the component's signal broker. This is really only abstract because
+	 * we can't make Component a base class, silly Java...
+	 * 
+	 * @return The SignalBroker for this Component. You better have/make one...
+	 */
+	public abstract SignalBroker getSignalBroker();
+	
+	/**
+	 * Get the viewable which displays this component.
+	 * 
+	 * @return
+	 */
+	public abstract Viewable getDisplay();
+	
 }

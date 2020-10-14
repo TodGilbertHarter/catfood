@@ -79,6 +79,7 @@ public class GWTCompiler {
 	static {
 		librariesGwt = new ArrayList<>();
 		librariesGwt.add("live.connector.vertxui.Vertxui");
+		librariesGwt.add("com.google.gwt.logging.Logging");
 //		librariesGwt.add("commonmark");
 	}
 
@@ -259,6 +260,9 @@ public class GWTCompiler {
 			content.append("<set-property name='compiler.stackMode' value='emulated' />");
 			content.append(
 					"<set-configuration-property name='compiler.emulatedStack.recordLineNumbers' value='true' />");
+			content.append("<set-property name=\"gwt.logging.logLevel\" value=\"ALL\"/>");          // default logLevel to log everything
+			content.append("<set-property name=\"gwt.logging.enabled\" value=\"TRUE\"/>");            // To enable logging
+			content.append("<set-property name=\"gwt.logging.consoleHandler\" value=\"ENABLED\"/>");	// Turn on console logging
 			content.append("<set-configuration-property name='compiler.emulatedStack.recordFileNames' value='true'/>");
 			content.append("<extend-configuration-property name=\"gwtjackson.configuration.extension\" "
 					+ "value=\"com.giantelectronicbrain.catfood.client.JsonConfiguration\"/>");
