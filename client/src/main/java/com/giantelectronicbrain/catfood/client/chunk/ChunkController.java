@@ -18,16 +18,20 @@ package com.giantelectronicbrain.catfood.client.chunk;
 
 import com.giantelectronicbrain.catfood.client.Router;
 import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.client.facility.Facility;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
 
 /**
- * The Controller for Chunks.
+ * The Controller for Chunks. This handles both viewing and editing by
+ * displaying different viewers. It will generate calls to the router to
+ * switch between edit and view modes, and will automatically call the
+ * repository to load chunk data when necessary.
  * 
  * @author tharter
  *
  */
-public class ChunkController {
+public class ChunkController { //NOTE: hmmmm... extends Facility {
 	private Fluent root;			// The root object where our UI lives
 	private ViewOn<Chunk> view;		// The ViewOn which is displaying the UI
 	private Repository chunkRepo;	// Repo which supplies chunks
@@ -102,6 +106,15 @@ public class ChunkController {
 		this.view = ChunkEditorViewFactory.createChunkView(root,this::saveHandler, this::cancelHandler);
 	}
 
+	/**
+	 * Show or hide this view. True to hide it.
+	 * 
+	 * @param hidden if true then hide the view
+	 */
+	public void hide(boolean hidden) {
+		this.view.getView().hide(hidden);
+	}
+	
 	private void cancelHandler(Chunk chunk) {
 		if(!editing) { // this shouldn't really happen.
 			Fluent.console.log("Cannot cancel, not editing");
@@ -215,6 +228,11 @@ public class ChunkController {
 		this.view = ChunkViewFactory.createChunkView(chunk, root, this::edit);
 	}
 	
+	/**
+	 * View the chunk with the given name.
+	 * 
+	 * @param name
+	 */
 	public void view(String name) {
 		if(name.equals(getStateName()) && !this.editing) return; // already viewing this chunk
 		ViewOn<Chunk> oldView = this.view;
@@ -224,6 +242,11 @@ public class ChunkController {
 		load(name);
 	}
 
+	/**
+	 * View the chunk with the given id.
+	 * 
+	 * @param chunkId
+	 */
 	public void view(ChunkId chunkId) {
 Fluent.console.log("GOT TO VIEW BY CHUNK ID WITH ID OF:",chunkId);
 		if(chunkId.equals(getStateId()) && !this.editing) return; // already viewing this chunk
@@ -238,7 +261,7 @@ Fluent.console.log("LOADED CHUNK WITH ID ",chunkId);
 	
 	private void showLoading(String name) {
 		if(name == null || name.isEmpty()) name = "Loading";
-		Chunk chunk = new Chunk("loading...",null,name,Language.MARKDOWN);
+		Chunk chunk = new Chunk("loading...",null,name,Language.MARKDOWN,0);
 		if(editing) {
 			this.view = ChunkEditorViewFactory.createChunkView(chunk,root,this::saveHandler, this::cancelHandler);
 			this.view.getView().disabled(true);
@@ -299,7 +322,6 @@ Fluent.console.log("LOADED CHUNK WITH ID ",chunkId);
 			Fluent.console.log("we got an updated thingy "+newModel.toString()+", status was "+status);
 		else
 			Fluent.console.log("load failed, chunk is null, status is "+status);
-Fluent.console.log("WTF IS STATUS ",status);
 		if(status == 200) {
 			this.view.getView().disabled(false); // re-enable the view if it was disabled
 			updated(newModel);

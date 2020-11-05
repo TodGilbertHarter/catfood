@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.safehtml.shared.UriUtils;
 
 import elemental2.dom.Event;
 
@@ -113,7 +114,7 @@ public class Router {
 	 * @return the router
 	 */
 	public Router pushState(Object state, String title, String url) {
-		Fluent.window.history.pushState(state,title,url);
+		Fluent.window.history.pushState(state,title,UriUtils.encode(url));
 		handleChanged();
 		return this;
 	}
@@ -127,7 +128,7 @@ public class Router {
 	 * @return
 	 */
 	public Router replaceState(Object state, String title, String url) {
-		Fluent.window.history.replaceState(state,title,url);
+		Fluent.window.history.replaceState(state,title,UriUtils.encode(url));
 		handleChanged();
 		return this;
 	}

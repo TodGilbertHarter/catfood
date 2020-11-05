@@ -16,12 +16,13 @@
 */
 package com.giantelectronicbrain.catfood.client.chunk;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 import com.giantelectronicbrain.catfood.client.Client;
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
-
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
 /**
@@ -35,10 +36,18 @@ import com.google.gwt.xhr.client.XMLHttpRequest;
 public class Repository {
 
 	private final String GET_BYID_CHUNK_PORT = "/data/chunk/byid";
+	private final String DELETE_CHUNK_PORT = "/data/chunk/byid";
 	private final String GET_BYNAME_CHUNK_PORT = "/data/chunk/byname";
 	private final String POST_CHUNK_PORT = "/data/chunk";
 	private final String PUT_CHUNK_PORT = "/data/chunk";
+	private final String FIND_CHUNK_BYNAME = "/data/chunk/like/";
 
+	public void findChunk(String name, BiConsumer<Integer,List<Chunk>> handler) {
+		String url = FIND_CHUNK_BYNAME + "/" + UriUtils.encode(name);
+		getObject(CHUNK_LIST_MAP, url, handler);
+	}
+	
+	
 	/**
 	 * Get a chunk, given a chunk id.
 	 * 
@@ -57,7 +66,7 @@ public class Repository {
 	 * @param handler
 	 */
 	public void findChunkByName(String name, BiConsumer<Integer, Chunk> handler) {
-		String url = GET_BYNAME_CHUNK_PORT + "/" + name;
+		String url = GET_BYNAME_CHUNK_PORT + "/" + UriUtils.encode(name);
 		getObject(CHUNK_MAP,url,handler);
 	}
 	
@@ -67,7 +76,8 @@ public class Repository {
 	}
 	
 	public void deleteChunk(ChunkId id) {
-		
+		String url = DELETE_CHUNK_PORT;
+		deleteObject(id,url);
 	}
 	
 	public void updateChunk(Chunk chunk, BiConsumer<Integer,ChunkId> handler) {
@@ -99,13 +109,20 @@ public class Repository {
 		xhr.open("GET", query);
 		xhr.send();
 	}
-	
+
 	private <K,O> void postObject(O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
 		_sendObject("POST",object,inMapper,outMapper,query,handler);
 	}
 	
 	private <K,O> void putObject(O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
 		_sendObject("PUT",object,inMapper,null,query,handler);
+	}
+	
+	private void deleteObject(ChunkId id, String query) {
+		String url = query + "/" + id.getChunkId();
+		XMLHttpRequest xhr = XMLHttpRequest.create();
+		xhr.open("DELETE",query);
+		xhr.send();
 	}
 	
 	private <K,O> void _sendObject(String method, O object, ObjectMapper<O> inMapper, ObjectMapper<K> outMapper, String query, BiConsumer<Integer,K> handler) {
@@ -155,5 +172,10 @@ public class Repository {
 		
 	}
 	
+	public static final ObjectMapper<List<Chunk>> CHUNK_LIST_MAP = Client.PLATFORM.isClient() ? GWT.create(ChunkListMap.class) : null;
 	
+	public interface ChunkListMap extends ObjectMapper<List<Chunk>> {
+		
+	}
+
 }

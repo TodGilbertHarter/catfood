@@ -17,6 +17,8 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Hairball inner interpreter. This is the virtual machine which runs hairball 'code'.
@@ -48,6 +50,8 @@ import java.util.Stack;
  *
  */
 public class Interpreter {
+	private static final Logger log = Hairball.PLATFORM.getLogger(Interpreter.class.getName());
+
 	private final Stack<Object> parameterStack;
 	private final Stack<Object> returnStack;
 	private Context currentContext;
@@ -146,6 +150,7 @@ public class Interpreter {
 	 * @param newContext the new context to jump to
 	 */
 	public void jumpToContext(Context newContext) {
+		log.log(Level.FINEST, "Entering jumpToContext");
 		rPush(currentContext);
 		currentContext = newContext;
 	}
@@ -159,6 +164,7 @@ public class Interpreter {
 	 * @param newContext a hairball execution context
 	 */
 	public void branchToContext(Context newContext) {
+		log.log(Level.FINEST, "branchToContext");
 		currentContext = newContext;
 	}
 
@@ -202,6 +208,7 @@ public class Interpreter {
 	 * @return the previous context
 	 */
 	public Context returnFromContext() {
+		log.log(Level.FINEST, "Entering returnFromContext");
 		Context previous = currentContext;
 		currentContext = (Context) rPop();
 		return previous;
@@ -214,8 +221,11 @@ public class Interpreter {
 	 * 
 	 * @return The executed token, or null if the current
 	 * context is exhausted
+	 * @throws HairballException 
 	 */
-	private Token executeNextToken() {
+	private Token executeNextToken() throws HairballException {
+		log.log(Level.FINEST, "Entering executeNextToken");
+		
 		if(currentContext == null) return null; // detect end of program
 		Token nextToken = currentContext.getNextToken();
 		if(nextToken != null)
@@ -227,9 +237,15 @@ public class Interpreter {
 	 * Execute the current context. All tokens in the current
 	 * context are executed starting at the current instruction
 	 * pointer.
+	 * 
+	 * @return returns the context, mostly for debug purposes
+	 * @throws HairballException 
 	 */
-	public void executeContext() {
+	public Context executeContext() throws HairballException {
+		log.log(Level.FINEST, "Entering executeContext");
+
 		while(executeNextToken() != null) { }
+		return currentContext;
 //		currentContext = (Context) rPop();
 	}
 	
@@ -239,13 +255,17 @@ public class Interpreter {
 	 * initial context, and then execute it.
 	 * 
 	 * @param initialContext the initial context.
+	 * @return returns the context, which is useful for debug
+	 * @throws HairballException 
 	 */
-	public void start(Context initialContext) {
+	public Context start(Context initialContext) throws HairballException {
+		log.log(Level.FINEST, "Entering start");
+		
 		returnStack.clear();
 		parameterStack.clear();
 		this.currentContext = null;
 		jumpToContext(initialContext); // we jump to balance the stack 
-		executeContext(); // since this line will do an rPop()
+		return executeContext(); // since this line will do an rPop()
 	}
 	
 	/**
@@ -253,8 +273,28 @@ public class Interpreter {
 	 * parser invokes this to get things started.
 	 * 
 	 * @param token
+	 * @throws HairballException 
 	 */
-	public void execute(Token token) {
+	public void execute(Token token) throws HairballException {
 		token.execute(this);
+	}
+
+	/**
+	 * Get the parameter stack. Note that this is the live stack.
+	 * 
+	 * @return the parameter stack
+	 */
+	public Stack getParameterStack() {
+		return this.parameterStack;
+	}
+
+	/**
+	 * Get the return stack, this is the live stack, it isn't safe to monkey
+	 * with its contents. 
+	 * 
+	 * @return the return stack
+	 */
+	public Stack getReturnStack() {
+		return this.returnStack;
 	}
 }

@@ -25,11 +25,59 @@ package com.giantelectronicbrain.catfood.hairball;
  *
  */
 public class LiteralToken implements Token {
-	private Object data;
+	private final String name;
+	private final Object data;
 
+	/**
+	 * Create a token which holds the object.
+	 * 
+	 * @param data
+	 */
+	public LiteralToken(String name, Object data) {
+		this.data = data;
+		this.name = name;
+	}
+	
 	@Override
 	public void execute(Interpreter interpreter) {
 		interpreter.push(data);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LiteralToken other = (LiteralToken) obj;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "LiteralToken [name=" + name + "]";
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
 }

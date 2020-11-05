@@ -25,18 +25,25 @@ public class ParserContext {
 	private Dictionary dictionary;
 	private Interpreter interpreter;
 	private Output output;
+	private Parser parser;
 	
 	/**
 	 * @param wordStream
 	 * @param rootDictionary
 	 */
-	public ParserContext(WordStream wordStream, Dictionary rootDictionary, Interpreter interpreter, Output output) {
+	public ParserContext(WordStream wordStream, Dictionary rootDictionary, 
+			Interpreter interpreter, Output output, Parser parser) {
 		this.wordStream = wordStream;
 		this.dictionary = rootDictionary;
 		this.interpreter = interpreter;
 		this.output = output;
+		this.parser = parser;
 	}
 
+	public Parser getParser() {
+		return this.parser;
+	}
+	
 	/**
 	 * @return the output
 	 */

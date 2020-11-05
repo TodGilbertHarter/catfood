@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
-import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import com.giantelectronicbrain.catfood.client.IClient;
 import com.giantelectronicbrain.catfood.figwheely.FigWheelyServer;
@@ -80,6 +78,7 @@ public class GWTCompiler {
 		librariesGwt = new ArrayList<>();
 		librariesGwt.add("live.connector.vertxui.Vertxui");
 		librariesGwt.add("com.google.gwt.logging.Logging");
+		librariesGwt.add("com.giantelectronicbrain.catfood.hairball");
 //		librariesGwt.add("commonmark");
 	}
 

@@ -33,9 +33,9 @@ import org.junit.Test;
 public class ContextTest {
 
 	private Context uut;
-	private Token firstToken = new NativeToken((interp) -> { });
-	private Token secondToken = new NativeToken((interp) -> { });
-	private Token thirdToken = new NativeToken((interp) -> { });
+	private Token firstToken = new NativeToken("one",(interp) -> { });
+	private Token secondToken = new NativeToken("two",(interp) -> { });
+	private Token thirdToken = new NativeToken("three",(interp) -> { });
 	private List<Token> instructions = new ArrayList<>();
 	
 	@Before

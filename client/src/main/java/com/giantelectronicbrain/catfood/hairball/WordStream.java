@@ -19,20 +19,44 @@ package com.giantelectronicbrain.catfood.hairball;
 import java.io.IOException;
 
 /**
+ * Interface contract for a stream of words. This is generally used as the input to a
+ * parser, but it could also have other uses...
+ * 
  * @author tharter
  *
  */
 public interface WordStream {
 
 	/**
-	 * @return
-	 * @throws IOException 
+	 * Get the next hairball Word in the input stream.
+	 * 
+	 * @return the next word
+	 * @throws IOException if there is an input failure
 	 */
-	Word getNextToken() throws IOException;
+	public abstract Word getNextWord() throws IOException;
 
 	/**
-	 * @return
+	 * Consume the input up to and including the next instance of a specific
+	 * hairball word which matches the input value. All the consumed input up
+	 * to but not including the matched word is returned as a string.
+	 * 
+	 * WordStream implementations are free to block if they wish, this is
+	 * synchronous input.
+	 * 
+	 * @param match the word value to match against
+	 * @return all input up to but not including the matched value
+	 * @throws IOException if there is an input failure
 	 */
-	boolean hasMoreTokens();
+	public abstract String getToMatching(String match) throws IOException;
+	
+	/**
+	 * Return true if the input stream is not yet exhausted. Interactive streams
+	 * normally always return true, even if no input is currently available (IE a
+	 * console where the user could input more data at a later time).
+	 * 
+	 * @return true if the stream can return more input at some point.
+	 * @throws IOException 
+	 */
+	public abstract boolean hasMoreTokens() throws IOException;
 
 }

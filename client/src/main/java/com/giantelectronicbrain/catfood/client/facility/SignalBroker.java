@@ -67,7 +67,7 @@ public class SignalBroker {
 		Mapping mapping = new Mapping(slot,target);
 		SignalBroker senderSignalBroker = sender.getSignalBroker();
 		if(senderSignalBroker == null) throw new SignalError("Failed to get signal broker, cannot register signal");
-		senderSignalBroker.registerSignalMapping(slot, mapping);
+		senderSignalBroker.registerSignalMapping(signal, mapping);
 	}
 
 	private void registerSignalMapping(String signal, Mapping mapping) {

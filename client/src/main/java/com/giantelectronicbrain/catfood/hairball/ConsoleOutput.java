@@ -16,18 +16,16 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
+import java.util.logging.Logger;
+
 /**
  * @author tharter
  *
  */
-public class ConsoleOutput implements Output {
-	
-	public ConsoleOutput() {
-	}
+public class ConsoleOutput extends StreamOutput {
 
-	@Override
-	public void emit(String output) {
-		System.out.printf(" %s", output);
+	public ConsoleOutput() {
+		super(System.out);
 	}
 
 }

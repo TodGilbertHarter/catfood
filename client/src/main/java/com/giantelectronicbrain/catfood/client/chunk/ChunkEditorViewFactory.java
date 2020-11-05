@@ -61,6 +61,14 @@ public class ChunkEditorViewFactory {
 				.click((fluent,event) -> {
 					cancelHandler.accept(newChunk);
 				});
+			buttonBar.button("chunk-editor-saveas far fa-copy w3-button w3-blue", "BUTTON", "")
+				.click((fluent,event) -> {
+					newChunk.setName(titleInput.domValue());
+					String foo = ((HTMLTextAreaElement)textInput.dom()).value;
+					newChunk.setContent(foo);
+					newChunk.setChunkId(null);
+					saveHandler.accept(newChunk);
+				});
 			return editor;
 		});
 	}

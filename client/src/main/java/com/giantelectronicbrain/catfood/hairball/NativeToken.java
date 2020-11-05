@@ -16,7 +16,7 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
-import java.util.function.Consumer;
+import com.giantelectronicbrain.catfood.hairball.HairballBehavior;
 
 /**
  * A token which simply executes native Java code. Its behavior is a lambda which
@@ -27,15 +27,27 @@ import java.util.function.Consumer;
  *
  */
 public class NativeToken implements Token {
-	private final Consumer<Interpreter> behavior;
+	private final String name;
+	private final HairballBehavior behavior;
 
-	public NativeToken(Consumer<Interpreter> behavior) {
+	public NativeToken(String name, HairballBehavior behavior) {
 		this.behavior = behavior;
+		this.name = name;
 	}
 	
 	@Override
-	public void execute(Interpreter interpreter) {
-		behavior.accept(interpreter);
+	public void execute(Interpreter interpreter) throws HairballException {
+		behavior.run(interpreter);
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "NativeToken [name=" + name + "]";
 	}
 
 }

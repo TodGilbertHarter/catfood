@@ -62,10 +62,38 @@ public class CatFoodDBService {
 		this.catFoodDbStore.stop();
 	}
 	
-/*	public void getTest(final RoutingContext routingContext) {
-		String result = catFoodDbStore.getTest();
-		sendResult(routingContext,result);
-	} */
+	/**
+	 * Given the routing request of a request to search for topics, find all topics
+	 * which match a given pattern and return them.
+	 * 
+	 * @param routingContext
+	 */
+	public void findTopic(final RoutingContext routingContext) {
+		final String pattern = routingContext.request().getParam("pattern");
+		try {
+			String result = catFoodDbStore.findTopic(pattern);			
+			sendResult(routingContext,result);
+		} catch (StorageException e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Given the routing request of a request to delete a CatFood topic, call
+	 * the store to perform the task.
+	 * 
+	 * @param routingContext
+	 */
+	public void deleteTopicByID(final RoutingContext routingContext) {
+		final String id = routingContext.request().getParam("id");
+		ChunkId chunkId = new ChunkId(id);
+		try {
+			catFoodDbStore.deleteContent(chunkId);
+		} catch (StorageException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sendResult(routingContext,null);
+	}
 	
 	/**
 	 * Given the routingContext of a request for CatFood content supply that content and
@@ -89,7 +117,7 @@ public class CatFoodDBService {
 			routingContext.response().setStatusCode(400);
 				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no name was supplied</div>");
 		} else {
-			String result = catFoodDbStore.getJsonChunk(name);
+			String result = catFoodDbStore.getJsonContent(name);
 			if(result == null) {
 				routingContext.response().setStatusCode(404);
 				sendResult(routingContext,"<div>"+OrientDBStore.class.getName()+".getTopicByName: no topic was found with the given name</div>");
@@ -101,7 +129,7 @@ public class CatFoodDBService {
 	public void saveTopicByName(final RoutingContext routingContext) {
 		routingContext.request().bodyHandler(bodyHandler -> {
 			final JsonObject body = bodyHandler.toJsonObject();
-			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")));
+			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")), body.getLong("lastUpdated"));
 			ChunkId result = catFoodDbStore.postContent(chunk);
 			String resultJson = new JsonObject().put("@RID", result.getChunkId()).encode();
 			sendResult(routingContext,resultJson);
@@ -111,7 +139,7 @@ public class CatFoodDBService {
 	public void updateTopicById(final RoutingContext routingContext) {
 		routingContext.request().bodyHandler(bodyHandler -> {
 			final JsonObject body = bodyHandler.toJsonObject();
-			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")));
+			Chunk chunk = new Chunk(body.getString("content"), null, body.getString("name"), Language.valueOf(body.getString("lang")), body.getLong("lastUpdated"));
 			ChunkId chunkId = new ChunkId(body.getString("@rid"));
 			chunk.setChunkId(chunkId);
 			try {

@@ -16,10 +16,28 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
+import java.io.IOException;
+
 /**
+ * API contract for an output sink.
+ * 
  * @author tharter
  *
  */
 public interface Output {
-	public abstract void emit(String output);
+	
+	/**
+	 * Output a space character.
+	 * 
+	 * @throws IOException
+	 */
+	public void space() throws IOException;
+
+	/**
+	 * Print some text to the output.
+	 * 
+	 * @param output
+	 * @throws IOException 
+	 */
+	public abstract void emit(String output) throws IOException;
 }

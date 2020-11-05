@@ -13,6 +13,7 @@ CREATE CLASS Topic;
 CREATE PROPERTY Topic.name STRING (MANDATORY TRUE);
 CREATE PROPERTY Topic.lang STRING (MANDATORY TRUE);
 CREATE PROPERTY Topic.content STRING;
+CREATE PROPERTY Topic.lastUpdated LONG;
 
-INSERT INTO Topic (name,lang,content) VALUES('Home','MARKDOWN','This is the home topic');
-INSERT INTO Topic (name,lang,content) VALUES('TestTopic','MARKDOWN','# This is some stuff to test with');
+INSERT INTO Topic (name,lang,content,lastUpdated) VALUES('Home','MARKDOWN','This is the home topic',0);
+INSERT INTO Topic (name,lang,content,lastUpdated) VALUES('TestTopic','HAIRBALL','/EM This is some stuff to test with EM/',0);

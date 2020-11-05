@@ -11,15 +11,20 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.giantelectronicbrain.catfood.client.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
 import com.giantelectronicbrain.catfood.client.dialog.Dialog;
+import com.giantelectronicbrain.catfood.client.facility.Component;
+import com.giantelectronicbrain.catfood.client.facility.SignalBroker;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.menu.Menu;
 import com.giantelectronicbrain.catfood.client.menu.MenuBar;
 import com.giantelectronicbrain.catfood.client.menu.MenuBarButton;
 import com.giantelectronicbrain.catfood.client.menu.MenuButton;
+import com.giantelectronicbrain.catfood.client.search.SearchEntry;
+import com.giantelectronicbrain.catfood.client.search.SearchResults;
 import com.google.gwt.regexp.shared.RegExp;
 
 import elemental2.dom.Element;
@@ -40,6 +45,7 @@ public class Client implements IClient {
 	private ChunkController chunkController;
 	private Router router;
 	private Repository repo = new Repository();
+	private SearchResults searchResults;
 
 	private static ArrayList<String> SCRIPTS = new ArrayList<>();
 	static {
@@ -53,6 +59,7 @@ public class Client implements IClient {
 		STYLESHEETS.add("/css/w3.css");
 		STYLESHEETS.add("/css/all.css");
 		STYLESHEETS.add("/css/catfood.css");
+		STYLESHEETS.add("/css/w3-colors-camo.css");
 	}
 	
 	public ArrayList<String> getCss() {
@@ -96,6 +103,7 @@ public class Client implements IClient {
 		
 		this.router.add(RegExp.compile("/edit/id/(.*)"), (arguments) -> { // edit the chunk with the given id
 			Fluent.console.log("ROUTER CHOOSING EDIT BY ID:",arguments);
+			hideSearchResults(true);
 			ChunkId chunkId = new ChunkId(arguments[1]);
 			if(chunkController == null) {
 				chunkController = new ChunkController(router,repo,root,chunkId,true);
@@ -105,6 +113,7 @@ public class Client implements IClient {
 		});
 		this.router.add(RegExp.compile("/view/id/(.*)"), (arguments) -> { // view the chunk with the given id
 			Fluent.console.log("ROUTER CHOOSING VIEW BY ID:",arguments);
+			hideSearchResults(true);
 			ChunkId chunkId = new ChunkId(arguments[1]);
 			if(chunkController == null) {
 				chunkController = new ChunkController(router,repo,root,chunkId,false);
@@ -114,6 +123,7 @@ public class Client implements IClient {
 		});
 		this.router.add(RegExp.compile("/edit/(.*)"), (arguments) -> { // edit the chunk with the given name
 			Fluent.console.log("ROUTER CHOOSING EDIT BY NAME:",arguments);
+			hideSearchResults(true);
 			if(chunkController == null) {
 				chunkController = new ChunkController(router,repo,root,arguments[1],true);
 			} else {
@@ -122,23 +132,47 @@ public class Client implements IClient {
 		});
 		this.router.add(RegExp.compile("/view/(.*)"), (arguments) -> { // view the chunk with the given name
 			Fluent.console.log("ROUTER CHOOSING VIEW BY NAME:",arguments);
+			hideSearchResults(true);
 			if(chunkController == null) {
 				chunkController = new ChunkController(router,repo,root,arguments[1],false);
 			} else {
 				chunkController.view(arguments[1]);
 			}
 		});
+		this.router.add(RegExp.compile("/new"), (arguments) -> { // create a new empty chunk and edit it
+			Fluent.console.log("ROUTER CHOOSING VIEW BY NAME:",arguments);
+			hideSearchResults(true);
+			if(chunkController == null) {
+				chunkController = new ChunkController(router,repo,root,(String)null,true);
+			} else {
+				chunkController.edit((Chunk)null);
+			}
+		});
+		this.router.add(RegExp.compile("/find/name/(.*)"), (arguments) -> {
+			logger.log(Level.FINER,"Router Choosing find "+arguments[1]);
+			if(chunkController != null)
+				chunkController.hide(true);
+			searchResults.find(arguments[1]);
+			hideSearchResults(false);
+		});
 		this.router.add(RegExp.compile(".*"), (arguments) -> { // catch all, we will display a fixed 'root' topic for now...
 			Fluent.console.log("ROUTER CHOOSING DEFAULT:",arguments);
+			hideSearchResults(true);
 			if(chunkController == null) {
 				chunkController = new ChunkController(router,repo,root,"Home",false);
 			} else {
 				chunkController.view("Home");
 			}
-//			chunkController.view((String)null); //TODO: this isn't really quite right, but it should get us started.
 		});
 	}
 	
+	/**
+	 * @param hide
+	 */
+	private void hideSearchResults(boolean hide) {
+		searchResults.hide(hide);
+	}
+
 	@Override
 	public void onModuleLoad() {
 		root = Fluent.getElementById("chunk-node");
@@ -151,6 +185,7 @@ public class Client implements IClient {
 		
 		
 		createRouter();
+		
 		logger.log(Level.INFO,"Going to attach menubar to"+((Element)menu.dom()).innerHTML);
 		MenuBar mBar = MenuBar.createMenuBar(menu);
 		Menu aMenu = Menu.createMenu(mBar);
@@ -158,9 +193,10 @@ public class Client implements IClient {
 
 		Dialog aboutDialog = Dialog.createDialog(root);
 		MenuBarButton infoButton = MenuBarButton.createMenuBarButton(mBar,aboutDialog,"fas fa-cat fa-2x w3-right");
-		
-//		MenuController mc = new MenuController(menu,false,MenuViewFactory.DEFAULT_IMAGE_STYLING);
-		
+		searchResults = SearchResults.createSearchResults(router,repo,root);
+		SearchEntry searchBox = SearchEntry.creatSearchEntry(mBar,(Component)searchResults,null,null);
+		SignalBroker.register("ACTIVATE", searchBox, "SEARCH", searchResults);
+
 		router.kick();
 	}
 }

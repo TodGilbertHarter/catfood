@@ -33,6 +33,14 @@ public interface ICatFoodDBStore {
 	public abstract void stop();
 	
 	/**
+	 * Find topics with names matching a pattern.
+	 * 
+	 * @param pattern
+	 * @return
+	 */
+	public abstract String findTopic(String pattern) throws StorageException;
+	
+	/**
 	 * Save a chunk with a new id. If the chunk has an existing id, it
 	 * will be ignored, but no changes will be made to the id in the
 	 * input chunk.
@@ -65,11 +73,19 @@ public interface ICatFoodDBStore {
 	 * @param name topic name.
 	 * @return String the topic.
 	 */
-	public abstract String getJsonChunk(String name);
+	public abstract String getJsonContent(String name);
 
 	/**
 	 * @param chunk
 	 * @throws StorageException
 	 */
 	public abstract void putContent(Chunk chunk) throws StorageException;
+	
+	/**
+	 * Delete a chunk
+	 * 
+	 * @param chunkId
+	 * @throws StorageException
+	 */
+	public abstract void deleteContent(ChunkId chunkId) throws StorageException;
 }

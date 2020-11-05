@@ -40,10 +40,11 @@ public class ChunkSerializer extends JsonSerializer<Chunk> {
 	@Override
 	protected void doSerialize(JsonWriter writer, Chunk chunk, JsonSerializationContext ctx, JsonSerializerParameters params) {
 		writer.beginObject();
+		writer.name("lastUpdated").value(chunk.getLastUpdated());
 		writer.name("content").value(chunk.getContent());
 		writer.name("name").value(chunk.getName());
 		writer.name("lang").value(chunk.getLang().name());
-		writer.name("@rid").value(chunk.getChunkId().getChunkId());
+		writer.name("@rid").value(chunk.getChunkId() != null ? chunk.getChunkId().getChunkId() : null);
 		writer.endObject();
 	}
 

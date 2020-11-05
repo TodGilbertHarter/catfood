@@ -34,10 +34,18 @@ public class InterpreterTokenTest {
 	
 	@Test
 	public void test() {
-		InterpreterToken uut = new InterpreterToken();
-		NativeToken firstToken = new NativeToken(this::behavior);
+		InterpreterToken uut = new InterpreterToken("test");
+		NativeToken firstToken = new NativeToken("ntest",this::behavior);
 		uut.add(firstToken);
 		assertEquals(1,uut.size());
+		assertEquals("test",uut.getName());
 	}
 
+	public void testMake() {
+		NativeToken firstToken = new NativeToken("ntest",this::behavior);
+		InterpreterToken uut = (InterpreterToken) InterpreterToken.makeToken("test", firstToken);
+		assertEquals(1,uut.size());
+		assertEquals("test",uut.getName());
+		
+	}
 }

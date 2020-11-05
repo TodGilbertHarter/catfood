@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.client.chunk.syntax.hairball.Hairball;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.html.Html;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;
 
@@ -36,9 +37,10 @@ import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;
  */
 public class SyntaxRegistry {
 	private static final Map<String,Syntax> registryMap = new HashMap<>();
-	{
+	static {
 		registryMap.put(Chunk.Language.MARKDOWN.name(), new MarkDownIt());
 		registryMap.put(Chunk.Language.HTML.name(), new Html());
+		registryMap.put(Chunk.Language.HAIRBALL.name(), new Hairball());
 	}
 	
 	public static synchronized void register(String name, Syntax syntax) {

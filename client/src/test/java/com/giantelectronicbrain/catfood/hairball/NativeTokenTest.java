@@ -33,9 +33,14 @@ public class NativeTokenTest {
 	
 	@Test
 	public void test() {
-		Token uut = new NativeToken(this::behavior);
+		Token uut = new NativeToken("test",this::behavior);
 		
-		uut.execute(null);
+		try {
+			uut.execute(null);
+		} catch (HairballException e) {
+			e.printStackTrace();
+			fail("threw Hairball Exception");
+		}
 		assertTrue(didIt);
 	}
 

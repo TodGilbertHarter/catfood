@@ -23,7 +23,15 @@ package com.giantelectronicbrain.catfood.hairball;
 public interface Token {
 	/**
 	 * @param interpreter the interpreter which is running our code
+	 * @throws HairballException 
 	 */
-	public abstract void execute(Interpreter interpreter);
+	public abstract void execute(Interpreter interpreter) throws HairballException;
 
+	/**
+	 * Return a human-readable identifier for this token. This is just so that debugging
+	 * Hairball code is not complete insanity.
+	 * 
+	 * @return the name of this token
+	 */
+	public abstract String getName();
 }

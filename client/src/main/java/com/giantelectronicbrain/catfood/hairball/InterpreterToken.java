@@ -29,14 +29,31 @@ import java.util.List;
  *
  */
 public class InterpreterToken implements Token {
+	private final String name;
 	private final List<Token> tokens;
 	
-	public InterpreterToken() {
-		this.tokens = new ArrayList<>();
+	/**
+	 * Convenience function for building interpreter tokens. This makes it easier to 
+	 * build them in Java, which is easier for a lot of core words.
+	 * 
+	 * @param tokens
+	 * @return
+	 */
+	public static Token makeToken(String name, Token... tokens) {
+		InterpreterToken token = new InterpreterToken(name);
+		for(Token atoken : tokens) {
+			token.add(atoken);
+		}
+		return token;
 	}
 	
-	public InterpreterToken(List<Token> tokens) {
+	public InterpreterToken(String name) {
+		this(name,new ArrayList<>());
+	}
+	
+	public InterpreterToken(String name, List<Token> tokens) {
 		this.tokens = tokens;
+		this.name = name;
 	}
 	
 	public void add(Token newToken) {
@@ -47,12 +64,25 @@ public class InterpreterToken implements Token {
 	
 	/**
 	 * @param interpreter the interpreter which is running our code
+	 * @throws HairballException 
 	 */
-	public void execute(Interpreter interpreter) {
+	public void execute(Interpreter interpreter) throws HairballException {
 		Context newContext = new Context(tokens,0);
 		interpreter.jumpToContext(newContext);
 		interpreter.executeContext();
 		interpreter.returnFromContext();
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "InterpreterToken [name=" + name + "]";
 	}
 
 }

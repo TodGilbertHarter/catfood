@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.giantelectronicbrain.catfood.client.chunk.syntax.Syntax;
+import com.giantelectronicbrain.catfood.client.chunk.syntax.SyntaxRegistry;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
@@ -31,8 +32,6 @@ import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
  *
  */
 public class ChunkViewFactory {
-	private static Syntax renderer = new MarkDownIt();
-
 	public static ViewOn<Chunk> createChunkView(Fluent parent,Consumer<Chunk> editHandler) {
 		return createChunkView(null,parent, editHandler);
 	}
@@ -65,6 +64,7 @@ public class ChunkViewFactory {
 	}
 	
 	private static String renderContent(Chunk chunk) {
+		Syntax renderer = SyntaxRegistry.getRenderer(chunk.getLang().name());
 		return renderer.generateHTML(chunk);
 	}
 }

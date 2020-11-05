@@ -100,8 +100,9 @@ public class OrientDBStore implements ICatFoodDBStore {
 		ChunkId chunkId = chunk.getChunkId();
 		if(chunkId == null || chunkId.getChunkId() == null || chunkId.getChunkId().isBlank())
 			throw new StorageException("Cannot update a non-existent chunk");
+		chunk.setLastUpdated(System.currentTimeMillis());
 		try(ODatabaseSession sess = dbPool.acquire()) {
-			OResultSet results = sess.command("UPDATE Topic SET name=?, content=?, lang=? WHERE @rid=?",
+			OResultSet results = sess.command("UPDATE Topic SET name=?, content=?, lang=?, lastUpdated=? WHERE @rid=?",
 					chunk.getName(),
 					chunk.getContent(),
 					chunk.getLang(),
@@ -115,10 +116,9 @@ public class OrientDBStore implements ICatFoodDBStore {
 	public ChunkId postContent(Chunk chunk) {
 		LOGGER.debug("Posting a chunk with name "+chunk.getName());
 
+		chunk.setLastUpdated(System.currentTimeMillis());
 		try(ODatabaseSession sess = dbPool.acquire()) {
-//			ODatabaseRecordThreadLocal.instance().set(sess);
-//			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("INSERT INTO Topic(name,content,lang) VALUES(?,?,?)");
-			OResultSet oResults = sess.command("INSERT INTO Topic(name,content,lang) VALUES(?,?,?)", chunk.getName(),chunk.getContent(),chunk.getLang());
+			OResultSet oResults = sess.command("INSERT INTO Topic(name,content,lang) VALUES(?,?,?,?)", chunk.getName(),chunk.getContent(),chunk.getLang(), chunk.getLastUpdated());
 			String rid = null; 
 			if(oResults.hasNext()) {
 				OResult result = oResults.next();
@@ -175,7 +175,7 @@ public class OrientDBStore implements ICatFoodDBStore {
 			
 			if(oResults.hasNext()) {
 				OResult oResult = oResults.next();
-				result = new Chunk(oResult.getProperty("content"),new ChunkId(oResult.getIdentity().toString()),oResult.getProperty("name"),Language.valueOf(oResult.getProperty("lang")));
+				result = new Chunk(oResult.getProperty("content"),new ChunkId(oResult.getIdentity().toString()),oResult.getProperty("name"),Language.valueOf(oResult.getProperty("lang")), oResult.getProperty("lastUpdated"));
 				LOGGER.debug("Got list of results of size "+oResults.getExactSizeIfKnown());
 				LOGGER.debug("Result 0 is "+result.toString());
 			}
@@ -184,13 +184,22 @@ public class OrientDBStore implements ICatFoodDBStore {
 			return result;
 		}
 	}
+	
+	@Override
+	public void deleteContent(ChunkId chunkId) {
+		try(ODatabaseSession sess = dbPool.acquire()) {
+			OResultSet oResults = sess.command("DELETE FROM Topic WHERE @rid = ?", chunkId.getChunkId());
+			oResults.close();
+			sess.commit();
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see com.giantelectronicbrain.catfood.store.ICatFoodDBStore#getJsonTopic(java.lang.String)
 	 */
 	@Override
-	public String getJsonChunk(String name) {
+	public String getJsonContent(String name) {
 		LOGGER.debug("Getting Topic for name "+name);
 		
 		try(ODatabaseSession sess = dbPool.acquire()) {
@@ -213,6 +222,36 @@ public class OrientDBStore implements ICatFoodDBStore {
 			}
 			oResults.close();
 			return json;
+		}
+	}
+
+	@Override
+	public String findTopic(String pattern) throws StorageException {
+		try(ODatabaseSession sess = dbPool.acquire()) {
+
+			OResultSet oResults = sess.query("SELECT FROM Topic WHERE name LIKE ?", pattern);
+			
+			LOGGER.debug("Got results, we have at least one result {}",oResults.hasNext());
+	
+			StringBuffer json = new StringBuffer();
+			json.append("[ ");
+			boolean first = true;
+			while(oResults.hasNext()) {
+				OResult res = oResults.next();
+				LOGGER.debug("Got a result object of {}",res);
+				OElement element = res.toElement();
+				LOGGER.debug("Got element object of {}",element);
+				String rJson = element.toJSON();
+				LOGGER.debug("JSON is {}",rJson);
+				if(!first) {
+					json.append(", ");
+				}
+				json.append(rJson);
+				first = false;
+			}
+			oResults.close();
+			json.append(" ]");
+			return json.toString();
 		}
 	}
 

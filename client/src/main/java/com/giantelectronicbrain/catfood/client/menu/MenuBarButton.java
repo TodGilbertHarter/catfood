@@ -79,7 +79,7 @@ public class MenuBarButton extends MenuButton {
 				"Copyright &copy; 2020 Tod G. Harter, all rights reserved.\n"
 				+ "## Version\n"
 				+ "CatFood 0.0.0\n"
-				,null,"About CatFood",Language.MARKDOWN
+				,null,"About CatFood",Language.MARKDOWN,0
 				)));
 	}
 	

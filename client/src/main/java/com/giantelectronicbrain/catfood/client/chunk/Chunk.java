@@ -32,11 +32,13 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 public class Chunk {
 	public enum Language {
 		MARKDOWN,
-		HTML
+		HTML,
+		HAIRBALL
 	}
 
 	@JsonUnwrapped
 	private ChunkId chunkId;
+	private Long lastUpdated;
 	private String content;
 	private String name;
 	private Language lang;
@@ -54,12 +56,14 @@ public class Chunk {
 	 * @param the ChunkId of this chunk, or null if it hasn't got one.
 	 * @param name the name of the chunk
 	 * @param language the language of the chunk
+	 * @param long last updated time in unix epoch milliseconds
 	 */
-	public Chunk(String content, ChunkId chunkId, String name, Language language) {
+	public Chunk(String content, ChunkId chunkId, String name, Language language, long lastUpdated) {
 		setContent(content);
 		setChunkId(chunkId);
 		setName(name);
 		setLang(language);
+		setLastUpdated(lastUpdated);
 	}
 
 	/**
@@ -161,6 +165,20 @@ public class Chunk {
 	@Override
 	public String toString() {
 		return "Chunk [chunkId=" + chunkId + ", content=" + content + ", name=" + name + ", lang=" + lang + "]";
+	}
+
+	/**
+	 * @return the lastUpdated
+	 */
+	public Long getLastUpdated() {
+		return lastUpdated;
+	}
+
+	/**
+	 * @param lastUpdated the lastUpdated to set
+	 */
+	public void setLastUpdated(Long lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 	
 	

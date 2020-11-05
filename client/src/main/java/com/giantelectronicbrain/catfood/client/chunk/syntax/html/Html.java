@@ -28,9 +28,6 @@ import com.giantelectronicbrain.catfood.client.chunk.syntax.SyntaxRegistry;
  *
  */
 public class Html implements Syntax {
-	static {
-		SyntaxRegistry.register(Language.HTML.name(), new Html());
-	}
 
 	public Html() {
 	}

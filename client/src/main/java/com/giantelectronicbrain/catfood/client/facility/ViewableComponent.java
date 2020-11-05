@@ -28,15 +28,7 @@ import com.giantelectronicbrain.catfood.client.fluent.Viewable;
  * @author tharter
  *
  */
-public interface ViewableComponent {
-	
-	/**
-	 * Get the component's signal broker. This is really only abstract because
-	 * we can't make Component a base class, silly Java...
-	 * 
-	 * @return The SignalBroker for this Component. You better have/make one...
-	 */
-	public abstract SignalBroker getSignalBroker();
+public interface ViewableComponent extends Component {
 	
 	/**
 	 * Get the viewable which displays this component.

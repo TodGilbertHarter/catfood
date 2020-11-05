@@ -58,6 +58,17 @@ public class ChunkView implements ViewableComponent {
 		return new ChunkView(chunk,parent.getUiContributionPoint());
 	}
 	
+	/**
+	 * Create a chunk view which is attached to a fluent.
+	 * 
+	 * @param chunk
+	 * @param root
+	 * @return
+	 */
+	public static ChunkView createChunkView(Chunk chunk, Fluent root) {
+		return new ChunkView(chunk,root);
+	}
+	
 	public ChunkView(Chunk chunk, Fluent root) {
 		this.root = root;
 		view = root.add(chunk,buildView());

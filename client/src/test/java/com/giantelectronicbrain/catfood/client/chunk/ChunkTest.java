@@ -44,7 +44,7 @@ public class ChunkTest extends GWTTestCase {
 	@Test
 	public void testSerialization() {
 		ChunkId chunkId = new ChunkId("idvalue");
-		Chunk chunk = new Chunk("the content", chunkId, "topic name", Language.MARKDOWN);
+		Chunk chunk = new Chunk("the content", chunkId, "topic name", Language.MARKDOWN,0);
 		TestChunkMapper m = GWT.create(TestChunkMapper.class);
 		String json = m.write(chunk);
 //		Chunk result = TestChunkMapper.INSTANCE.write(chunk);
@@ -56,7 +56,7 @@ public class ChunkTest extends GWTTestCase {
 	@Test
 	public void testDeserialization() {
 		ChunkId chunkIdExpected = new ChunkId("idvalue");
-		Chunk chunkExpected = new Chunk("the content", chunkIdExpected, "topic name", Language.MARKDOWN);
+		Chunk chunkExpected = new Chunk("the content", chunkIdExpected, "topic name", Language.MARKDOWN,0);
 		String json = "{\"content\":\"the content\",\"name\":\"topic name\",\"lang\":\"MARKDOWN\",\"@rid\":\"#idvalue\"}";
 		TestChunkMapper m = GWT.create(TestChunkMapper.class);
 		Chunk result = m.read(json);

@@ -18,8 +18,13 @@ package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Scanner;
+
+import com.google.gwt.core.shared.GwtIncompatible;
 
 /**
  * A word stream which is attached to the console.
@@ -27,36 +32,82 @@ import java.util.Scanner;
  * @author tharter
  *
  */
+@GwtIncompatible
 public class ConsoleWordStream implements WordStream {
 //	private final Console console;
 	private final String prompt;
 	private String input = "";
 	private Scanner inputScanner;
 	private BufferedReader reader;
-
+	private OutputStream out;
+	private byte[] pBytes = null;
+	
+	/**
+	 * Create a ConsoleWordStream attached to STDIN/OUT.
+	 * 
+	 * @param prompt
+	 */
 	public ConsoleWordStream(String prompt) {
 		this.prompt = prompt;
+		pBytes = prompt.getBytes(Charset.defaultCharset());
 		inputScanner = new Scanner(input);
 		reader = new BufferedReader(new InputStreamReader(System.in));
+		out = System.out;
+	}
+
+	/**
+	 * Create a ConsoleWordStream attached to the given input and output.
+	 * 
+	 * @param prompt
+	 * @param out
+	 * @param in
+	 */
+	public ConsoleWordStream(String prompt, OutputStream out, InputStream in) {
+		this.prompt = prompt;
+		pBytes = prompt.getBytes(Charset.defaultCharset());
+		inputScanner = new Scanner(input);
+		reader = new BufferedReader(new InputStreamReader(in));
+		this.out = out;
 	}
 
 	@Override
-	public Word getNextToken() throws IOException {
+	public Word getNextWord() throws IOException {
+		String next = getNext();
+		return next == null ? null : new Word(next);
+	}
+	
+	private String getNext() throws IOException {
 		if(inputScanner.hasNext()) {
-			return new Word(inputScanner.next());
+			return inputScanner.next();
 		} else {
-			System.out.print(prompt);
+			out.write(pBytes);
 			input = reader.readLine();
+			//TODO: this issue is kind of a corner case, not sure how to handle it
+			if(input == null) return null; // throw new IOException("Console ran out of input!");
 			inputScanner = new Scanner(input);
 			if(inputScanner.hasNext())
-				return new Word(inputScanner.next());
-			return new Word("\n\n"); // we got double returns, which is a special token for us
+				return inputScanner.next();
+			return "\n\n"; // we got double returns, which is a special token for us
 		}
 	}
 
 	@Override
 	public boolean hasMoreTokens() {
 		return true;
+	}
+
+	@Override
+	public String getToMatching(String match) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		String more =  getNext();
+		boolean first = true;
+		while(!(more.equals(match))) {
+			if(!first) sb.append(' ');
+			first = false;
+			sb.append(more);
+			more = getNext();
+		}
+		return sb.toString();
 	}
 
 }

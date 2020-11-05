@@ -35,12 +35,12 @@ import org.junit.Test;
 public class InterpreterTest {
 
 	private int lastExecuted = -1;
-	private Token rtsToken = new NativeToken((interp) -> { interp.returnFromContext(); });
+	private Token rtsToken = new NativeToken("rfc",(interp) -> { interp.returnFromContext(); });
 	private Interpreter uut;
 	private Context context;
-	private Token firstToken = new NativeToken((interp) -> { lastExecuted = 1; });
-	private Token secondToken = new NativeToken((interp) -> { lastExecuted = 2; });
-	private Token thirdToken = new NativeToken((interp) -> { lastExecuted = 3; });
+	private Token firstToken = new NativeToken("first",(interp) -> { lastExecuted = 1; });
+	private Token secondToken = new NativeToken("second",(interp) -> { lastExecuted = 2; });
+	private Token thirdToken = new NativeToken("third",(interp) -> { lastExecuted = 3; });
 	private List<Token> instructions = new ArrayList<>();
 	
 	@Before
@@ -125,8 +125,8 @@ public class InterpreterTest {
 	}
 	
 	@Test
-	public void testJumpToContextExecutesNativeToken() {
-		NativeToken token = new NativeToken((uut) -> {uut.push(444);});
+	public void testJumpToContextExecutesNativeToken() throws HairballException {
+		NativeToken token = new NativeToken("444",(uut) -> {uut.push(444);});
 		List<Token> tlist = new ArrayList<>();
 		tlist.add(token);
 		Context context = new Context(tlist);
@@ -141,8 +141,8 @@ public class InterpreterTest {
 	}
 	
 	@Test
-	public void testJumpToContextExecutesInterpreterToken() {
-		InterpreterToken interpToken = new InterpreterToken();
+	public void testJumpToContextExecutesInterpreterToken() throws HairballException {
+		InterpreterToken interpToken = new InterpreterToken("test");
 		interpToken.add(firstToken);
 		List<Token> interpList = new ArrayList<>();
 		interpList.add(interpToken);

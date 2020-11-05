@@ -34,16 +34,12 @@ import jsinterop.annotations.JsType;
  *
  */
 public class MarkDownIt implements Syntax {
-	static {
-		SyntaxRegistry.register(Language.MARKDOWN.name(), new MarkDownIt());
-	}
 
 	public MarkDownIt() {
 	}
 	
 	@Override
 	public native String generateHTML(Chunk chunk) /*-{
-//		var chunkName = chunk.@com.giantelectronicbrain.catfood.client.chunk.Chunk::getName()();
 		var chunkContent = chunk.@com.giantelectronicbrain.catfood.client.chunk.Chunk::getContent()();
 		return $wnd.md.render(chunkContent);
 	}-*/;

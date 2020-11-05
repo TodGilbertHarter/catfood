@@ -106,6 +106,8 @@ public class ServerVerticle extends AbstractVerticle {
 				router.get("/data/chunk/byname/:name").blockingHandler(dBService::getTopicByName);
 				router.post("/data/chunk").blockingHandler(dBService::saveTopicByName);
 				router.put("/data/chunk").blockingHandler(dBService::updateTopicById);
+				router.delete("/data/chunk/byid/:id").blockingHandler(dBService::deleteTopicByID);
+				router.get("/data/chunk/like/:pattern").blockingHandler(dBService::findTopic);
 	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
 	
 				// handle all other content as static files
@@ -125,6 +127,7 @@ public class ServerVerticle extends AbstractVerticle {
 				// in case a client loads one of the internal routes, then give them the main page
 				router.get("/edit/*").handler(context -> context.reroute("/")); 
 				router.get("/view/*").handler(context -> context.reroute("/"));
+				router.get("/find/name/*").handler(context -> context.reroute("/"));
 				router.get("/*").handler(otherHandler);
 			
 				server.requestHandler(router::accept).listen(port, "0.0.0.0");

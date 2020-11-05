@@ -70,4 +70,9 @@ public class Word {
 		return this.value;
 	}
 
+	@Override
+	public String toString() {
+		return "Word [value=" + value + "]";
+	}
+
 }

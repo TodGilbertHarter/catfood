@@ -50,7 +50,7 @@ public class ChunkDeserializer extends JsonDeserializer<Chunk> {
 			addValue(chunk,reader.nextName(),reader.nextString());
 		}
 		reader.endObject();
-		reader.close();
+//		reader.close(); //NOTE: commented this out to see if it lets our simple-minded list deserialize work
 		return chunk;
 	}
 
@@ -63,6 +63,8 @@ public class ChunkDeserializer extends JsonDeserializer<Chunk> {
 			chunk.setContent(value);
 		} else if("lang".equals(name)) {
 			chunk.setLang(Language.valueOf(value));
+		} else if("lastUpdated".equals(name) ) {
+			chunk.setLastUpdated(Long.valueOf(value));
 		}
 	}
 }

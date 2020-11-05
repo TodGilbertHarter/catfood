@@ -824,6 +824,14 @@ public class Fluent extends FluentBase {
 		return td().classs(classs).txt(inner);
 	}
 
+	public static Fluent Tr() {
+		return new Fluent("TR", null);
+	}
+	
+	public static Fluent Tr(String classs) {
+		return Tr().classs(classs);
+	}
+	
 	public static Fluent Td() {
 		return new Fluent("TD", null);
 	}
@@ -852,6 +860,10 @@ public class Fluent extends FluentBase {
 		return new Fluent("THEAD", this);
 	}
 
+	public Fluent thead(String classs) {
+		return thead().classs(classs);
+	}
+	
 	public Fluent time() {
 		return new Fluent("TIME", this);
 	}
@@ -860,6 +872,10 @@ public class Fluent extends FluentBase {
 		return new Fluent("TITLE", this).classs(classs).txt(inner);
 	}
 
+	public Fluent tr(String classs) {
+		return this.tr().classs(classs);
+	}
+	
 	public Fluent tr() {
 		return new Fluent("TR", this);
 	}

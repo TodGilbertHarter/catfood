@@ -13,6 +13,18 @@
 		<th:block th:each="script : ${catfoodclient.scripts}">
 			<script th:src="${script}"></script>
 		</th:block>
+		<script src="/hairball/html.hairball" type="application/x-hairball" id="htmlvocab">
+			/: /P <p> :/
+			/: P/ </p> :/
+			/: /H1 <h1> :/
+			/: H1/ </h1> :/
+			/: /H2 <h2> :/
+			/: H2/ </h2> :/
+			/: /H3 <h3> :/
+			/: H3/ </h3> :/
+			/: /EM /SPACE <em> :/
+			/: EM/ </em> /SPACE :/
+		</script>
 		<title th:text="${catfoodclient.applicationTitle}"></title>
 	</head>
 	<body class="body">

@@ -75,6 +75,7 @@ build.dependsOn(copyDependencies)
 } */
 
 dependencies {
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.775')
 	implementation 'live.connector:vertxui-core:2.0.8-tgh'
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
@@ -92,7 +93,7 @@ dependencies {
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
     implementation 'io.vertx:vertx-web-templ-thymeleaf:3.9.3'
-    
+    implementation 'com.amazonaws:aws-java-sdk-s3'
 }
 
 vertx {
