@@ -24,6 +24,10 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 import com.giantelectronicbrain.catfood.buckets.IBucketObjectName;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -45,7 +49,7 @@ public class S3BucketObject implements IBucketObject{
 
 	@Override
 	public String getContentsAsString() throws IOException {
-		InputStream is = getContentsAsStream();
+/*		InputStream is = getContentsAsStream();
 	    ByteArrayOutputStream into = new ByteArrayOutputStream();
 	    byte[] buf = new byte[4096];
 	    for (int n; 0 < (n = is.read(buf));) {
@@ -54,6 +58,8 @@ public class S3BucketObject implements IBucketObject{
 	    into.close();
 		is.close();
 	    return new String(into.toByteArray(), "UTF-8"); // Or whatever encoding
+	    */
+		return null;
 	}
 
 	@Override
@@ -62,12 +68,13 @@ public class S3BucketObject implements IBucketObject{
 	}
 
 	@Override
-	public InputStream getContentsAsStream() throws IOException {
-		return bucketContents.getObjectContent();
+	public ReadStream<Buffer> getContentsAsStream() throws IOException {
+//		return bucketContents.getObjectContent();
+		return null;
 	}
 	
 	@Override
-	public void setContentsAsStream(InputStream is) throws IOException {
-		bucketContents.setObjectContent(is);
+	public void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) throws IOException {
+//		bucketContents.setObjectContent(is);
 	}
 }

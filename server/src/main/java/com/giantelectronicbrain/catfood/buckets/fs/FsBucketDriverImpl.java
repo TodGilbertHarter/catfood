@@ -18,23 +18,12 @@ package com.giantelectronicbrain.catfood.buckets.fs;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
+import java.nio.charset.Charset;
 import java.nio.file.InvalidPathException;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import org.apache.commons.io.FileUtils;
 
 import com.giantelectronicbrain.catfood.buckets.BucketDriverException;
 import com.giantelectronicbrain.catfood.buckets.IBucket;
@@ -42,14 +31,26 @@ import com.giantelectronicbrain.catfood.buckets.IBucketDriver;
 import com.giantelectronicbrain.catfood.buckets.IBucketName;
 import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 import com.giantelectronicbrain.catfood.buckets.IBucketObjectName;
+import com.giantelectronicbrain.catfood.exceptions.CatfoodApplicationException;
+import com.giantelectronicbrain.catfood.exceptions.ExceptionIds;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.FileSystem;
+import io.vertx.core.file.FileSystemException;
+import io.vertx.core.file.OpenOptions;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Filesystem bucket driver implementation. This is useful for testing, etc.
  * 
- * @author kf203e
+ * @author tharter
  *
  */
 @Slf4j
@@ -57,48 +58,18 @@ import lombok.extern.slf4j.Slf4j;
 public class FsBucketDriverImpl implements IBucketDriver {
 	
 	private final FileSystem fileSystem;
-	private final Path basePath;
+	private final String basePath;
 
-	private FileAttribute<Set<PosixFilePermission>> makeDefaultAttributes() {
-		Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr-x");
-		return PosixFilePermissions.asFileAttribute(perms);
-	}
-	
-	private boolean isPosix() {
-        Set<String> set=fileSystem.supportedFileAttributeViews();
- 
-        Iterator<String> iterator=set.iterator();
-        while(iterator.hasNext()){
-        	if(iterator.next().equalsIgnoreCase("POSIX")) return true;
-        }
-		return false;
-	}
-	
-	private Path createDirectory(Path dirPath) throws IOException {
-		if(isPosix()) {
-			return Files.createDirectory(dirPath, makeDefaultAttributes());
-		} else {
-			return Files.createDirectory(dirPath,new FileAttribute<?>[0]);
-		}
-	}
-	
-	private Path createFile(Path filePath) throws IOException {
-		if(isPosix()) {
-			return Files.createFile(filePath, makeDefaultAttributes());
-		} else {
-			return Files.createFile(filePath, new FileAttribute<?>[0]);
-		}
-	}
 	/* (non-Javadoc)
 	 * @see com.boeing.bms.goldstandard.buckets.IBucketDriver#createBucket(com.boeing.bms.goldstandard.buckets.IBucketName)
 	 */
 	@Override
 	public IBucket createBucket(IBucketName bucketName) throws BucketDriverException {
 		try {
-			Path path = ((FsBucketName)bucketName).getPath();
-			Path fullPath = resolvedPath(path);
-			path = createDirectory(fullPath);
-		} catch (InvalidPathException | IOException e) {
+			String path = bucketName.getNameString();
+			path = resolvedPath(path);
+			fileSystem.mkdirBlocking(path);
+		} catch (FileSystemException e) {
 			log.warn("Exception while creating a bucket",e);
 			throw new BucketDriverException("Cannot create a bucket",e);
 		}
@@ -111,28 +82,28 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public Optional<IBucket> getBucket(IBucketName bucketName) throws BucketDriverException {
 		FsBucket bucket = null;
-		Path path = ((FsBucketName)bucketName).getPath();
+		String path = bucketName.getNameString();
 		path = resolvedPath(path);
-		if(!Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) // new LinkOption())) // (LinkOption)null))
+		if(fileSystem.existsBlocking(path))
 			bucket = new FsBucket(this, (FsBucketName) bucketName);
 		return Optional.ofNullable(bucket);
 	}
 
-	private Path resolvedPath(Path path) {
-		return basePath.resolve(path);
+	private String resolvedPath(String path) {
+		return basePath + "/" + path;
 	}
 	
-	private Path resolvedPath(FsBucketObjectName boName) {
-		Path bop = boName.getPath();
-		Path bp = ((FsBucketName) boName.getBucketName()).getPath();
-		Path rbp = resolvedPath(bp);
-		return rbp.resolve(bop);
+	private String resolvedPath(FsBucketObjectName boName) {
+		String bop = boName.getName();
+		String bp = boName.getBucketName().getNameString();
+		return resolvedPath(bp) + "/" + bop;
 	}
 	
-	InputStream getInputStream(IBucketObject bucketObject) throws IOException {
-		Path resolved = resolvedPath(((FsBucketObjectName)bucketObject.getName()));
-		return Files.newInputStream(resolved);
-	}
+/*	private InputStream getInputStream(IBucketObject bucketObject) throws IOException {
+		String resolved = resolvedPath(bucketObject.getNameString());
+		Buffer buffer = fileSystem.readFileBlocking(resolved);
+		buffer.
+	} */
 	
 	/* (non-Javadoc)
 	 * @see com.boeing.bms.goldstandard.buckets.IBucketDriver#getBucketObject(com.boeing.bms.goldstandard.buckets.IBucketObjectName)
@@ -140,12 +111,9 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public Optional<IBucketObject> getBucketObject(IBucketObjectName objectName) throws BucketDriverException {
 		FsBucketObjectName fsbon = (FsBucketObjectName) objectName;
-		FsBucketObject bo = null;
-		Path path = fsbon.getPath();
-		Path bPath = ((FsBucketName) fsbon.getBucketName()).getPath();
-		Path fullPath = resolvedPath(bPath);
-		fullPath = fullPath.resolve(path); // resolvedPath(fullPath);
-		if(!Files.notExists(fullPath))//, (LinkOption[])null
+		String fullPath = resolvedPath(fsbon);
+		IBucketObject bo = null;
+		if(fileSystem.existsBlocking(fullPath))
 			bo = new FsBucketObject(this,fsbon);
 		return Optional.ofNullable(bo);
 	}
@@ -156,10 +124,11 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public boolean deleteBucket(IBucketName bucketName) throws BucketDriverException {
 		try {
-			Path path = ((FsBucketName)bucketName).getPath();
-			Path rpath = resolvedPath(path);
-			return FileUtils.deleteQuietly(rpath.toFile());
-		} catch (InvalidPathException e) {
+			String path = bucketName.getNameString();
+			String rpath = resolvedPath(path);
+			fileSystem.deleteBlocking(rpath);
+			return true; //TODO: it would be nice to be able to actually return a meaningful result here
+		} catch (FileSystemException e) {
 			log.warn("Exception while deleting a bucket",e);
 			throw new BucketDriverException("Cannot delete a bucket",e);
 		}
@@ -178,10 +147,10 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	private class BucketIterator implements Iterator<IBucket> {
-		private Iterator<Path> pItr; // = Files.list(basePath).iterator();
+		private Iterator<String> pItr; // = Files.list(basePath).iterator();
 
 		public BucketIterator() throws IOException {
-			pItr = Files.list(basePath).iterator();
+			pItr = fileSystem.readDirBlocking(basePath).iterator();
 		}
 		
 		@Override
@@ -192,8 +161,8 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		@Override
 		public IBucket next() {
 			try {
-				Path p = pItr.next();
-				Path bp = p.getFileName();
+				String p = pItr.next();
+				String bp = getFileName(p);
 				IBucketName bn = new FsBucketName(bp);
 				Optional<IBucket> bo = getBucket(bn);
 				return bo.get();
@@ -212,13 +181,11 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public boolean deleteBucketObject(IBucketObjectName bucketObjectName) throws BucketDriverException {
 		try {
-			Path path = resolvedPath((FsBucketObjectName)bucketObjectName);
-			// added monkeyshine
-			System.out.println("trying to delete "+path);
+			String path = resolvedPath((FsBucketObjectName)bucketObjectName);
 			log.trace("attempting to delete {}",path);
-			return Files.deleteIfExists(path);
-		} catch (InvalidPathException | IOException | SecurityException e) {
-			e.printStackTrace();
+			fileSystem.deleteBlocking(path);
+			return true;
+		} catch (InvalidPathException | SecurityException e) {
 			log.warn("Exception while deleting a bucketObject",e);
 			throw new BucketDriverException("Cannot delete a bucketObject",e);
 		}
@@ -232,13 +199,13 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		boolean result = false;
 		try {
 //			Path path = ((FsBucketObjectName)bucketObjectName).getPath();
-			Path rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
-			if(!Files.exists(rPath, LinkOption.NOFOLLOW_LINKS)) {
-				rPath = createFile(rPath);
-				Files.write(rPath, content.getBytes());
+			String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
+			if(!fileSystem.existsBlocking(rPath)) {
+				fileSystem.createFileBlocking(rPath);
+				fileSystem.writeFileBlocking(rPath, Buffer.buffer(content.getBytes()));
 				result = true;
 			}
-		} catch (InvalidPathException | IOException e) {
+		} catch (InvalidPathException e) {
 			log.warn("Exception while creating a bucketObject",e);
 			throw new BucketDriverException("Cannot create a bucketObject",e);
 		}
@@ -251,9 +218,9 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		boolean result = false;
 		try {
 //			Path path = ((FsBucketObjectName)bucketObjectName).getPath();
-			Path rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
-			if(!Files.exists(rPath, LinkOption.NOFOLLOW_LINKS)) {
-				Files.copy(content, rPath);
+			String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
+			if(!fileSystem.existsBlocking(rPath)) {
+				fileSystem.writeFileBlocking(rPath,Buffer.buffer(content.readAllBytes()));
 				result = true;
 			}
 		} catch (InvalidPathException | IOException e) {
@@ -268,31 +235,24 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	 */
 	@Override
 	public IBucketName makeBucketName(String name) throws IllegalArgumentException {
-		Path path = fileSystem.getPath(name);
-		return FsBucketName.builder().path(path).build();
+		return FsBucketName.builder().nameString(name).build();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.boeing.bms.goldstandard.buckets.IBucketDriver#makeBucketObjectName(com.boeing.bms.goldstandard.buckets.IBucketName, java.lang.String)
-	 */
 	@Override
-	public IBucketObjectName makeBucketObjectName(IBucketName bucketName, String name) throws IllegalArgumentException {
-		Path path = fileSystem.getPath(name);
-		return makeBucketObjectName(bucketName,path);
+	public IBucketObjectName makeBucketObjectName(IBucketName bucketName, String path) throws IllegalArgumentException {
+		return FsBucketObjectName.builder().name(path).bucketName(bucketName).build();
 	}
 
-	private IBucketObjectName makeBucketObjectName(IBucketName bucketName, Path path) throws IllegalArgumentException {
-		return FsBucketObjectName.builder().path(path).bucketName(bucketName).build();
+	private String getFileName(String path) {
+		int index = path.lastIndexOf('/') + 1;
+		return index == 0 ? path : path.substring(index);
 	}
 	
 	protected Iterator<IBucketObject> getBucketObjectIterator(FsBucket fsBucket) throws IOException {
-		Path path = ((FsBucketName)fsBucket.getName()).getPath();
-		Path fullPath = resolvedPath(path);
-		Stream<Path> pStream = Files.list(fullPath);
-		Path[] pArray = pStream.toArray(Path[]::new);
-		List<Path> pList = Arrays.asList(pArray);
-		Iterator<Path> pIter = pList.iterator();
-		pStream.close();
+		String path = fsBucket.getName().getNameString();
+		String fullPath = resolvedPath(path);
+		List<String> pList = fileSystem.readDirBlocking(fullPath);
+		Iterator<String> pIter = pList.iterator();
 		
 		return new Iterator<IBucketObject>() {
 
@@ -305,8 +265,8 @@ public class FsBucketDriverImpl implements IBucketDriver {
 			public IBucketObject next() {
 				IBucketObject bucketObject = null;
 				if(pIter.hasNext()) {
-					Path fullPath = pIter.next();
-					Path lPath = fullPath.getFileName();
+					String fullPath = pIter.next();
+					String lPath = getFileName(fullPath);
 					IBucketName bName = fsBucket.getName();
 					IBucketObjectName bucketObjectName = makeBucketObjectName(bName, lPath);
 					try {
@@ -321,5 +281,159 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		};
 	}
 
+	/**
+	 * Given a bucket object and a desired character set, read the contents of the object into
+	 * a string encoded in the given character set, and return it.
+	 * 
+	 * @param bucketObject the bucket object to read
+	 * @param charset the character set the data is encoded with
+	 * @return contents of the bucket object as a string
+	 */
+	@Override
+	public String getBucketObjectContentsAsString(IBucketObject bucketObject, Charset charset) {
+		String path = resolvedPath((FsBucketObjectName)bucketObject.getName());
+		Buffer buffer = fileSystem.readFileBlocking(path);
+		byte[] bytes = buffer.getBytes();
+		return new String(bytes,charset);
+	}
+
+	@Override
+	public IBucketDriver createBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+		
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver getBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver getBucketObject(IBucketObjectName objectName, Handler<AsyncResult<IBucketObject>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver deleteBucket(IBucketName bucketName, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver deleteBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<Void>> hanlder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, String content,
+			Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, InputStream content,
+			Handler<AsyncResult<Void>> handler) {
+		Future<Void> ar = Future.future(promise -> {
+			try {
+				String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
+				fileSystem.open(rPath, new OpenOptions().setCreate(true).setWrite(true), result -> {
+					if(result.succeeded()) {
+						AsyncFile file = result.result();
+						byte[] bytes = new byte[1024];
+						int nRead;
+						do {
+							try {
+								nRead = content.read(bytes);
+								if(nRead != -1) {
+									Buffer buffer = Buffer.buffer(bytes);
+									file.write(buffer,nRead);
+								}
+							} catch (IOException e) {
+								//TODO: log something
+								promise.fail(e);
+								return;
+							}
+						} while(nRead != -1);
+						promise.complete();
+					} else {
+						//TODO: log something
+						promise.fail(result.cause());
+					}
+				});
+			} catch(Exception e) {
+				//TODO: probably should log something here
+				promise.fail(e);
+			}
+		});
+	return this;
+	}
+		
+	@Override
+	public IBucketDriver makeBucketName(String name, Handler<AsyncResult<IBucketName>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver makeBucketObjectName(IBucketName bucketName, String name,
+			Handler<AsyncResult<IBucketObjectName>> handler) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadStream<Buffer> getReadStream(FsBucketObject fsBucketObject) {
+		IBucketObjectName bucketObjectName = fsBucketObject.getName();
+		String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
+		Future<AsyncFile> ff = fileSystem.open(rPath, new OpenOptions());
+		return ff.result();
+	}
+
+	//TODO: add Handler<AsyncResult<Void>> to this...
+	@Override
+	public void createBucketObject(IBucketObjectName name, ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) {
+		String path = resolvedPath((FsBucketObjectName)name);
+		fileSystem.open(path, new OpenOptions(), result -> {
+			if(result.succeeded()) {
+				AsyncFile file = result.result();
+				Future<Void> pfut = is.pipeTo(file);
+				handler.handle(pfut);
+			} else {
+				Throwable t = makeException(result.cause());
+				handler.handle(Future.failedFuture(t));
+			}
+		});
+	}
+
+	@Override
+	public void createBucketObject(IBucketObjectName name, Handler<AsyncResult<WriteStream<Buffer>>> handler) {
+		String path = resolvedPath((FsBucketObjectName)name);
+		fileSystem.open(path, new OpenOptions(), result -> {
+			if(result.succeeded()) {
+				AsyncFile file = result.result();
+				AsyncResult<WriteStream<Buffer>> ffut = Future.succeededFuture(file);
+				handler.handle(ffut);
+			} else {
+				Throwable t = makeException(result.cause());
+				handler.handle(Future.failedFuture(t));
+			}
+		});
+	}
+
+	private CatfoodApplicationException makeException(Throwable cause) {
+		return new CatfoodApplicationException(ExceptionIds.SERVER_ERROR,"","");
+	}
+
+	@Override
+	public void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler)
+			throws IOException, BucketDriverException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

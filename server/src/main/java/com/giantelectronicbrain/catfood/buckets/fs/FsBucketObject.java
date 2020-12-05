@@ -16,17 +16,20 @@
 */
 package com.giantelectronicbrain.catfood.buckets.fs;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import com.giantelectronicbrain.catfood.buckets.BucketDriverException;
 import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 import com.giantelectronicbrain.catfood.buckets.IBucketObjectName;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+
 /**
- * @author kf203e
+ * @author tharter
  *
  */
 public class FsBucketObject implements IBucketObject {
@@ -59,27 +62,20 @@ public class FsBucketObject implements IBucketObject {
 	 */
 	@Override
 	public String getContentsAsString() throws BucketDriverException, IOException {
-		InputStream is = driver.getInputStream(this);
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int length;
-		while ((length = is.read(buffer)) != -1) {
-		    result.write(buffer, 0, length);
-		}
-		return result.toString(StandardCharsets.UTF_8.name());
+		return driver.getBucketObjectContentsAsString(this, StandardCharsets.UTF_8);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.boeing.bms.goldstandard.buckets.IBucketObject#getContentsAsStream()
 	 */
 	@Override
-	public InputStream getContentsAsStream() throws BucketDriverException, IOException {
-		return driver.getInputStream(this);
+	public ReadStream getContentsAsStream() throws BucketDriverException, IOException {
+		return driver.getReadStream(this);
 	}
 
 	@Override
-	public void setContentsAsStream(InputStream is) throws IOException, BucketDriverException {
-		driver.createBucketObject(this.getName(), is);
+	public void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) throws IOException, BucketDriverException {
+		driver.createBucketObject(this.getName(), is, handler);
 	}
 
 }

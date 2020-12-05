@@ -25,27 +25,23 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * @author kf203e
+ * @author tharter
  *
  */
 @Builder
 @Getter
 public class FsBucketObjectName implements IBucketObjectName {
 
-	 private final Path path;
+	 private final String name;
 	 private final IBucketName bucketName;
 	 
-	 protected FsBucketObjectName(Path path, IBucketName bucketName) {
-		 this.path = path;
+	 protected FsBucketObjectName(String name, IBucketName bucketName) {
+		 this.name = name;
 		 this.bucketName = bucketName;
 	 }
 	 
 	 public String getName() {
-		 return path.toString();
-	 }
-	 
-	 protected Path getPath() {
-		 return path;
+		 return this.name;
 	 }
 	 
 }

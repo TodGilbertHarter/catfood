@@ -23,19 +23,16 @@ import com.giantelectronicbrain.catfood.buckets.IBucketName;
 import lombok.Builder;
 
 /**
- * @author kf203e
+ * @author tharter
  *
  */
 @Builder
 public class FsBucketName implements IBucketName {
 
-	private final Path path;
+	private final String nameString;
 
 	public String getNameString() {
-		return path.toString();
+		return this.nameString;
 	}
 	
-	protected Path getPath() {
-		return path;
-	}
 }

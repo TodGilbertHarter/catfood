@@ -26,6 +26,7 @@ public enum ExceptionIds {
 	BAD_INPUTS("BAD_INPUTS"),
 	SERVER_ERROR("SERVER_ERROR"),
 	NO_PERMISSION("NO_PERMISSION"),
+	UNKNOWN("UNKNOWN"),
 	DATA_ERROR("DATA_ERROR");
 	
 	private String message;
@@ -36,5 +37,29 @@ public enum ExceptionIds {
 	
 	private ExceptionIds(String message) {
 		this.message = message;
+	}
+
+	/**
+	 * Translate some common http codes to ExceptionIds. This can
+	 * be used as a fallback for deciding what errors to output.
+	 * 
+	 * @param statusCode
+	 * @return
+	 */
+	public static ExceptionIds fromStatusCode(int statusCode) {
+		ExceptionIds result = UNKNOWN;
+		switch(statusCode) {
+		case 500:
+			result = SERVER_ERROR;
+			break;
+		case 400:
+			result = BAD_INPUTS;
+			break;
+		case 401:
+		case 403:
+			result = NO_PERMISSION;
+			break;
+		}
+		return result;
 	}
 }

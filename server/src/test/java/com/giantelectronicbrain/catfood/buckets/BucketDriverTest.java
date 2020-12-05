@@ -60,7 +60,7 @@ public abstract class BucketDriverTest {
 	
 	@Test
 	public void testCreateBucket() {
-		IBucketName bucketName = uut.makeBucketName("testbucket2");
+		IBucketName bucketName = uut.makeBucketName("testbucket3");
 		try {
 			uut.createBucket(bucketName);
 		} catch (BucketDriverException e) {
@@ -117,7 +117,7 @@ public abstract class BucketDriverTest {
 
 	@Test
 	public void testDeleteBucket() {
-		IBucketName bucketName = uut.makeBucketName("testbucket");
+		IBucketName bucketName = uut.makeBucketName("testbucket2");
 		try {
 			boolean result = uut.deleteBucket(bucketName);
 			assertTrue(result);
@@ -150,10 +150,9 @@ public abstract class BucketDriverTest {
 	}
 
 	@Test
-	@Ignore // after long and bloody attempts, it is impossible to make this test work in all environments. Java's file API is just crap.
 	public void testDeleteBucketObject() {
 		IBucketName bucketName = uut.makeBucketName("testbucket");
-		IBucketObjectName objectName = uut.makeBucketObjectName(bucketName, "testObject");
+		IBucketObjectName objectName = uut.makeBucketObjectName(bucketName, "testobject");
 		try {
 			boolean result = uut.deleteBucketObject(objectName);
 			System.out.println("GOT HERE");

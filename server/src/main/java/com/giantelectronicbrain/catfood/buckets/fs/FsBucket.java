@@ -24,7 +24,7 @@ import com.giantelectronicbrain.catfood.buckets.IBucketName;
 import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 
 /**
- * @author kf203e
+ * @author tharter
  *
  */
 public class FsBucket implements IBucket {

@@ -17,9 +17,19 @@
 
 package com.giantelectronicbrain.catfood.buckets;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Optional;
+
+import com.giantelectronicbrain.catfood.buckets.fs.FsBucketObject;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 
 /**
  * Interface abstraction for accessing bucket stores. This is intended to work with things like
@@ -43,6 +53,15 @@ public interface IBucketDriver {
 	public IBucket createBucket(IBucketName bucketName) throws BucketDriverException;
 	
 	/**
+	 * Create a new bucket with the given name. The handler will be invoked when the
+	 * bucket has been created.
+	 * 
+	 * @param bucketName IBucketName the name of the new bucket.
+	 * @param handler invoked when the bucket is created.
+	 */
+	public IBucketDriver createBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler);
+	
+	/**
 	 * Get a bucket with the given name. If no such bucket exists then return null. Note that
 	 * some drivers don't have an efficient way to check existence!
 	 * 
@@ -54,14 +73,32 @@ public interface IBucketDriver {
 	public Optional<IBucket> getBucket(IBucketName bucketName) throws BucketDriverException;
 
 	/**
-	 * Get a specific named object from TBD...
+	 * Get a bucket with the given name. Call the handler when it is available.
 	 * 
-	 * @param objectName
-	 * @return
+	 * @param bucketName IBucketName the name of the new bucket.
+	 * @param handler called when the bucket has been fetched
+	 */
+	public IBucketDriver getBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler);
+	
+	/**
+	 * Get a specific named object. Note that this returns the entire object, so it is not the
+	 * best choice for large objects.
+	 * 
+	 * @param objectName name of the object
+	 * @return IBucketObject containing the object
 	 * @throws BucketDriverException
 	 */
 	public Optional<IBucketObject> getBucketObject(IBucketObjectName objectName) throws BucketDriverException;
 
+	/**
+	 * Get a specific named object. Note that this returns the entire object, so it is not the
+	 * best choice for large objects.
+	 * 
+	 * @param objectName name of the object
+	 * @param handler handles the returned object
+	 */
+	public IBucketDriver getBucketObject(IBucketObjectName objectName, Handler<AsyncResult<IBucketObject>> handler);
+	
 	/**
 	 * Delete a bucket.
 	 * 
@@ -71,6 +108,14 @@ public interface IBucketDriver {
 	 */
 	public boolean deleteBucket(IBucketName bucketName) throws BucketDriverException;
 
+	/**
+	 * Delete a bucket.
+	 * 
+	 * @param bucketName bucket to delete
+	 * @param handler handle deletion
+	 */
+	public IBucketDriver deleteBucket(IBucketName bucketName, Handler<AsyncResult<Void>> handler);
+	
 	/**
 	 * Get an iterator on all buckets In the scope of the currently initialized driver.
 	 * 
@@ -88,6 +133,14 @@ public interface IBucketDriver {
 	public boolean deleteBucketObject(IBucketObjectName bucketObjectName) throws BucketDriverException;
 
 	/**
+	 * Delete an object from a bucket.
+	 * 
+	 * @param bucketObjectName the name of the object
+	 * @param handler handle the results
+	 */
+	public IBucketDriver deleteBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<Void>> hanlder);
+	
+	/**
 	 * Create a bucket object with the given content.
 	 * 
 	 * @param bucketObjectName name of the object
@@ -101,11 +154,29 @@ public interface IBucketDriver {
 	 * Create a bucket object with the given content.
 	 * 
 	 * @param bucketObjectName name of the object
+	 * @param content string to set the object's value to
+	 * @param handler handle the results
+	 */
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, String content, Handler<AsyncResult<Void>> handler);
+
+	/**
+	 * Create a bucket object with the given content.
+	 * 
+	 * @param bucketObjectName name of the object
 	 * @param content InputStream holding new bucket contents
 	 * @return true if object was created, false otherwise
 	 * @throws BucketDriverException if there was an error during object creation
 	 */
 	public boolean createBucketObject(IBucketObjectName bucketObjectName, InputStream content) throws BucketDriverException;
+
+	/**
+	 * Create a bucket object with the given content.
+	 * 
+	 * @param bucketObjectName name of the object
+	 * @param content InputStream holding new bucket contents
+	 * @param handler handle the results
+	 */
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, InputStream content, Handler<AsyncResult<Void>> handler);
 
 	/**
 	 * Create a bucket name object with the given string as its value. Note that implementations may put restrictions on 
@@ -118,6 +189,15 @@ public interface IBucketDriver {
 	public IBucketName makeBucketName(String name) throws IllegalArgumentException;
 	
 	/**
+	 * Create a bucket name object with the given string as its value. Note that implementations may put restrictions on 
+	 * the values allowed for these names.
+	 * 
+	 * @param name the string value of the bucket's name.
+	 * @param handler handle the results
+	 */
+	public IBucketDriver makeBucketName(String name, Handler<AsyncResult<IBucketName>> handler);
+	
+	/**
 	 * Create a bucket object name with the given string value and in the scope of the given IBucketName. Both the context
 	 * and the implementation may restrict which values are allowed for an object.
 	 * 
@@ -127,4 +207,45 @@ public interface IBucketDriver {
 	 * @throws IllegalArgumentException if this name violates the rules of the implmentation naming scheme
 	 */
 	public IBucketObjectName makeBucketObjectName(IBucketName bucketName, String name) throws IllegalArgumentException;
+
+	/**
+	 * Create a bucket object name with the given string value and in the scope of the given IBucketName. Both the context
+	 * and the implementation may restrict which values are allowed for an object name.
+	 * 
+	 * @param bucketName The bucket name under which this object name will exist
+	 * @param name the string value of the object's name
+	 * @param handler handle the results
+	 */
+	public IBucketDriver makeBucketObjectName(IBucketName bucketName, String name, Handler<AsyncResult<IBucketObjectName>> handler) throws IllegalArgumentException;
+
+	/**
+	 * Get the contents of a bucket object as a string. Note that this is only going to work for buckets which
+	 * contain text, and is not an efficient way to process large objects.
+	 * 
+	 * @param bucketObject the object who's contents to get.
+	 * @param charset the character set which encodes the texts code points
+	 * @return contents of the bucket object as a string.
+	 */
+	public abstract String getBucketObjectContentsAsString(IBucketObject bucketObject, Charset charset);
+
+	/**
+	 * @param fsBucketObject
+	 * @return
+	 */
+	public ReadStream<Buffer> getReadStream(FsBucketObject IBucketObject);
+
+	/**
+	 * @param name
+	 * @param is
+	 */
+	public void createBucketObject(IBucketObjectName name, ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler);
+
+	/**
+	 * @param name
+	 * @param handler
+	 */
+	public void createBucketObject(IBucketObjectName name, Handler<AsyncResult<WriteStream<Buffer>>> handler);
+
+	public void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) throws IOException, BucketDriverException;
+
 }

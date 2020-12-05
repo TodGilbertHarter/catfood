@@ -92,12 +92,13 @@ dependencies {
 	implementation project(':client') //path: ':client', configuration: 'shadowJars')
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
-    implementation 'io.vertx:vertx-web-templ-thymeleaf:3.9.3'
+    implementation 'io.vertx:vertx-web-templ-thymeleaf'
     implementation 'com.amazonaws:aws-java-sdk-s3'
+    testImplementation 'io.vertx:vertx-unit:4.0.0.CR1'
 }
 
 vertx {
-	vertxVersion = '3.9.2'
+	vertxVersion = '4.0.0.CR1'
 	launcher = 'com.giantelectronicbrain.catfood.CatFood'
 	args = ["-c=${rootProject.buildDir}/catfood/conf/reloading.properties".toString(), "-write"]
 	watch = ["client/src/**/*","server/src/**/*","src/**/*"]

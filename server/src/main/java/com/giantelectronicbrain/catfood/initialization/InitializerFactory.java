@@ -18,15 +18,21 @@
 package com.giantelectronicbrain.catfood.initialization;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
+import com.giantelectronicbrain.catfood.CatFoodAssetService;
 import com.giantelectronicbrain.catfood.CatFoodDBService;
+import com.giantelectronicbrain.catfood.assets.FSAssetStore;
+import com.giantelectronicbrain.catfood.assets.IAssetStore;
 import com.giantelectronicbrain.catfood.store.OrientDBStore;
-import com.giantelectronicbrain.catfood.templ.JSXTemplateEngine;
 
+import io.vertx.core.file.FileSystem;
+import io.vertx.ext.web.common.template.TemplateEngine;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
-import io.vertx.ext.web.templ.TemplateEngine;
+//import io.vertx.ext.web.templ.TemplateEngine;
 
 /**
  * Static configuration factory. 
@@ -43,7 +49,6 @@ public class InitializerFactory {
 	public static final String ORIENTDB_USER = "com.giantelectronicbrain.catfood.orientdbuser";
 	public static final String ORIENTDB_PASSWORD = "com.giantelectronicbrain.catfood.orientdbpassword";
 	public static final String ORIENTDB_DATABASE = "com.giantelectronicbrain.catfood.orientdatabase";
-	public static final String JSX_TEMPLATEHANDLER = "com.giantelectronicbrain.catfood.jsxtemplatehandler";
 	public static final String JSX_LIBSHANDLER = "com.giantelectronicbrain.catfood.jsxlibshandler";
 	public static final String STATIC_HANDLER = "com.giantelectronicbrain.catfood.statichandler";
 	public static final String LIBS_HANDLER = "com.giantelectronicbrain.catfood.libshandler";
@@ -52,12 +57,22 @@ public class InitializerFactory {
 	public static final String PORT = "com.giantelectronicbrain.catfood.port";
 	public static final String SCRIPTBASE = "com.giantelectronicbrain.catfood.scriptbase";
 	public static final String CLIENT_DEBUG = "com.giantelectronicbrain.catfood.clientdebug";
+	public static final String ASSET_STORE = "com.giantelectronicbrain.catfood.assetstore";
+	public static final String ASSET_STORE_SERVICE = "com.giantelectronicbrain.catfood.assetstore.service";
+	public static final String ASSET_STORE_TYPE = "com.giantelectronicbrain.catfood.assetstore.type";
+	public static final String ASSET_STORE_LOCATION = "com.giantelectronicbrain.catfood.assetstore.location";
+	public static final String ASSET_STORE_CREDENTIALS = "com.giantelectronicbrain.catfood.assetstore.credentials";
 	
 	private static volatile IInitializer initializerInstance;
 	private static volatile Properties configuration;
+	private static volatile FileSystem fileSystem;
 	
 	public static synchronized void setConfiguration(Properties newConfiguration) {
 		configuration = newConfiguration;
+	}
+	
+	public static synchronized void setFileSystem(FileSystem aFileSystem) {
+		fileSystem = aFileSystem;
 	}
 	
 	/**
@@ -126,6 +141,20 @@ public class InitializerFactory {
 		initializerInstance.set(CATFOOD_DB_STORE, new OrientDBStore()); //TODO: make the class configurable
 		initializerInstance.set(CATFOOD_DB_SERVICE, new CatFoodDBService());
 		
+		// Initialize asset store
+		String assetStoreType = config.getProperty(ASSET_STORE_TYPE);
+		IAssetStore assetStore = null;
+		if(IAssetStore.STORE_TYPE_FS.equals(assetStoreType)) {
+			String basePath = config.getProperty(ASSET_STORE_LOCATION);
+			assetStore = new FSAssetStore(basePath,fileSystem);
+			initializerInstance.set(ASSET_STORE, assetStore);
+		} else if(IAssetStore.STORE_TYPE_S3.equals(assetStoreType)){
+			//TODO: s3 type store
+			assetStore = null;
+		}
+		CatFoodAssetService assetService = new CatFoodAssetService();
+
+		// Initialize handlers
 		initializerInstance.set(SCRIPTBASE, config.getProperty(SCRIPTBASE,"../javascript"));
 		initializerInstance.set(CLIENT_DEBUG, Boolean.parseBoolean(config.getProperty(CLIENT_DEBUG,"false")));
 		Integer port = Integer.parseUnsignedInt(config.getProperty(PORT,"8080"));
@@ -133,15 +162,9 @@ public class InitializerFactory {
 		String webroot = config.getProperty(WEBROOT,"webroot");
 		initializerInstance.set(WEBROOT, webroot);		
 
-//		TemplateEngine jsxTemplateEngine = JSXTemplateEngine.create().setExtension("js");
-//		initializerInstance.set(JSX_TEMPLATEHANDLER, TemplateHandler.create(jsxTemplateEngine, webroot, "text/javascript"));
-
 		initializerInstance.set(STATIC_HANDLER,StaticHandler.create().setWebRoot(webroot+"/content").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1).setCachingEnabled(false).setIndexPage("index.html"));
 		initializerInstance.set(LIBS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/libs").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
 		
-		TemplateEngine jsTemplateEngine = JSXTemplateEngine.create().setExtension("js");
-		initializerInstance.set(JSX_LIBSHANDLER,TemplateHandler.create(jsTemplateEngine,webroot+"/components/lib","text/javascript"));
-
 		initializerInstance.set(COMPONENTS_HANDLER,StaticHandler.create().setWebRoot(webroot+"/components").setIncludeHidden(false).setDirectoryListing(false).setCacheEntryTimeout(1).setMaxAgeSeconds(1));
 	}
 }

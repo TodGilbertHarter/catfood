@@ -19,16 +19,21 @@ package com.giantelectronicbrain.catfood;
 
 import com.giantelectronicbrain.catfood.client.Client;
 import com.giantelectronicbrain.catfood.compiler.GWTCompiler;
+import com.giantelectronicbrain.catfood.exceptions.CatfoodApplicationException;
+import com.giantelectronicbrain.catfood.exceptions.ErrorResult;
+import com.giantelectronicbrain.catfood.exceptions.ExceptionIds;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.FaviconHandler;
@@ -57,6 +62,7 @@ public class ServerVerticle extends AbstractVerticle {
 	private TemplateHandler jsxLibsHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 	private StaticHandler componentsHandler; // = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 	private Boolean debugClient;
+	private String assetStoreLocation;
 	
 	/**
 	 * Instantiate the CatFood HTTP Server Verticle.
@@ -67,87 +73,99 @@ public class ServerVerticle extends AbstractVerticle {
 		dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
 		orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
 		port = (Integer) initializer.get(InitializerFactory.PORT);
-//		templateHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
 		otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 		libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
 		jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 		componentsHandler = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 		debugClient = (Boolean) initializer.get(InitializerFactory.CLIENT_DEBUG);
+		assetStoreLocation = (String) initializer.get(InitializerFactory.ASSET_STORE_LOCATION);
 	}
 
 	@Override
-	public void start(Future<Void> startFuture) throws Exception {
-		vertx.executeBlocking( future -> {
-			try {
-			    System.setProperty("ORIENTDB_HOME", orientdbHome);
-			    dBService.start();
-			    
-				server = vertx.createHttpServer();
-				Router router = Router.router(vertx);
-	
-				// logging
-				router.route().handler(LoggerHandler.create());
-	
-				// JSX template handling
-//				router.routeWithRegex("/components/.*\\.js").blockingHandler(templateHandler);
-//				router.routeWithRegex("/components/.*\\.jsx").blockingHandler(templateHandler);
-	
-				// handle static js components
-				router.route("/components/libs/*").handler(jsxLibsHandler);
-				
-				// handle static components (anything but JSX currently)
-				router.route("/components/*").handler(componentsHandler);
-	
-				// handle static javascript loads from libs
-				router.route("/libs/*").handler(libsHandler);
-	
-				// handle dynamic data queries
-				router.get("/data/chunk/byid/:id").blockingHandler(dBService::getTopicByID);
-				router.get("/data/chunk/byname/:name").blockingHandler(dBService::getTopicByName);
-				router.post("/data/chunk").blockingHandler(dBService::saveTopicByName);
-				router.put("/data/chunk").blockingHandler(dBService::updateTopicById);
-				router.delete("/data/chunk/byid/:id").blockingHandler(dBService::deleteTopicByID);
-				router.get("/data/chunk/like/:pattern").blockingHandler(dBService::findTopic);
-	//			router.get("/data/test").blockingHandler(CatFoodDBService::getTest);
-	
-				// handle all other content as static files
-//				router.route("/*").handler(otherHandler);
-				
-				// handle webjars, these are located in the classpath
-				StaticHandler webjarStaticHandler = StaticHandler.create("META-INF/resources/webjars");
-				router.route("/webjars/*").handler(webjarStaticHandler);
+	public void start(Promise<Void> startFuture) throws Exception {
+	    System.setProperty("ORIENTDB_HOME", orientdbHome);
 
-				FaviconHandler fih = FaviconHandler.create();
-				router.get("/favicon.ico").handler(fih);
-				
-				GWTCompiler.folderSource = "client/src/main/java";
-				GWTCompiler.setTargetFolder("webroot/content");
-				Handler<RoutingContext> gwtHandler = GWTCompiler.with(new Client(), "/", debugClient, true, vertx);
-				router.get("/").handler(gwtHandler);
-				// in case a client loads one of the internal routes, then give them the main page
-				router.get("/edit/*").handler(context -> context.reroute("/")); 
-				router.get("/view/*").handler(context -> context.reroute("/"));
-				router.get("/find/name/*").handler(context -> context.reroute("/"));
-				router.get("/*").handler(otherHandler);
-			
-				server.requestHandler(router::accept).listen(port, "0.0.0.0");
-			
-				future.complete();
-			} catch (Exception e) {
-				LOGGER.fatal("Failed to initialize CatFood ServerVerticle",e);
-				future.fail(e);
-			}
-		}, res -> {
-			if(res.failed()) {
-				startFuture.fail(res.cause());
+	    dBService.start();
+	    
+		server = vertx.createHttpServer();
+		Router router = Router.router(vertx);
+		Route all = router.route();
+		all.failureHandler(routingContext -> {
+			int statusCode = routingContext.statusCode();
+			Throwable cause = routingContext.failure();
+			ErrorResult result = null;
+			if(cause == null) {
+				ExceptionIds exid = ExceptionIds.fromStatusCode(statusCode);
+				result = ErrorResult.builder().exceptionId(exid)
+						.message(exid.getMessage()).build();
+			} else if(cause instanceof CatfoodApplicationException) {
+				CatfoodApplicationException cae = (CatfoodApplicationException) cause;
+				result = ErrorResult.builder()
+						.exceptionId(cae.getExceptionId())
+						.details(cae.getDetails())
+						.message(cae.getMessage())
+						.build();
 			} else {
+				result = ErrorResult.builder()
+						.exceptionId(ExceptionIds.fromStatusCode(statusCode))
+						.message(cause.getMessage())
+						.build();
+			}
+			String json = JsonObject.mapFrom(result).encode();
+			routingContext.end(json);
+		});
+
+		// logging
+		router.route().handler(LoggerHandler.create());
+
+		// handle static js components
+		router.route("/components/libs/*").handler(jsxLibsHandler);
+		
+		// handle static components (anything but JSX currently)
+		router.route("/components/*").handler(componentsHandler);
+
+		// handle static javascript loads from libs
+		router.route("/libs/*").handler(libsHandler);
+
+		// handle dynamic data queries
+		router.get("/data/chunk/byid/:id").blockingHandler(dBService::getTopicByID);
+		router.get("/data/chunk/byname/:name").blockingHandler(dBService::getTopicByName);
+		router.post("/data/chunk").blockingHandler(dBService::saveTopicByName);
+		router.put("/data/chunk").blockingHandler(dBService::updateTopicById);
+		router.delete("/data/chunk/byid/:id").blockingHandler(dBService::deleteTopicByID);
+		router.get("/data/chunk/like/:pattern").blockingHandler(dBService::findTopic);
+				
+		// handle webjars, these are located in the classpath
+		StaticHandler webjarStaticHandler = StaticHandler.create("META-INF/resources/webjars");
+		router.route("/webjars/*").handler(webjarStaticHandler);
+
+		FaviconHandler fih = FaviconHandler.create(vertx);
+		router.get("/favicon.ico").handler(fih);
+		
+		GWTCompiler.folderSource = "client/src/main/java";
+		GWTCompiler.setTargetFolder("webroot/content");
+		Handler<RoutingContext> gwtHandler = GWTCompiler.with(new Client(), "/", debugClient, true, vertx);
+		router.get("/").handler(gwtHandler);
+		// in case a client loads one of the internal routes, then give them the main page
+		router.get("/edit/*").handler(context -> context.reroute("/")); 
+		router.get("/view/*").handler(context -> context.reroute("/"));
+		router.get("/find/name/*").handler(context -> context.reroute("/"));
+		router.get("/assetstore").handler(StaticHandler.create(assetStoreLocation)); //NOTE: this will only be useful if assets are locally stored
+		router.get("/*").handler(otherHandler);
+		
+		server.requestHandler(req -> router.handle(req));		
+		server.listen(port, "0.0.0.0", res -> {
+			if(res.succeeded()) {
 				startFuture.complete();
+			} else {
+				startFuture.fail(res.cause());
 			}
 		});
+			
 	}
 
 	@Override
-	public void stop(Future<Void> stopFuture) throws Exception {
+	public void stop(Promise<Void> stopFuture) throws Exception {
 		vertx.executeBlocking(future -> {
 			server.close();
 			dBService.stop();

@@ -17,8 +17,10 @@
 package com.giantelectronicbrain.catfood.buckets.s3;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -39,7 +41,13 @@ import com.giantelectronicbrain.catfood.buckets.IBucketDriver;
 import com.giantelectronicbrain.catfood.buckets.IBucketName;
 import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 import com.giantelectronicbrain.catfood.buckets.IBucketObjectName;
+import com.giantelectronicbrain.catfood.buckets.fs.FsBucketObject;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
+import io.vertx.core.streams.WriteStream;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -244,8 +252,93 @@ public class S3BucketDriverImpl implements IBucketDriver {
 		return S3BucketObjectName.builder().name(name).bucketName(bucketName).build();
 	}
 
-	
-//	protected InputStream getObject(S3Bucket s3Bucket) {
-//		
-//	}
+	@Override
+	public IBucketDriver createBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver getBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver getBucketObject(IBucketObjectName objectName, Handler<AsyncResult<IBucketObject>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver deleteBucket(IBucketName bucketName, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver deleteBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<Void>> hanlder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, String content,
+			Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, InputStream content,
+			Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver makeBucketName(String name, Handler<AsyncResult<IBucketName>> handler) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IBucketDriver makeBucketObjectName(IBucketName bucketName, String name,
+			Handler<AsyncResult<IBucketObjectName>> handler) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getBucketObjectContentsAsString(IBucketObject bucketObject, Charset charset) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadStream<Buffer> getReadStream(FsBucketObject IBucketObject) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void createBucketObject(IBucketObjectName name, ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createBucketObject(IBucketObjectName name, Handler<AsyncResult<WriteStream<Buffer>>> handler) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler)
+			throws IOException, BucketDriverException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

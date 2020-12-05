@@ -18,21 +18,12 @@
 package com.giantelectronicbrain.catfood.buckets.fs;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
 
 import com.giantelectronicbrain.catfood.buckets.BucketDriverException;
 import com.giantelectronicbrain.catfood.buckets.IBucketDriver;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
 
 /**
  * Put all the utility classes for testing FS buckets into one place.
@@ -41,76 +32,66 @@ import com.giantelectronicbrain.catfood.buckets.IBucketDriver;
  *
  */
 public class FsBucketTestUtils {
+	private static Vertx vertx = Vertx.vertx();
+	private static FileSystem fileSystem = vertx.fileSystem();
+	private static String basePath = "./build/buckettests";
 
 	public static IBucketDriver createUUT() throws BucketDriverException {
-		FileSystem fileSystem = FileSystems.getDefault();
-		Path path = fileSystem.getPath("./build/buckettests");
+		vertx = Vertx.vertx();
+		fileSystem = vertx.fileSystem();
+		return _createUUT();
+	}
+	
+	private static IBucketDriver _createUUT() throws BucketDriverException {
 
 		return  FsBucketDriverImpl.builder()
 				.fileSystem(fileSystem)
-				.basePath(path)
-				.build();
-		
+				.basePath(basePath)
+				.build();		
+	}
+	
+	public static FileSystem getFileSystem() {
+		return fileSystem;
+	}
+
+	private static String resolvedPath(String path) {
+		return basePath + "/" + path;
 	}
 
 	public static void cleanUpBuckets() throws IOException {
-		FileSystem fileSystem = FileSystems.getDefault();
-		Path path = fileSystem.getPath("./build/buckettests/testbucket");
-		FileUtils.deleteDirectory(path.toFile()); // .deleteRecursive(path.toString(), true);
+		String path = "testbucket";
+		fileSystem.delete(resolvedPath(path));
+		path = "testbucket3";
+		fileSystem.delete(resolvedPath(path));
 	}
 	
 	public static void setUpBuckets() throws IOException {
-		FileSystem fileSystem = FileSystems.getDefault();
-		Path buildPath = fileSystem.getPath("./build");
-		if(!Files.exists(buildPath, LinkOption.NOFOLLOW_LINKS)) {
-			createDirectory(buildPath);
+		if(!fileSystem.existsBlocking(basePath)) {
+			fileSystem.mkdirBlocking(basePath);
 		}
-		Path path2 = fileSystem.getPath("./build/buckettests/testbucket2");
-		FileUtils.deleteDirectory(path2.toFile()); // deleteRecursive(path2.toString(), true);
-		Path path = fileSystem.getPath("./build/buckettests");
-		if(!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-			createDirectory(path);
+		String path = resolvedPath("testbucket2");
+		if(!fileSystem.existsBlocking(path)) {
+			fileSystem.mkdirBlocking(path);
 		}
-		path = path.resolve("testbucket");
-		if(!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-			createDirectory(path);
+		path = resolvedPath("testbucket");
+		if(!fileSystem.existsBlocking(path)) {
+			fileSystem.mkdirBlocking(path);
 		}
-		path = path.resolve("testobject");
-		if(!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-			createFile(path);
+		path = resolvedPath("testbucket/testobject");
+		if(!fileSystem.existsBlocking(path)) {
+			fileSystem.createFileBlocking(path);
 		}
 	}
 
-	private static FileAttribute<Set<PosixFilePermission>> makeDefaultAttributes() {
-		Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr-x");
-		return PosixFilePermissions.asFileAttribute(perms);
-	}
-	
-	private static boolean isPosix() {
-        FileSystem fs=FileSystems.getDefault();
-        Set<String> set=fs.supportedFileAttributeViews();
- 
-        Iterator<String> iterator=set.iterator();
-        while(iterator.hasNext()){
-        	if(iterator.next().equalsIgnoreCase("POSIX")) return true;
-        }
-		return false;
-	}
-	
-	private static Path createDirectory(Path dirPath) throws IOException {
-		if(isPosix()) {
-			return Files.createDirectory(dirPath, makeDefaultAttributes());
-		} else {
-			return Files.createDirectory(dirPath,new FileAttribute<?>[0]);
-		}
-	}
-	
-	private static Path createFile(Path filePath) throws IOException {
-		if(isPosix()) {
-			return Files.createFile(filePath, makeDefaultAttributes());
-		} else {
-			return Files.createFile(filePath, new FileAttribute<?>[0]);
-		}
+	/**
+	 * @param vertx2
+	 * @return
+	 * @throws BucketDriverException 
+	 */
+	public static IBucketDriver createUUT(Vertx vertx2) throws BucketDriverException {
+		vertx = vertx2;
+		fileSystem = vertx.fileSystem();
+		return _createUUT();
 	}
 
 }

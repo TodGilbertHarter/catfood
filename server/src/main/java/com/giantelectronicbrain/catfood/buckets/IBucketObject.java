@@ -18,7 +18,11 @@
 package com.giantelectronicbrain.catfood.buckets;
 
 import java.io.IOException;
-import java.io.InputStream;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.streams.ReadStream;
 
 /**
  * Object held in a bucket.
@@ -62,15 +66,15 @@ public interface IBucketObject {
 	 * @throws BucketDriverException if a stream cannot be returned, etc.
 	 * @throws IOException if there is an error reading data from the object
 	 */
-	public InputStream getContentsAsStream() throws BucketDriverException, IOException;
+	public ReadStream getContentsAsStream() throws BucketDriverException, IOException;
 
 	/**
-	 * Set the content of an object to whatever can be read from the given InputStream.
-	 * 
-	 * @param is input stream
-	 * @throws IOException if reading fails
-	 * @throws BucketDriverException 
+	 * @param is
+	 * @param handler
+	 * @throws IOException
+	 * @throws BucketDriverException
 	 */
-	void setContentsAsStream(InputStream is) throws IOException, BucketDriverException;
+	void setContentsAsStream(ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler)
+			throws IOException, BucketDriverException;
 
 }

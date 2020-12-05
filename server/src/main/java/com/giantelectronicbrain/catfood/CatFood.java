@@ -45,10 +45,11 @@ public class CatFood {
 	public static void main(String[] args) {
 		
 		try {
-			Properties configuration = Configurator.createConfiguration(Arrays.asList(args));
-			InitializerFactory.setConfiguration(configuration);
 			System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.SLF4JLogDelegateFactory");
 			Vertx vertx = Vertx.vertx();
+			Properties configuration = Configurator.createConfiguration(Arrays.asList(args));
+			InitializerFactory.setFileSystem(vertx.fileSystem());
+			InitializerFactory.setConfiguration(configuration);
 /*			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle",res -> {
 				if(res.failed())
 					System.exit(-1);

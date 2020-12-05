@@ -14,6 +14,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.ServerWebSocket;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -102,7 +103,7 @@ public class FigWheelyServer extends AbstractVerticle {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheelyServer.started) {
-			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix,
+			FigWheelyServer.addFromStaticHandler(Vertx.currentContext().owner().fileSystem(), root, urlWithoutAsterix,
 					root);
 		}
 
@@ -128,7 +129,7 @@ public class FigWheelyServer extends AbstractVerticle {
 	@Override
 	public void start() {
 		HttpServer server = vertx.createHttpServer();
-		server.websocketHandler(webSocket -> {
+		server.webSocketHandler(webSocket -> {
 			if (!webSocket.path().equals("/" + urlSocket)) {
 				webSocket.reject();
 				return;
