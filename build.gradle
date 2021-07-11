@@ -30,9 +30,9 @@ group = 'com.giantelectronicbrain'
 //version = '0.0.1-SNAPSHOT'
 def serverBuildDir = project(':server').buildDir
 def databaseBuildDir = project(':database').buildDir
-// def clientBuildDir = project(':client').buildDir
 ext.clientBuildDir = project(':client').buildDir
-
+def hairballBuildDir = project(':hairball').buildDir
+def bucketsBuildDir = project(':buckets').buildDir
 
 apply plugin: 'base'
 
@@ -94,7 +94,7 @@ task copyServerJar(type: Copy) {
 	from "$serverBuildDir/libs/server-${version}-all.jar"
 }
 
-task buildCatFood(dependsOn: [':server:build', ':database:buildCatFoodDB', 
+task buildCatFood(dependsOn: [':core:build', ':buckets:build', ':hairball:build', ':server:build', ':database:buildCatFoodDB', 
 		':client:build', 'copyServerScriptFiles', 'copyServerJar', 'copyLombok', 'copyDatabase', 'copyClient',
 		'copyClientSource','copyConfiguration', 'copyWebContent', 'copyClientTemplates', 'copyWebLibs' ]) {
 //	println "building all of CatFood!"

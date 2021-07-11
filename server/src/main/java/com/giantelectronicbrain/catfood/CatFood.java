@@ -24,7 +24,9 @@ import com.giantelectronicbrain.catfood.conf.ConfigurationException;
 import com.giantelectronicbrain.catfood.conf.Configurator;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;
 
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * CatFood Application. A Vertx-based content generation system backed up by an OrientDB data store.
@@ -32,6 +34,7 @@ import io.vertx.core.Vertx;
  * @author tharter
  *
  */
+@Slf4j
 public class CatFood {
 
 	/**
@@ -46,6 +49,7 @@ public class CatFood {
 		
 		try {
 			System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.SLF4JLogDelegateFactory");
+			log.info("Starting Catfood");
 			Vertx vertx = Vertx.vertx();
 			Properties configuration = Configurator.createConfiguration(Arrays.asList(args));
 			InitializerFactory.setFileSystem(vertx.fileSystem());
@@ -53,9 +57,22 @@ public class CatFood {
 /*			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle",res -> {
 				if(res.failed())
 					System.exit(-1);
+			}); */
+			log.trace("Starting server verticle deployment, Catfood configured");
+			String vertName = "com.giantelectronicbrain.catfood.ServerVerticle"; //TODO: move to config
+			vertx.deployVerticle(vertName,result -> {
+				if(result.succeeded()) { 
+					log.trace("Successfully Deployed {}",vertName); 
+				} else { 
+					Throwable e = result.cause(); 
+					log.error("Failed to start Catfood",e);
+					System.exit(-1);
+				}
 			});
-*/			vertx.deployVerticle("com.giantelectronicbrain.catfood.ServerVerticle");
+			// System.err.println(e.getLocalizedMessage()); System.exit(-1); }
+			log.trace("Initialization complete, Catfood is running");
 		} catch (ConfigurationException e) {
+			log.error("Failed to configure Catfood",e);
 			System.err.println(e.getLocalizedMessage());
 			System.err.println(e.getHelpMessage());
 			System.exit(-1);

@@ -40,6 +40,7 @@ import io.vertx.ext.web.handler.FaviconHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.TemplateHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Verticle which acts as a CatFood HTTP server.
@@ -47,9 +48,10 @@ import io.vertx.ext.web.handler.TemplateHandler;
  * @author tharter
  *
  */
+@Slf4j
 public class ServerVerticle extends AbstractVerticle {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ServerVerticle.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(ServerVerticle.class);
 	private IInitializer initializer = InitializerFactory.getInitializer();
 	
 	private HttpServer server;
@@ -59,10 +61,11 @@ public class ServerVerticle extends AbstractVerticle {
 //	private TemplateHandler templateHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_TEMPLATEHANDLER);
 	private StaticHandler otherHandler; // = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 	private StaticHandler libsHandler; // = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
-	private TemplateHandler jsxLibsHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
+//	private TemplateHandler jsxLibsHandler; // = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 	private StaticHandler componentsHandler; // = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 	private Boolean debugClient;
 	private String assetStoreLocation;
+	private CatFoodAssetService assetService;
 	
 	/**
 	 * Instantiate the CatFood HTTP Server Verticle.
@@ -70,19 +73,23 @@ public class ServerVerticle extends AbstractVerticle {
 	 * @throws InitializationException 
 	 */
 	public ServerVerticle() throws InitializationException {
+		log.trace("Catfood ServerVerticle initializing");
 		dBService = (CatFoodDBService) initializer.get(InitializerFactory.CATFOOD_DB_SERVICE);
+		assetService = (CatFoodAssetService) initializer.get(InitializerFactory.ASSET_STORE_SERVICE);
 		orientdbHome = (String) initializer.get(InitializerFactory.ORIENTDB_HOME);
 		port = (Integer) initializer.get(InitializerFactory.PORT);
 		otherHandler = (StaticHandler) initializer.get(InitializerFactory.STATIC_HANDLER);
 		libsHandler = (StaticHandler) initializer.get(InitializerFactory.LIBS_HANDLER);
-		jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
+//		jsxLibsHandler = (TemplateHandler) initializer.get(InitializerFactory.JSX_LIBSHANDLER);
 		componentsHandler = (StaticHandler) initializer.get(InitializerFactory.COMPONENTS_HANDLER);
 		debugClient = (Boolean) initializer.get(InitializerFactory.CLIENT_DEBUG);
 		assetStoreLocation = (String) initializer.get(InitializerFactory.ASSET_STORE_LOCATION);
+		log.trace("Catfood ServerVerticle initialized");
 	}
 
 	@Override
 	public void start(Promise<Void> startFuture) throws Exception {
+		log.trace("Catfood ServerVerticle starting");
 	    System.setProperty("ORIENTDB_HOME", orientdbHome);
 
 	    dBService.start();
@@ -119,7 +126,7 @@ public class ServerVerticle extends AbstractVerticle {
 		router.route().handler(LoggerHandler.create());
 
 		// handle static js components
-		router.route("/components/libs/*").handler(jsxLibsHandler);
+//		router.route("/components/libs/*").handler(jsxLibsHandler);
 		
 		// handle static components (anything but JSX currently)
 		router.route("/components/*").handler(componentsHandler);
@@ -134,6 +141,12 @@ public class ServerVerticle extends AbstractVerticle {
 		router.put("/data/chunk").blockingHandler(dBService::updateTopicById);
 		router.delete("/data/chunk/byid/:id").blockingHandler(dBService::deleteTopicByID);
 		router.get("/data/chunk/like/:pattern").blockingHandler(dBService::findTopic);
+
+		// handle asset management/access queries
+		router.get("/assetstore/*").handler(getAssetHandler());
+		router.post("/assetstore/:name").handler(assetService::postAsset);
+		router.put("/assetstore/:name").handler(assetService::putAsset);
+		router.delete("/assetstore/:name").handler(assetService::deleteAsset);
 				
 		// handle webjars, these are located in the classpath
 		StaticHandler webjarStaticHandler = StaticHandler.create("META-INF/resources/webjars");
@@ -150,18 +163,24 @@ public class ServerVerticle extends AbstractVerticle {
 		router.get("/edit/*").handler(context -> context.reroute("/")); 
 		router.get("/view/*").handler(context -> context.reroute("/"));
 		router.get("/find/name/*").handler(context -> context.reroute("/"));
-		router.get("/assetstore").handler(StaticHandler.create(assetStoreLocation)); //NOTE: this will only be useful if assets are locally stored
 		router.get("/*").handler(otherHandler);
 		
-		server.requestHandler(req -> router.handle(req));		
+		server.requestHandler(req -> router.handle(req));
+		log.trace("Catfood ServerVerticle setup complete, going to start listening on port {}",port);
 		server.listen(port, "0.0.0.0", res -> {
 			if(res.succeeded()) {
 				startFuture.complete();
+				log.trace("Catfood is now Listening");
 			} else {
 				startFuture.fail(res.cause());
+				log.error("Catfood failed to listen",res.cause());
 			}
 		});
 			
+	}
+	
+	private Handler<RoutingContext> getAssetHandler() {
+		return StaticHandler.create(assetStoreLocation); //NOTE: this will only be useful if assets are locally stored
 	}
 
 	@Override

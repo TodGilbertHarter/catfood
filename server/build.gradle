@@ -31,6 +31,7 @@ buildscript {
 	}
 	dependencies {
 		classpath "gradle.plugin.io.vertx:vertx-gradle-plugin:1.1.1"
+		classpath 'org.projectlombok:lombok:1.18.20'
 	}
 }
 
@@ -76,29 +77,33 @@ build.dependsOn(copyDependencies)
 
 dependencies {
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.775')
-	implementation 'live.connector:vertxui-core:2.0.8-tgh'
-	compileOnly 'org.projectlombok:lombok:1.18.12'
-	annotationProcessor 'org.projectlombok:lombok:1.18.12'
-	testCompileOnly 'org.projectlombok:lombok:1.18.12'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.4'
+//	implementation 'live.connector:vertxui-core:2.0.8-tgh'
+	compileOnly 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+	testCompileOnly 'org.projectlombok:lombok:1.18.20'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 	implementation 'org.apache.logging.log4j:log4j-api:2.+'
 	implementation 'org.apache.logging.log4j:log4j-core:2.+'
 	implementation 'org.slf4j:slf4j-api:1.7.30'
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.+'
 	implementation 'io.vertx:vertx-web'
 	implementation 'io.vertx:vertx-web-templ-freemarker'
+	implementation 'com.google.gwt:gwt-user:2.9.0'
 	implementation 'com.orientechnologies:orientdb-jdbc:3.1.2'
 	implementation 'com.orientechnologies:orientdb-server:3.1.2'
 	implementation project(':client') //path: ':client', configuration: 'shadowJars')
+	implementation project(':core')
+	implementation project(':buckets')
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
     testImplementation 'junit:junit:4.12'
     implementation 'io.vertx:vertx-web-templ-thymeleaf'
     implementation 'com.amazonaws:aws-java-sdk-s3'
-    testImplementation 'io.vertx:vertx-unit:4.0.0.CR1'
+    testImplementation 'io.vertx:vertx-unit:4.0.0'
 }
 
 vertx {
-	vertxVersion = '4.0.0.CR1'
+	vertxVersion = '4.1.1'
 	launcher = 'com.giantelectronicbrain.catfood.CatFood'
 	args = ["-c=${rootProject.buildDir}/catfood/conf/reloading.properties".toString(), "-write"]
 	watch = ["client/src/**/*","server/src/**/*","src/**/*"]

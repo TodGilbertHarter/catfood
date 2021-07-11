@@ -95,10 +95,10 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:1.7.30'
 //	compileOnly 'com.machinepublishers:jbrowserdriver:1.0.1'
 //	testImplementation 'com.machinepublishers:jbrowserdriver:1.0.1'
-	compileOnly 'org.projectlombok:lombok:1.18.12'
-	annotationProcessor 'org.projectlombok:lombok:1.18.12'
-	testCompileOnly 'org.projectlombok:lombok:1.18.12'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+	compileOnly 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+	testCompileOnly 'org.projectlombok:lombok:1.18.20'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 	testRuntime files('src/test/java')
 	testRuntime files('src/main/java')
 	implementation 'org.webjars.bowergithub.markdown-it:markdown-it:10.0.0'

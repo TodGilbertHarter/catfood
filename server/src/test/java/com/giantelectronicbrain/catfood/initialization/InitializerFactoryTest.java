@@ -17,10 +17,13 @@
 
 package com.giantelectronicbrain.catfood.initialization;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
+import org.junit.Before;
 import org.junit.Test;
 
 /**

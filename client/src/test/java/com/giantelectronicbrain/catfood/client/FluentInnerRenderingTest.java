@@ -2,11 +2,10 @@ package com.giantelectronicbrain.catfood.client;
 
 import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Li;
 import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Ul;
-import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.giantelectronicbrain.catfood.client.fluent.Att;
 import com.giantelectronicbrain.catfood.client.fluent.Css;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;

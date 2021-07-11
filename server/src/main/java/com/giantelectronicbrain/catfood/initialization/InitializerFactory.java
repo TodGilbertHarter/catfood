@@ -87,7 +87,7 @@ public class InitializerFactory {
 		if(initializerInstance == null) {
 			initializerInstance = createInitializer();
 			initialize(configuration);
-			if("true".equals(configuration.getProperty(WRITE)))
+//			if("true".equals(configuration.getProperty(WRITE)))
 				write();
 		}
 		return initializerInstance;
@@ -142,7 +142,7 @@ public class InitializerFactory {
 		initializerInstance.set(CATFOOD_DB_SERVICE, new CatFoodDBService());
 		
 		// Initialize asset store
-		String assetStoreType = config.getProperty(ASSET_STORE_TYPE);
+		String assetStoreType = config.getProperty(ASSET_STORE_TYPE, IAssetStore.STORE_TYPE_FS);
 		IAssetStore assetStore = null;
 		if(IAssetStore.STORE_TYPE_FS.equals(assetStoreType)) {
 			String basePath = config.getProperty(ASSET_STORE_LOCATION);
@@ -153,6 +153,7 @@ public class InitializerFactory {
 			assetStore = null;
 		}
 		CatFoodAssetService assetService = new CatFoodAssetService();
+		initializerInstance.set(ASSET_STORE_SERVICE, assetService);
 
 		// Initialize handlers
 		initializerInstance.set(SCRIPTBASE, config.getProperty(SCRIPTBASE,"../javascript"));

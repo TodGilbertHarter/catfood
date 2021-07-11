@@ -12,5 +12,8 @@
 include 'server'
 include 'client'
 include 'database'
+include 'hairball'
+include 'buckets'
+include 'core'
 
 rootProject.name = 'catfood'
