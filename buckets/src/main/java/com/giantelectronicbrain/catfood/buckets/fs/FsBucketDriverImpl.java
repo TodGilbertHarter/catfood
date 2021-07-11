@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import com.giantelectronicbrain.catfood.buckets.BucketDriverException;
 import com.giantelectronicbrain.catfood.buckets.IBucket;
 import com.giantelectronicbrain.catfood.buckets.IBucketDriver;
@@ -32,6 +33,7 @@ import com.giantelectronicbrain.catfood.buckets.IBucketObject;
 import com.giantelectronicbrain.catfood.buckets.IBucketObjectName;
 import com.giantelectronicbrain.catfood.exceptions.CatfoodApplicationException;
 import com.giantelectronicbrain.catfood.exceptions.ExceptionIds;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -42,15 +44,19 @@ import io.vertx.core.file.FileSystemException;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.core.streams.WriteStream;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Filesystem bucket driver implementation. This is useful for testing, etc.
  * 
  * @author tharter
  */
+@Slf4j
+@Builder
 public class FsBucketDriverImpl implements IBucketDriver {
 	@java.lang.SuppressWarnings("all")
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FsBucketDriverImpl.class);
+//	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FsBucketDriverImpl.class);
 	private final FileSystem fileSystem;
 	private final String basePath;
 
@@ -514,7 +520,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		return result;
 	}
 
-	@java.lang.SuppressWarnings("all")
+/*	@java.lang.SuppressWarnings("all")
 	public FsBucketDriverImpl(final FileSystem fileSystem, final String basePath) {
 		this.fileSystem = fileSystem;
 		this.basePath = basePath;
@@ -532,18 +538,12 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		FsBucketDriverImplBuilder() {
 		}
 
-		/**
-		 * @return {@code this}.
-		 */
 		@java.lang.SuppressWarnings("all")
 		public FsBucketDriverImpl.FsBucketDriverImplBuilder fileSystem(final FileSystem fileSystem) {
 			this.fileSystem = fileSystem;
 			return this;
 		}
 
-		/**
-		 * @return {@code this}.
-		 */
 		@java.lang.SuppressWarnings("all")
 		public FsBucketDriverImpl.FsBucketDriverImplBuilder basePath(final String basePath) {
 			this.basePath = basePath;
@@ -565,5 +565,5 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@java.lang.SuppressWarnings("all")
 	public static FsBucketDriverImpl.FsBucketDriverImplBuilder builder() {
 		return new FsBucketDriverImpl.FsBucketDriverImplBuilder();
-	}
+	} */
 }
