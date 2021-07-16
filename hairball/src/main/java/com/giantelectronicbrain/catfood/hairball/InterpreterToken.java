@@ -47,22 +47,47 @@ public class InterpreterToken implements Token {
 		return token;
 	}
 	
+	/**
+	 * Create an empty interpreter token with the given name.
+	 * 
+	 * @param name token's name.
+	 */
 	public InterpreterToken(String name) {
 		this(name,new ArrayList<>());
 	}
-	
+
+	/**
+	 * Create an interpreter token with the given name and behavior.
+	 * 
+	 * @param name token's name
+	 * @param tokens list of tokens this token will execute.
+	 */
 	public InterpreterToken(String name, List<Token> tokens) {
 		this.tokens = tokens;
 		this.name = name;
 	}
-	
+
+	/**
+	 * Add a new token to the end of this token's behavior.
+	 * 
+	 * @param newToken a new token to append to the behavior.
+	 */
 	public void add(Token newToken) {
 		this.tokens.add(newToken);
 	}
-	
+
+	/**
+	 * Get the number of tokens in this token.
+	 * 
+	 * @return number of tokens.
+	 */
 	public int size() { return tokens.size(); }
 	
 	/**
+	 * Execute the behavior of this token using the given interpreter. A new
+	 * InterpreterContext will be generated, the token executed on it, and the
+	 * previous context restored.
+	 * 
 	 * @param interpreter the interpreter which is running our code
 	 * @throws HairballException 
 	 */
@@ -74,6 +99,9 @@ public class InterpreterToken implements Token {
 	}
 
 	/**
+	 * Get the name of this token. This is just a human-readable mnemonic to
+	 * help identify tokens.
+	 * 
 	 * @return the name
 	 */
 	public String getName() {

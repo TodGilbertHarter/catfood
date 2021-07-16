@@ -34,9 +34,9 @@ public class StringWordStream implements IWordStream {
 	private static final Logger log = Hairball.PLATFORM.getLogger(StringWordStream.class.getName());
 
 	private String input = "";
-//	private StringReader inputScanner;
 	private TokenScanner inputScanner;
 	private StringReader reader;
+	private int lineNumber = 0;
 	
 	/**
 	 * Provides functionality similar to a StringReader, since the 
@@ -63,7 +63,47 @@ public class StringWordStream implements IWordStream {
 			this.pointer = this.mark;
 		}
 
-		private char read() {
+		/**
+		 * Scan for a given string and if it exists in this scanner, appending
+		 * each character to the given StringBuffer until a match is found. If
+		 * there is no match when input is exhausted, then return false, else
+		 * return true. Either way the StringBuffer will contain any prematch
+		 * text, or the entire scanner if there was no match.
+		 * 
+		 * @param match string to match
+		 * @param sb the string buffer to append to
+		 * @return true if there was a match, false otherwise
+		 */
+		public boolean scanInput(String match, StringBuffer sb) {
+			char ch;
+			do {
+				ch = inputScanner.read();
+				if(ch != Character.valueOf((char)-1))
+					sb.append(ch);
+				int midx = sb.indexOf(match, sb.length()-match.length());
+				if(midx > 0) {
+					sb.replace(midx, sb.length(), "");
+					return true;
+				}
+			} while(ch != Character.valueOf((char)-1));
+			return false;
+		}
+
+		/**
+		 * Return the pointer to the next character.
+		 * 
+		 * @return pointer to the next character.
+		 */
+		public int getPointer() {
+			return this.pointer;
+		}
+		
+		/**
+		 * Get one character from the scanner.
+		 * 
+		 * @return
+		 */
+		public char read() {
 			if(this.pointer < this.data.length())
 				return this.data.charAt(this.pointer++);
 			return (char)-1;
@@ -77,7 +117,6 @@ public class StringWordStream implements IWordStream {
 		 * @return true if there is a token in this reader
 		 * @throws IOException 
 		 */
-//		private boolean hasNext(StringReader stringReader) throws IOException {
 		public boolean hasNext() throws IOException {
 			mark();
 			char ch = read();
@@ -92,8 +131,7 @@ public class StringWordStream implements IWordStream {
 			return false;
 		}
 
-//		private String next(Reader reader) throws IOException {
-		public String next() throws IOException {
+		private String next() throws IOException {
 			boolean isThereData = false;
 			StringBuffer buff = new StringBuffer();
 			char ch = read();
@@ -118,12 +156,11 @@ public class StringWordStream implements IWordStream {
 	}
 	
 	/**
-	 * Create a stream with the given input stream as its source.
+	 * Create a stream with the given input string as its source.
 	 * 
 	 * @param prompt
 	 */
 	public StringWordStream(String in) {
-//		inputScanner = new StringReader(input);
 		inputScanner = new TokenScanner(input);
 		reader = new StringReader(in);
 	}
@@ -133,28 +170,6 @@ public class StringWordStream implements IWordStream {
 		String next = getNext();
 		return next == null ? null : new Word(next);
 //		return next == null || next.isBlank() ? null : new Word(next);
-	}
-	
-	private String next(Reader reader) throws IOException {
-		boolean isThereData = false;
-		StringBuffer buff = new StringBuffer();
-		char ch = (char) reader.read();
-		while(ch != Character.valueOf((char)-1)) {
-			if(!Character.isWhitespace((char)ch)) { 
-				isThereData = true;
-				break;
-			}
-			ch = (char) reader.read();
-		}
-		while(ch != Character.valueOf((char)-1)) {
-			if(Character.isWhitespace((char)ch)) {
-				break;
-			}
-			buff.append(ch);
-			ch = (char) reader.read();
-		}
-		log.log(Level.FINEST, "got to end of line, returning");
-		return isThereData ? buff.toString() : null;
 	}
 	
 	private String getNext() throws IOException {
@@ -182,28 +197,6 @@ public class StringWordStream implements IWordStream {
 	}
 
 	/**
-	 * Check to see if the reader has any tokens, that is non-whitespace characters
-	 * which are not newlines, in it.
-	 * 
-	 * @param stringReader
-	 * @return true if there is a token in this reader
-	 * @throws IOException 
-	 */
-	private boolean hasNext(StringReader stringReader) throws IOException {
-		stringReader.mark(1);
-		char ch = (char) stringReader.read();
-		while(ch != Character.valueOf((char)-1)) {
-			if(!Character.isWhitespace(ch)) {
-				stringReader.reset();
-				return true;
-			}
-			ch = (char) stringReader.read();
-		}
-		stringReader.reset();
-		return false;
-	}
-
-	/**
 	 * This is a replacement for readLine which most transpilers can handle...
 	 * 
 	 * @param reader the reader we are reading from.
@@ -220,6 +213,7 @@ public class StringWordStream implements IWordStream {
 			buff.append(ch);
 			if(ch == '\n') {
 				log.log(Level.FINEST,"got a newline, returning data");
+				lineNumber++;
 				return buff.toString();
 			}
 			ch = (char) reader.read();
@@ -246,6 +240,51 @@ public class StringWordStream implements IWordStream {
 			more = getNext();
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public String getToDelimiter(String match) throws IOException {
+		// Create the output buffer and attempt to match against the current
+		// inputBuffer.
+		StringBuffer sb = new StringBuffer();
+		boolean hasMatch = inputScanner.scanInput(match, sb);
+		if(hasMatch) return sb.toString();
+		
+		// Continue to iterate through input extending the output buffer and
+		// trying to match on each line.
+		String line = readLine(reader);
+		while(line != null) {
+			inputScanner = new TokenScanner(line);
+			hasMatch = inputScanner.scanInput(match, sb);
+			if(hasMatch) return sb.toString();
+			line = readLine(reader);
+		}
+		return null;
+	}
+
+	@Override
+	public void close() throws IOException {
+		if(reader != null) reader.close();
+	}
+
+	@Override
+	public String getSource() {
+		return "java string";
+	}
+
+	@Override
+	public int getLine() {
+		return this.lineNumber;
+	}
+
+	@Override
+	public int getColumn() {
+		return this.inputScanner.getPointer();
+	}
+
+	@Override
+	public String getCurrentLocation() {
+		return ".";
 	}
 
 }

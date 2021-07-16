@@ -39,6 +39,90 @@ public abstract class WordStreamBase {
 	public abstract IWordStream setUp(String input);
 
 	@Test
+	public void testGetToDelimiterOneLine() throws IOException {
+		IWordStream uut = setUp("this is stuffMARK");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff",mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	
+	@Test
+	public void testGetToDelimiterOneLineStuffAfter() throws IOException {
+		IWordStream uut = setUp("this is stuffMARKstuff after");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff",mark);
+		word = uut.getNextWord();
+		assertEquals(new Word("stuff"),word);
+		word = uut.getNextWord();
+		assertEquals(new Word("after"),word);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	
+	@Test
+	public void testGetToDelimiterTwoLines() throws IOException {
+		IWordStream uut = setUp("this is stuff\nmore stuffMARK");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff\nmore stuff",mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+
+	@Test
+	public void testGetToDelimiterTwoLinesStuffAfter() throws IOException {
+		IWordStream uut = setUp("this is stuff\nmore stuffMARKstuff after");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff\nmore stuff",mark);
+
+		word = uut.getNextWord();
+		assertEquals(new Word("stuff"),word);
+		word = uut.getNextWord();
+		assertEquals(new Word("after"),word);
+
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+
+	@Test
+	public void testGetToDelimiterNoMatchingOneLine() throws IOException {
+		IWordStream uut = setUp("this is stuffFOO");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNull(mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	
+	@Test
+	public void testGetToDelimiterNoMatchingTwoLines() throws IOException {
+		IWordStream uut = setUp("this is stuff\nmore stuffFOO");
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNull(mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	@Test
 	public void testGetMatchingToEndOneFile() throws IOException {
 		IWordStream uut = setUp("this is stuff MARK");
 		Word word = uut.getNextWord();

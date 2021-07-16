@@ -16,11 +16,9 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
-import com.giantelectronicbrain.catfood.hairball.HairballBehavior;
-
 /**
  * A token which simply executes native Java code. Its behavior is a lambda which
- * implements the Consumer<Interpreter> functional interface. Any inputs or outputs
+ * implements the HairballBehavior functional interface. Any inputs or outputs
  * will be to the stack, or operations on the Context, etc.
  * 
  * @author tharter

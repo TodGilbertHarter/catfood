@@ -108,7 +108,9 @@ public class VertxBlockingInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-
+    	if(closed == false) {
+    		end();
+    	}
         closed = true;
     }
 

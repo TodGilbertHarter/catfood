@@ -19,21 +19,6 @@
  * Hairball language implementation. This is both usable as a standalone application and as a library.
  */
 
-/*buildscript {
-    repositories {
-    	maven {
-    		url = uri('../../mvnrepo')
-//    		url = 'http://repository.mulesoft.org/releases/'
-    	}
-        mavenLocal()
-        mavenCentral()
-    }
-	dependencies {
-		classpath "gradle.plugin.io.vertx:vertx-gradle-plugin:1.1.1"
-		classpath 'org.projectlombok:lombok:1.18.20'
-	}
-} */
-
 buildscript {
 	repositories {
 	    maven {
@@ -50,7 +35,7 @@ buildscript {
 
 plugins {
 	id "fr.brouillard.oss.gradle.jgitver" //version "0.10.0-rc03"
-	id "com.github.johnrengelman.shadow" version "6.0.0"
+	id "com.github.johnrengelman.shadow" version "7.0.0"
 	id 'maven-publish'
 }
 
@@ -124,3 +109,7 @@ dependencies {
     implementation project(':core')
 }
 
+task buildDocs(type: Exec) {
+	dependsOn 'build'
+	commandLine 'src/main/documentation/buildhtmldocs.sh'
+}

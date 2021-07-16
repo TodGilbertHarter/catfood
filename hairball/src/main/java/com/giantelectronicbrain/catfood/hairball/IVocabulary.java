@@ -33,5 +33,17 @@ public interface IVocabulary {
 	 */
 	public abstract Definition lookUp(Word parserToken);
 	
+	/**
+	 * Add a definition to the vocabulary.
+	 * 
+	 * @param newDefinition
+	 */
 	public abstract void add(Definition newDefinition);
+
+	/**
+	 * Get the name of the vocabulary.
+	 * 
+	 * @return vocabulary name
+	 */
+	public abstract String getName();
 }

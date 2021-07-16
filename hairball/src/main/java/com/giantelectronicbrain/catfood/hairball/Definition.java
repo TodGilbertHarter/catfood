@@ -27,6 +27,13 @@ public class Definition {
 	private final Token compileTime; //compile time behavior of this word
 	private final Token runTime; // runtime behavior of this word
 	
+	/**
+	 * Create a new Definition with the given name and behaviors.
+	 * 
+	 * @param name Word identifying this definition.
+	 * @param compileTime token representing the compile time behavior of the word.
+	 * @param runTime token representing the runtime behavior of the word.
+	 */
 	public Definition(Word name, Token compileTime, Token runTime) {
 		this.name = name;
 		this.compileTime = compileTime;
@@ -34,13 +41,17 @@ public class Definition {
 	}
 
 	/**
-	 * @return the name
+	 * Get the definition's name.
+	 * 
+	 * @return the name as a word.
 	 */
 	public Word getName() {
 		return name;
 	}
 
 	/**
+	 * Get the compile time behavior token for the Definition.
+	 * 
 	 * @return the compileTime
 	 */
 	public Token getCompileTime() {
@@ -48,6 +59,8 @@ public class Definition {
 	}
 
 	/**
+	 * Get the runtime behavior token for the Definition.
+	 * 
 	 * @return the runTime
 	 */
 	public Token getRunTime() {
@@ -83,6 +96,4 @@ public class Definition {
 			return false;
 		return true;
 	}
-
-
 }

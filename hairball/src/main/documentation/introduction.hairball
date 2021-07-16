@@ -1,0 +1,13 @@
+/* Hairball documentation introduction */
+/CHAPTER" What is Hairball?"/
+Hairball is a special purpose language who's function is to build markup language syntax.
+It consists of words, tokens delimited by whitespace which have defined meanings to
+the Hairball interpreter, and text, which is everything else. Some Hairball words
+generate output, others are 'defining words' or 'utility words' which allow you to
+create additional words, or perform programming language type functions, such as
+conditionals. 
+
+Some Hairball words access the interpreter's input in order to introduce new syntax
+such as parsing text out of the input and reformatting it or other similar tasks. It
+is also possible to include a file, generate output streams to different files, and
+other similar tasks.

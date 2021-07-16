@@ -66,7 +66,7 @@ public class ParserTest {
 			outputs.add(makeBucket(input));
 		}
 		String[] arglebargle = outputs.toArray(new String[outputs.size()]);
-		IWordStream stream = new FileCollectionWordStream(vertx,"/tmp",arglebargle);
+		IWordStream stream = new FileCollectionWordStream(vertx,"/tmp",arglebargle, "");
 		out = new ByteArrayOutputStream();
 		Output output = new StreamOutput(out);
 		dict = new Dictionary("testdict");

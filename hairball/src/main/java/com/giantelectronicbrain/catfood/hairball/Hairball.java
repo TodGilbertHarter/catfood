@@ -17,8 +17,13 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 import java.util.Stack;
 import java.util.logging.Logger;
+
+import com.giantelectronicbrain.catfood.conf.ConfigurationException;
 
 import io.vertx.core.Vertx;
 
@@ -39,12 +44,22 @@ public class Hairball {
 	private final Interpreter interpreter;
 
 //	@GwtIncompatible
-	public static void main(String[] args) throws IOException, HairballException {
+	public static void main(String[] args) throws IOException, HairballException, ConfigurationException {
 		Vertx vertx = Vertx.vertx();
-		IWordStream wordStream = makeWordStream(vertx, args);
-		Output output = makeOutput(args);
-		Hairball hairball = new Hairball(wordStream,output);
-		hairball.execute();
+		try {
+			Object[] conf = Configurator.createConfiguration(Arrays.asList(args));
+			Properties configuration = (Properties) conf[0];
+			List<String> argList = (List<String>) conf[1];
+			IWordStream wordStream = makeWordStream(vertx, argList, configuration);
+			Output output = makeOutput(configuration);
+			Hairball hairball = new Hairball(wordStream,output);
+			hairball.execute();
+		} catch (Exception e) {
+			System.out.println(e.getLocalizedMessage());
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		vertx.close();
 	}
 	
 	static class ServerPlatform { //implements IPlatform {
@@ -68,7 +83,8 @@ public class Hairball {
 	 * @return
 	 */
 //	@GwtIncompatible
-	private static Output makeOutput(String[] args) {
+	private static Output makeOutput(Properties properties) {
+		//TODO: support directing output to other places besides STDOUT
 		return new ConsoleOutput();
 	}
 
@@ -81,12 +97,13 @@ public class Hairball {
 	 * @return
 	 */
 //	@GwtIncompatible
-	private static IWordStream makeWordStream(Vertx vertx, String[] args) {
-		if(args == null || args.length == 0)
+	private static IWordStream makeWordStream(Vertx vertx, List<String> args, Properties properties) {
+		if(args == null || args.size() == 0)
 			return new ConsoleWordStream("\n>");
 		else {
-			String cwd = System.getProperty("user.dir");
-			return new FileCollectionWordStream(vertx,cwd,args);
+			String cwd = (String) properties.get("base");
+			if(cwd == null) cwd = ".";
+			return new FileCollectionWordStream(vertx,"",args,cwd);
 		}
 	}
 

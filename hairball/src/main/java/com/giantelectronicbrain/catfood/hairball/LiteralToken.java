@@ -74,10 +74,20 @@ public class LiteralToken implements Token {
 	}
 
 	/**
+	 * Get the name of the token.
+	 * 
 	 * @return the name
 	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get the data associated with this token.
+	 * 
+	 * @return data as an object
+	 */
+	public Object getData() {
+		return data;
+	}
 }

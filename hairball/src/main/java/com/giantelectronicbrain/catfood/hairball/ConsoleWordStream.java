@@ -41,6 +41,8 @@ public class ConsoleWordStream implements IWordStream {
 	private BufferedReader reader;
 	private OutputStream out;
 	private byte[] pBytes = null;
+	private int lineNumber = 0;
+	private int columnNumber = 0;
 	
 	/**
 	 * Create a ConsoleWordStream attached to STDIN/OUT.
@@ -78,15 +80,22 @@ public class ConsoleWordStream implements IWordStream {
 	
 	private String getNext() throws IOException {
 		if(inputScanner.hasNext()) {
-			return inputScanner.next();
+			String next = inputScanner.next();
+			this.columnNumber += next.length();
+			return next;
 		} else {
 			out.write(pBytes);
 			input = reader.readLine();
-			//TODO: this issue is kind of a corner case, not sure how to handle it
-			if(input == null) return null; // throw new IOException("Console ran out of input!");
+			lineNumber++;
+			if(input == null) return null; // shouldn't happen with a console...
 			inputScanner = new Scanner(input);
-			if(inputScanner.hasNext())
-				return inputScanner.next();
+			this.columnNumber = 0;
+			if(inputScanner.hasNext()) {
+				String next = inputScanner.next();
+				this.columnNumber += next.length();
+				return next;
+			}
+			lineNumber++;
 			return "\n\n"; // we got double returns, which is a special token for us
 		}
 	}
@@ -108,6 +117,69 @@ public class ConsoleWordStream implements IWordStream {
 			more = getNext();
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public String getToDelimiter(String match) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		String line = inputScanner.nextLine();
+		if(line != null) {
+			this.columnNumber += line.length();
+			int midx = line.indexOf(match);
+			if(midx > -1) {
+				inputScanner = new Scanner(line.substring(midx+match.length()));
+				return line.substring(0, midx).stripLeading();
+			} else {
+				sb.append(line);
+			}
+		}
+		this.columnNumber = 0;
+		line = reader.readLine();
+		lineNumber++;
+		while(line != null) {
+			int midx = line.indexOf(match);
+			if(midx > -1) {
+				this.columnNumber += line.length();
+				sb.append("\n");
+				sb.append(line.substring(0, midx));
+				inputScanner = new Scanner(line.substring(midx+match.length()));
+				return sb.toString().stripLeading();
+			}
+			sb.append(line);
+			this.columnNumber = 0;
+			line = reader.readLine();
+			lineNumber++;
+		}
+		// probably won't ever get here in a console...
+//		return sb.toString();
+		return null;
+	}
+
+	@Override
+	public void close() throws IOException {
+		out.close();
+		reader.close();
+		inputScanner.close();
+	}
+
+	@Override
+	public String getSource() {
+		return "console";
+	}
+
+	@Override
+	public int getLine() {
+		return this.lineNumber;
+	}
+
+	@Override
+	public int getColumn() {
+		return this.columnNumber;
+	}
+
+	@Override
+	public String getCurrentLocation() {
+		return ".";
 	}
 
 }

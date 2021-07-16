@@ -48,6 +48,8 @@ public class Word {
 			return true;
 		if (obj == null)
 			return false;
+		if (obj.getClass() == String.class)
+			return obj.equals(this.value);
 		if (getClass() != obj.getClass())
 			return false;
 		Word other = (Word) obj;
@@ -59,12 +61,20 @@ public class Word {
 		return true;
 	}
 	
+	/**
+	 * Return true of this Word matches the given string.
+	 * 
+	 * @param value String to match
+	 * @return true if the two are equal
+	 */
 	public boolean matches(String value) {
 		return this.value.equals(value);
 	}
 
 	/**
-	 * @return
+	 * Get the actual String which maches this Word.
+	 * 
+	 * @return String value of the Word's token.
 	 */
 	public String getValue() {
 		return this.value;

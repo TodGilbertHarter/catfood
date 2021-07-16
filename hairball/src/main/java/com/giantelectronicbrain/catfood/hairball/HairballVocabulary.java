@@ -24,13 +24,69 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 
 /**
- * Define the core 'native' word set.
+ * Define the core 'native' word set. These are mostly native words implemented
+ * in Java. This is the minimal word set needed to have a functional
+ * hairball language.
  * 
  * @author tharter
  *
  */
 public class HairballVocabulary {
 	
+	/**
+	 * This is used to hold information on where in the input the interpreter
+	 * is at a given time. It can be used to generate error messages, etc.
+	 * 
+	 * @author tharter
+	 *
+	 */
+	private static class ParserLocation {
+		final String source;
+		final int column;
+		final int line;
+		
+		/**
+		 * Create a parser location.
+		 * 
+		 * @param source
+		 * @param line
+		 * @param column
+		 */
+		public ParserLocation(String source, int line, int column) {
+			this.source = source;
+			this.line = line;
+			this.column = column;
+		}
+		
+		/**
+		 * Create a parser location with the values taken from the given IWordStream.
+		 * 
+		 * @param wordStream The IWordStream to get the location from.
+		 */
+		public ParserLocation(IWordStream wordStream) {
+			this(wordStream.getSource(),wordStream.getLine(),wordStream.getColumn());
+		}
+		
+		/**
+		 * Make an error message indicating source and location of an error in hairball source.
+		 * 
+		 * @param eMsg the actual error
+		 * @param wordStream stream being parsed when it happened
+		 * @return complete message
+		 */
+		private String makeErrorMessage(String eMsg) {
+			return eMsg + " in "+this.source+" at line "+this.line+", column "+this.column;
+		}
+
+	}
+	
+	/**
+	 * Static factory to create the one and only needed instance of this class.
+	 * This is how HairballVocabulary should always be created, there is no need
+	 * for more than one.
+	 * 
+	 * @return
+	 */
 	public static IVocabulary create() {
 		IVocabulary hbVocab = new Vocabulary("HAIRBALL");
 		for(Definition def : defList) {
@@ -39,6 +95,9 @@ public class HairballVocabulary {
 		return hbVocab;
 	}
 	
+	/**
+	 * The actual definitions which will be placed within the vocabulary.
+	 */
 	private static final List<Definition> defList = new ArrayList<>();
 	static {
 		/**
@@ -184,12 +243,17 @@ public class HairballVocabulary {
 			}
 		}); */
 		Token quoteRT = new NativeToken("quote",(interpreter) -> {
+			ParserLocation pl = new ParserLocation(interpreter.getParserContext().getWordStream());
 			try {
-				String quoted = interpreter.getParserContext().getWordStream().getToMatching("\"/");
+				String quoted = interpreter.getParserContext().getWordStream().getToDelimiter("\"/");
+				if(quoted == null) {
+					String eMsg = pl.makeErrorMessage("/\" failed to find matching \"/");
+					throw new HairballException(eMsg);
+				}
+				quoted = quoted.stripTrailing();
 				interpreter.push(quoted);
-//				emit.execute(interpreter);
 			} catch (IOException e) {
-				throw new HairballException("Word could not read a token from input",e);
+				throw new HairballException(pl.makeErrorMessage("Word could not read a token from input"),e);
 			}
 		});
 		defList.add(new Definition(new Word("/\""),compile,quoteRT));
@@ -209,7 +273,7 @@ public class HairballVocabulary {
 				interpreter.pop();
 			});
 		defList.add(new Definition(new Word("/DROP"),compile,drop));
-		
+				
 		/**
 		 * End a definition, immediate word which puts us back into interpreting mode and
 		 * finalizes the current definition.
@@ -333,11 +397,15 @@ public class HairballVocabulary {
 			ParserContext cContext = interpreter.getParserContext();
 			String fileName = null;
 			try {
+				String currentBucket = interpreter.getParserContext().getWordStream().getCurrentLocation();
 				fileName = interpreter.getParserContext().getWordStream().getToMatching("\"/");
-				IWordStream wordStream = new BucketWordStream(fileSystem,fileName,".");
+System.out.println("WTF IS IT "+currentBucket+","+fileName);
+				IWordStream wordStream = new BucketWordStream(fileSystem,fileName,"",currentBucket);
 				Parser nParser = new Parser();
+				Interpreter nInterpreter = new Interpreter();
 				ParserContext nContext = new ParserContext(wordStream, cContext.getDictionary(), 
-						interpreter, cContext.getOutput(), nParser);
+						nInterpreter, cContext.getOutput(), nParser);
+				nInterpreter.setParserContext(nContext);
 				nParser.setParserContext(nContext);
 				nParser.parse();
 			} catch (IOException e) {
@@ -345,6 +413,45 @@ public class HairballVocabulary {
 			}
 		});
 		defList.add(new Definition(new Word("/SOURCE\""),compile,source));
+		
+		/**
+		 * Get a named vocabulary and put it on the top of the stack
+		 */
+		Token pushVocab = new NativeToken("pushVocab", (interpreter) -> {
+			String vocabName = (String) interpreter.pop();
+			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().findVocabulary(vocabName);
+			interpreter.push(vocabulary);
+		});
+		/**
+		 * Create a vocabulary with a given name.
+		 */
+		Token createVocab = new NativeToken("createVocab",(interpreter) -> {
+			String vocabName = (String) interpreter.pop();
+			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().createVocabulary(vocabName);
+			interpreter.push(vocabulary);
+		});
+		/**
+		 * Given a vocabulary, add it to the dictionaries active vocabularies
+		 */
+		Token addVocabularyToStack = new NativeToken("addVocabularyToStack",(interpreter) -> {
+			IVocabulary vocab = (IVocabulary) interpreter.pop();
+			interpreter.getParserContext().getDictionary().add(vocab);
+		});
+		defList.add(new Definition(new Word("/ACTIVE"),compile,addVocabularyToStack));
+		Token makeVocabularyCurrent = new NativeToken("makeVocabularyCurrent",(interpreter) -> {
+			IVocabulary vocab = (IVocabulary) interpreter.pop();
+			interpreter.getParserContext().getDictionary().makeCurrent(vocab);
+		});
+		defList.add(new Definition(new Word("/CURRENT"),compile,makeVocabularyCurrent));
+		/**
+		 * Create a new vocabulary by parsing input and adding it to the known vocabularies
+		 */
+		Token newVocabRT = InterpreterToken.makeToken("newVocabRT", quoteSlashRT, createVocab);
+		defList.add(new Definition(new Word("/NEWVOCABULARY\""),compile,newVocabRT));
+		Token addVocabRT = InterpreterToken.makeToken("addVocabRT", quoteSlashRT, pushVocab);
+		defList.add(new Definition(new Word("/VOCABULARY\""),compile,addVocabRT));
 	}
+	
+
 
 }

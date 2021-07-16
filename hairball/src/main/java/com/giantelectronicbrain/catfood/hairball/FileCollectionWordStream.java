@@ -18,6 +18,7 @@ package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,23 +37,41 @@ public class FileCollectionWordStream implements IWordStream {
 	private final FileSystem fileSystem;
 	private final String bucketName;
 	private final List<String> objectNames;
+	private final String basePath;
 	
 	private IWordStream wordStream = null;
 	
 	/**
 	 * Create a word stream which will supply words from a series of objects in a bucket.
 	 * 
-	 * @param vertx
-	 * @param bucketName
-	 * @param objectNames
+	 * @param vertx vertx object to get FileSystem from
+	 * @param bucketName path to the bucket files are in
+	 * @param objectNames list of names of files to use.
 	 */
-	public FileCollectionWordStream(Vertx vertx, String bucketName, String[] objectNames) {
+	public FileCollectionWordStream(Vertx vertx, String bucketName, List<String> objectNames, String basePath) {
 		this.fileSystem = vertx.fileSystem();
 		this.bucketName = bucketName;
-		this.objectNames = new ArrayList<String>();
-		Collections.addAll(this.objectNames,objectNames);
+		this.objectNames = objectNames;
+		this.basePath = basePath;
 	}
 
+	/**
+	 * Create a word stream which will supply words from a series of objects in a bucket.
+	 * 
+	 * @param vertx vertx object to get FileSystem from
+	 * @param bucketName path to the bucket files are in
+	 * @param objectNames array of names of files to use.
+	 */
+	public FileCollectionWordStream(Vertx vertx, String bucketName, String[] objectNames, String basePath) {
+		this(vertx,bucketName,arrayToList(objectNames),basePath);		
+	}
+
+	private static List<String> arrayToList(String[] strings) {
+		List<String> slist = new ArrayList<>();
+		Collections.addAll(slist,strings);
+		return slist;
+		
+	}
 	/**
 	 * Return a wordstream, either the current one, or the next one if the current one doesn't
 	 * exist or is exhausted.
@@ -65,7 +84,7 @@ public class FileCollectionWordStream implements IWordStream {
 			if(objectNames.size() > 0) {
 				String objectName = objectNames.remove(0);
 //System.out.println("GOT AN OBJECT OF NAME "+objectName);
-				wordStream = new BucketWordStream(fileSystem,objectName,bucketName);
+				wordStream = new BucketWordStream(fileSystem,objectName,bucketName,basePath);
 			} else {
 				return null;
 			}
@@ -93,6 +112,38 @@ public class FileCollectionWordStream implements IWordStream {
 //System.out.println("HAS MORE TOKENS in FileCollectionWordStream");
 		IWordStream ws = getWordStream();
 		return ws == null ? false : ws.hasMoreTokens();
+	}
+
+	@Override
+	public String getToDelimiter(String match) throws IOException {
+		IWordStream ws = getWordStream();
+		return ws == null ? null : ws.getToDelimiter(match);
+	}
+
+	@Override
+	public void close() throws IOException {
+		if(wordStream != null)
+			wordStream.close();
+	}
+
+	@Override
+	public String getSource() {
+		return wordStream == null ? null : wordStream.getSource();
+	}
+
+	@Override
+	public int getLine() {
+		return wordStream == null ? -1 : wordStream.getLine();
+	}
+
+	@Override
+	public int getColumn() {
+		return wordStream == null ? -1 : wordStream.getColumn();
+	}
+
+	@Override
+	public String getCurrentLocation() {
+		return wordStream == null ? "." : wordStream.getCurrentLocation();
 	}
 
 }

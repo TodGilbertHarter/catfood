@@ -17,8 +17,10 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 
@@ -49,16 +51,34 @@ public class Dictionary implements IVocabulary {
 	private Consumer<Token> doerDoes = this::addToRuntime;
 	private boolean doer = false;
 	private IVocabulary currentVocabulary;
+	private Map<String,IVocabulary> vocabularyList = new HashMap<>();
 
+	/**
+	 * This is a structure for holding the contents of the current definition
+	 * before it has been finalized and added to a vocabulary.
+	 * 
+	 * @author tharter
+	 *
+	 */
 	private class EmptyDefinition {
 		Word name;
 		List<Token> compileTime = new LinkedList<>();
 		List<Token> runTime = new LinkedList<>();
 		
+		/**
+		 * Add a token to the compiletime behavior of the Definition.
+		 * 
+		 * @param newToken
+		 */
 		public void addCompileToken(Token newToken) {
 			this.compileTime.add(newToken);
 		}
 		
+		/**
+		 * Add a token to the runtime behavior of the Definition.
+		 * 
+		 * @param newToken
+		 */
 		public void addRuntimeToken(Token newToken) {
 			this.runTime.add(newToken);
 		}
@@ -75,6 +95,38 @@ public class Dictionary implements IVocabulary {
 		does();
 	}
 
+	/**
+	 * Get a vocabulary from the list of known vocabularies given its name.
+	 * 
+	 * @param name vocabulary name
+	 * @return vocabulary, or null if it doesn't exist
+	 */
+	public IVocabulary findVocabulary(String name) {
+		return vocabularyList.get(name);
+	}
+	
+	/**
+	 * Add a vocabulary to this Dictionary's list of known vocabularies.
+	 * 
+	 * @param vocabulary
+	 */
+	private void addToVocabularyList(IVocabulary vocabulary) {
+		vocabularyList.put(vocabulary.getName(),vocabulary);
+	}
+
+	/**
+	 * Create a new Vocabulary and add it to the ones known to this Dictionary.
+	 * 
+	 * @param name a name for the new Vocabulary.
+	 * 
+	 * @return the new Vocabulary.
+	 */
+	public IVocabulary createVocabulary(String name) {
+		IVocabulary nVocab = new Vocabulary(name);
+		addToVocabularyList(nVocab);
+		return nVocab;
+	}
+	
 	/**
 	 * Get the current definition, noting that this may or may
 	 * not be a complete definition, and may or may not have already
@@ -187,12 +239,13 @@ public class Dictionary implements IVocabulary {
 	}
 	
 	/**
-	 * Add a vocabulary to this dictionary. If there is no current
+	 * Add a vocabulary to the dictionary search order. If there is no current
 	 * vocabulary, then this will also become the current vocabulary.
 	 * 
 	 * @param vocabulary
 	 */
 	public void add(IVocabulary vocabulary) {
+		addToVocabularyList(vocabulary); // make sure it is known to us
 		vocabularies.push(vocabulary);
 		if(currentVocabulary == null) makeCurrent(vocabulary);
 	}
@@ -206,6 +259,7 @@ public class Dictionary implements IVocabulary {
 	 * @return previous current vocabulary
 	 */
 	public IVocabulary makeCurrent(IVocabulary vocabulary) {
+		addToVocabularyList(vocabulary); // make sure it is known to us
 		IVocabulary old = this.currentVocabulary;
 		this.currentVocabulary = vocabulary;
 		return old;
@@ -221,7 +275,8 @@ public class Dictionary implements IVocabulary {
 	}
 	
 	/**
-	 * Remove the most recently added vocabulary.
+	 * Remove the most recently added vocabulary from the dictionary search
+	 * order. Note that this does not modify the current dictionary.
 	 * 
 	 */
 	public void remove() {
@@ -230,15 +285,17 @@ public class Dictionary implements IVocabulary {
 
 	/**
 	 * Pop the given vocabulary and all more recently added vocabularies from
-	 * this dictionary.
+	 * the dictionary search order. If the given vocabulary doesn't exist in
+	 * the search order, do nothing.
 	 * 
 	 * @param vocabulary the vocabulary to remove
 	 */
 	public void remove(IVocabulary vocabulary) {
-		while(vocabularies.size() != 0) {
-			IVocabulary popped = vocabularies.pop();
-			if(popped.equals(vocabulary)) return;
-		}
+		if(vocabularies.contains(vocabulary))
+			while(vocabularies.size() != 0) {
+				IVocabulary popped = vocabularies.pop();
+				if(popped.equals(vocabulary)) return;
+			}
 	}
 	
 	@Override
@@ -294,6 +351,11 @@ public class Dictionary implements IVocabulary {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 	
 	

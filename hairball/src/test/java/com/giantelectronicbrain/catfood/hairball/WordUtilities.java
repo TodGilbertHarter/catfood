@@ -59,7 +59,7 @@ public class WordUtilities {
 		String fname = tfname.substring(tfname.lastIndexOf('/')+1);
 		Buffer buffer = Buffer.buffer(input);
 		fs.writeFileBlocking(tfname, buffer);
-		return new BucketWordStream(fs, fname, "/tmp");
+		return new BucketWordStream(fs, fname, "/tmp", "");
 	}
 	
 	public static Hairball bucketSetUpHairball(Vertx vertx, String inputData, OutputStream out) {
@@ -83,7 +83,7 @@ public class WordUtilities {
 			outputs.add(makeBucket(fs, input));
 		}
 		String[] arglebargle = outputs.toArray(new String[outputs.size()]);
-		return new FileCollectionWordStream(vertx,"/tmp",arglebargle);
+		return new FileCollectionWordStream(vertx,"/tmp",arglebargle, "");
 	}
 
 	public static Hairball FileCollectionSetUpHairball(Vertx vertx, String[] inputs, OutputStream out) {

@@ -19,17 +19,14 @@ package com.giantelectronicbrain.catfood.hairball;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 
 /**
@@ -47,6 +44,46 @@ public class FileCollectionWordStreamTest {
 		return WordUtilities.setUp(vertx, inputs);
 	}
 	
+	@Test
+	public void testGetToDelimiterOneLine() throws IOException {
+		IWordStream uut = setUp(new String[] {"this is stuffMARK"} );
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff",mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	
+	@Test
+	public void testGetToDelimiterTwoLines() throws IOException {
+		IWordStream uut = setUp(new String[] {"this is stuff\nmore stuffMARK"});
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff\nmore stuff",mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+	
+	@Test
+	@Ignore // I assume we really do not need to span files with delimiters currently
+	public void testGetToDelimiterTwoFiles() throws IOException {
+		IWordStream uut = setUp(new String[] {"this is stuff", "more stuffMARK"});
+		Word word = uut.getNextWord();
+		assertNotNull(word);
+		assertEquals(new Word("this"),word);
+		String mark = uut.getToDelimiter("MARK");
+		assertNotNull(mark);
+		assertEquals("is stuff\nmore stuff",mark);
+		
+		assertFalse(uut.hasMoreTokens() && !(uut instanceof ConsoleWordStream || uut instanceof StringWordStream));
+	}
+
 	@Test
 	public void testOneSingleFile() throws IOException {
 		IWordStream uut = setUp(new String[] {"foobar"});

@@ -46,6 +46,7 @@ public class Parser {
 
 	private boolean interpreting = true;
 	private ParserContext currentContext;
+	
 	public static interface ParserBehavior {
 		public abstract void handle(Word word) throws HairballException, IOException;
 	}
@@ -94,16 +95,28 @@ public class Parser {
 	 */
 	public ParserContext parse() throws IOException, HairballException {
 		IWordStream wordStream = currentContext.getWordStream();
-		Word word = wordStream.getNextWord();
-		while(word != null) {
-			log.log(Level.FINEST,"We got a word, "+word);
-			parserBehavior.handle(word);
-			word = wordStream.getNextWord();
+		try {
+			Word word = wordStream.getNextWord();
+			while(word != null) {
+				log.log(Level.FINEST,"We got a word, "+word);
+				parserBehavior.handle(word);
+				word = wordStream.getNextWord();
+			}
+			flushLitAccum(); // make sure nothing is left behind in some edge cases
+			return currentContext;
+		} catch (HairballException he) {
+			String msg = makeParserExceptionMessage(he,wordStream);
+			throw new HairballException(msg,he);
 		}
-		flushLitAccum(); // make sure nothing is left behind in some edge cases
-		return currentContext;
 	}
-	
+
+	private String makeParserExceptionMessage(HairballException he, IWordStream wordStream) {
+		String source = wordStream.getSource();
+		int lineNumber = wordStream.getLine();
+		int columnNumber = wordStream.getColumn();
+		String eMsg = he.getMessage();
+		return eMsg + " in "+source+" at line "+lineNumber+", column "+columnNumber;
+	}
 	/**
 	 * Execute the interpreting mode behavior of the outer interpreter.
 	 * 

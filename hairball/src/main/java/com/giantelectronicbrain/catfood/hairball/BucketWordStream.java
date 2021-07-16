@@ -47,12 +47,13 @@ import io.vertx.core.streams.ReadStream;
  * 
  */
 public class BucketWordStream extends WordStream {
-	private static final Logger log = Hairball.PLATFORM.getLogger(BufferedWordStream.class.getName());
+	private static final Logger log = Hairball.PLATFORM.getLogger(BucketWordStream.class.getName());
 
 	private final FileSystem fileSystem;
 	private final String objectName;
 	private final IBucketName bucketName;
 	private final IBucketDriver driver;
+	private final IBucketObjectName boName;
 	private ReadStream<Buffer> asyncFile = null;
 
 	/**
@@ -64,14 +65,14 @@ public class BucketWordStream extends WordStream {
 	 * @param objectName name of the bucket object to read
 	 * @param bucketName name of the bucket the object is in
 	 */
-	public BucketWordStream(FileSystem fileSystem, String objectName, String bucketName) {
+	public BucketWordStream(FileSystem fileSystem, String objectName, String bucketName, String basePath) {
 		super();
 		this.objectName = objectName;
 		this.fileSystem = fileSystem;
-//System.out.println("bucket name is: "+bucketName+", object name is: "+objectName);		
-		driver = FsBucketDriverImpl.builder().basePath("").fileSystem(fileSystem).build();
+System.out.println("bucket name is: "+bucketName+", object name is: "+objectName);		
+		driver = FsBucketDriverImpl.builder().basePath(basePath).fileSystem(fileSystem).build();
 		this.bucketName = driver.makeBucketName(bucketName);
-		IBucketObjectName boName = driver.makeBucketObjectName(this.bucketName, objectName);
+		this.boName = driver.makeBucketObjectName(this.bucketName, objectName);
 		driver.readBucketObject(boName, result -> {
 			log.fine("Got into BucketWordStream readBucketObject callback");
 			if(result.succeeded()) {
@@ -79,9 +80,9 @@ public class BucketWordStream extends WordStream {
 				VertxBlockingInputStream is = new VertxBlockingInputStream(asyncFile);
 				reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 			} else {
-				Throwable t = makeException(result.cause());
+				CatfoodApplicationException t = makeException(result.cause());
 				result.cause().printStackTrace();
-				log.severe("failed to create reader "+t.getLocalizedMessage());
+				log.severe("failed to create reader "+t.getLocalizedMessage()+" details -> "+t.getDetails());
 			}
 		});
 	}
@@ -134,4 +135,19 @@ public class BucketWordStream extends WordStream {
 //System.out.println("CALLING SUPER HASMORETOKENS");
 		return super.hasMoreTokens();
 	}
+
+	@Override
+	public String getSource() {
+		return this.boName.getName();
+	}
+	
+	@Override
+	public String getCurrentLocation() {
+		String name = boName.getName();
+		int lidx = name.lastIndexOf('/');
+		name = name.substring(0, lidx);
+		return name;
+//		return bucketName.getNameString();
+	}
+
 }

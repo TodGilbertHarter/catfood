@@ -33,11 +33,14 @@ import java.util.logging.Logger;
  *
  */
 public abstract class WordStream implements IWordStream {
+
 	private static final Logger log = Hairball.PLATFORM.getLogger(WordStream.class.getName());
 
 	private String input = "";
 	private Scanner inputScanner;
 	protected BufferedReader reader;
+	private int columnNumber = 0;
+	private int lineNumber = 0;
 
 	/**
 	 * Create a stream with an initially empty input. This constructor needs to be
@@ -56,6 +59,8 @@ public abstract class WordStream implements IWordStream {
 	 * @throws IOException if reading fails
 	 */
 	protected String getNextLine() throws IOException {
+		this.columnNumber = 0;
+		this.lineNumber++;
 		return reader.readLine();
 	}
 	
@@ -64,7 +69,9 @@ public abstract class WordStream implements IWordStream {
 		
 		if(inputScanner.hasNext()) {
 			log.log(Level.FINEST,"Current line has more tokens, returning next one");
-			return inputScanner.next();
+			String next = inputScanner.next();
+			this.columnNumber += next.length();
+			return next;
 		} else {
 			input = this.getNextLine();
 			log.log(Level.FINEST,"Line was exhausted, got a new line");
@@ -73,7 +80,9 @@ public abstract class WordStream implements IWordStream {
 				inputScanner = new Scanner(input);
 				if(inputScanner.hasNext()) {
 					log.log(Level.FINEST,"Returning a token from the new line");
-					return inputScanner.next();
+					String next = inputScanner.next();
+					this.columnNumber += next.length();
+					return next;
 				}
 				log.log(Level.FINEST,"Line was exhausted, next line was blank, returning double newline");
 				return "\n\n"; // we got double returns, which is a special token for us
@@ -120,6 +129,62 @@ public abstract class WordStream implements IWordStream {
 		boolean rready = reader.ready();
 //System.out.println("isHasNext is "+isHasNext+", rready is "+rready);		
 		return isHasNext || rready;
+	}
+
+	@Override
+	public String getToDelimiter(String match) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		String line = inputScanner.hasNextLine() ? inputScanner.nextLine() : null;
+		if(line != null) {
+			int midx = line.indexOf(match);
+			if(midx > -1) {
+				this.columnNumber += midx+1+match.length();
+				inputScanner = new Scanner(line.substring(midx+match.length()));
+				return line.substring(0, midx).stripLeading();
+			} else {
+				this.columnNumber = 0;
+				sb.append(line);
+			}
+		}
+		line = reader.readLine();
+		this.lineNumber++;
+		while(line != null) {
+			int midx = line.indexOf(match);
+			if(midx > -1) {
+				this.columnNumber += midx+1+match.length();
+				sb.append("\n");
+				sb.append(line.substring(0, midx));
+				inputScanner = new Scanner(line.substring(midx+match.length()));
+				return sb.toString().stripLeading();
+			}
+			sb.append(line);
+			this.columnNumber = 0;
+			this.lineNumber++;
+			line = reader.readLine();
+		}
+//		return sb.toString();
+		return null;
+	}
+
+	@Override
+	public void close() throws IOException {
+		reader.close();
+		inputScanner.close();
+	}
+
+	@Override
+	public int getLine() {
+		return this.lineNumber;
+	}
+
+	@Override
+	public int getColumn() {
+		return this.columnNumber;
+	}
+
+	@Override
+	public String getCurrentLocation() {
+		return ".";
 	}
 
 }

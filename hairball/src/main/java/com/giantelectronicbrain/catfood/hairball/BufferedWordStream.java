@@ -46,5 +46,10 @@ public class BufferedWordStream extends WordStream {
 		reader = new BufferedReader(new InputStreamReader(in));
 	}
 
+	@Override
+	public String getSource() {
+		return "buffered word stream";
+	}
+
 
 }

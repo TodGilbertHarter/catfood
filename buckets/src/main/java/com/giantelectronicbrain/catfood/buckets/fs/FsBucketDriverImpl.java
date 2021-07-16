@@ -275,13 +275,13 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver createBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+	public IBucketDriver createBucket(final IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
 		fileSystem.mkdirs(bucketName.getNameString(), result -> {
 			if (result.succeeded()) {
 				IBucket bucket = new FsBucket(this, (FsBucketName) bucketName);
 				handler.handle(Future.succeededFuture(bucket));
 			} else {
-				Throwable t = this.makeException(result.cause());
+				Throwable t = this.makeException(result.cause(),"Can't create bucket", bucketName.getNameString());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -289,7 +289,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver getBucket(IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
+	public IBucketDriver getBucket(final IBucketName bucketName, Handler<AsyncResult<IBucket>> handler) {
 		fileSystem.exists(bucketName.getNameString(), result -> {
 			if (result.succeeded()) {
 				Boolean exists = result.result();
@@ -300,7 +300,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 					handler.handle(Future.failedFuture("Bucket with name " + bucketName.getNameString() + " does not exist"));
 				}
 			} else {
-				Throwable t = this.makeException(result.cause());
+				Throwable t = this.makeException(result.cause(), "Can't get bucket",bucketName.getNameString());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -308,7 +308,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver getBucketObject(IBucketObjectName objectName, Handler<AsyncResult<IBucketObject>> handler) {
+	public IBucketDriver getBucketObject(final IBucketObjectName objectName, Handler<AsyncResult<IBucketObject>> handler) {
 		fileSystem.exists(objectName.getName(), result -> {
 			if (result.succeeded()) {
 				Boolean exists = result.result();
@@ -319,7 +319,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 					handler.handle(Future.failedFuture("Bucket object with name " + objectName.getName() + " does not exist"));
 				}
 			} else {
-				Throwable t = this.makeException(result.cause());
+				Throwable t = this.makeException(result.cause(), "Can't get bucket object", objectName.getName());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -333,7 +333,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 				Void r = result.result();
 				handler.handle(Future.succeededFuture(r));
 			} else {
-				Throwable t = this.makeException(result.cause());
+				Throwable t = this.makeException(result.cause(), "Can't delete bucket", bucketName.getNameString());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -341,13 +341,13 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver deleteBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<Void>> handler) {
+	public IBucketDriver deleteBucketObject(final IBucketObjectName bucketObjectName, Handler<AsyncResult<Void>> handler) {
 		fileSystem.delete(bucketObjectName.getName(), result -> {
 			if (result.succeeded()) {
 				Void r = result.result();
 				handler.handle(Future.succeededFuture(r));
 			} else {
-				Throwable t = this.makeException(result.cause());
+				Throwable t = this.makeException(result.cause(), "Can't delete bucket object", bucketObjectName.getName());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -360,44 +360,6 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		return this;
 	}
 
-/*	@Override
-	public IBucketDriver createBucketObject(IBucketObjectName bucketObjectName, InputStream content,
-			Handler<AsyncResult<Void>> handler) {
-		@SuppressWarnings("unused")
-		Future<Void> ar = Future.future(promise -> {
-			try {
-				String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
-				fileSystem.open(rPath, new OpenOptions().setCreate(true).setWrite(true), result -> {
-					if(result.succeeded()) {
-						AsyncFile file = result.result();
-						byte[] bytes = new byte[1024];
-						int nRead;
-						do {
-							try {
-								nRead = content.read(bytes);
-								if(nRead != -1) {
-									Buffer buffer = Buffer.buffer(bytes);
-									file.write(buffer,nRead);
-								}
-							} catch (IOException e) {
-								//TODO: log something
-								promise.fail(e);
-								return;
-							}
-						} while(nRead != -1);
-						promise.complete();
-					} else {
-						//TODO: log something
-						promise.fail(result.cause());
-					}
-				});
-			} catch(Exception e) {
-				//TODO: probably should log something here
-				promise.fail(e);
-			}
-		});
-	return this;
-	} */
 	@Override
 	public IBucketDriver makeBucketName(String name, Handler<AsyncResult<IBucketName>> handler) {
 		IBucketName bName = this.makeBucketName(name);
@@ -429,7 +391,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public IBucketDriver readBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<ReadStream<Buffer>>> handler) {
 		String rPath = resolvedPath((FsBucketObjectName) bucketObjectName);
-//System.out.println("Resolved path is "+rPath);
+System.out.println("Resolved path is "+rPath);
 		log.debug("Got a path of %s",rPath);
 		fileSystem.open(rPath, new OpenOptions(), result -> {
 			if (result.succeeded()) {
@@ -438,7 +400,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 				Future<ReadStream<Buffer>> pfut = Future.succeededFuture(buf);
 				handler.handle(pfut);
 			} else {
-				Throwable t = makeException(result.cause());
+				Throwable t = makeException(result.cause(), "Can't read bucket object", bucketObjectName.getName());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -446,7 +408,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver createBucketObject(IBucketObjectName name, ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) {
+	public IBucketDriver createBucketObject(final IBucketObjectName name, ReadStream<Buffer> is, Handler<AsyncResult<Void>> handler) {
 		String path = resolvedPath((FsBucketObjectName) name);
 		fileSystem.open(path, new OpenOptions(), result -> {
 			if (result.succeeded()) {
@@ -454,7 +416,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 				Future<Void> pfut = is.pipeTo(file);
 				handler.handle(pfut);
 			} else {
-				Throwable t = makeException(result.cause());
+				Throwable t = makeException(result.cause(), "Can't create bucket object", name.getName());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
@@ -462,7 +424,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	@Override
-	public IBucketDriver createBucketObject(IBucketObjectName name, Handler<AsyncResult<WriteStream<Buffer>>> handler) {
+	public IBucketDriver createBucketObject(final IBucketObjectName name, Handler<AsyncResult<WriteStream<Buffer>>> handler) {
 		String path = resolvedPath((FsBucketObjectName) name);
 		fileSystem.open(path, new OpenOptions(), result -> {
 			if (result.succeeded()) {
@@ -470,15 +432,15 @@ public class FsBucketDriverImpl implements IBucketDriver {
 				AsyncResult<WriteStream<Buffer>> ffut = Future.succeededFuture(file);
 				handler.handle(ffut);
 			} else {
-				Throwable t = makeException(result.cause());
+				Throwable t = makeException(result.cause(), "Can't create bucket object", name.getName());
 				handler.handle(Future.failedFuture(t));
 			}
 		});
 		return this;
 	}
 
-	private CatfoodApplicationException makeException(Throwable cause) {
-		return new CatfoodApplicationException(ExceptionIds.SERVER_ERROR, "", "");
+	private CatfoodApplicationException makeException(Throwable cause, String message, String details) {
+		return new CatfoodApplicationException(ExceptionIds.SERVER_ERROR, message, details);
 	}
 
 	/*	@Override
@@ -520,50 +482,4 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		return result;
 	}
 
-/*	@java.lang.SuppressWarnings("all")
-	public FsBucketDriverImpl(final FileSystem fileSystem, final String basePath) {
-		this.fileSystem = fileSystem;
-		this.basePath = basePath;
-	}
-
-
-	@java.lang.SuppressWarnings("all")
-	public static class FsBucketDriverImplBuilder {
-		@java.lang.SuppressWarnings("all")
-		private FileSystem fileSystem;
-		@java.lang.SuppressWarnings("all")
-		private String basePath;
-
-		@java.lang.SuppressWarnings("all")
-		FsBucketDriverImplBuilder() {
-		}
-
-		@java.lang.SuppressWarnings("all")
-		public FsBucketDriverImpl.FsBucketDriverImplBuilder fileSystem(final FileSystem fileSystem) {
-			this.fileSystem = fileSystem;
-			return this;
-		}
-
-		@java.lang.SuppressWarnings("all")
-		public FsBucketDriverImpl.FsBucketDriverImplBuilder basePath(final String basePath) {
-			this.basePath = basePath;
-			return this;
-		}
-
-		@java.lang.SuppressWarnings("all")
-		public FsBucketDriverImpl build() {
-			return new FsBucketDriverImpl(this.fileSystem, this.basePath);
-		}
-
-		@java.lang.Override
-		@java.lang.SuppressWarnings("all")
-		public java.lang.String toString() {
-			return "FsBucketDriverImpl.FsBucketDriverImplBuilder(fileSystem=" + this.fileSystem + ", basePath=" + this.basePath + ")";
-		}
-	}
-
-	@java.lang.SuppressWarnings("all")
-	public static FsBucketDriverImpl.FsBucketDriverImplBuilder builder() {
-		return new FsBucketDriverImpl.FsBucketDriverImplBuilder();
-	} */
 }

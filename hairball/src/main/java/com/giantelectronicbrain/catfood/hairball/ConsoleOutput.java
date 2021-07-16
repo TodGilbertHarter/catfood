@@ -19,11 +19,16 @@ package com.giantelectronicbrain.catfood.hairball;
 import java.util.logging.Logger;
 
 /**
+ * A StreamOutput which is initialized to point to the program's standard output.
+ * 
  * @author tharter
  *
  */
 public class ConsoleOutput extends StreamOutput {
 
+	/**
+	 * Create an output pointing to standard out stream.
+	 */
 	public ConsoleOutput() {
 		super(System.out);
 	}

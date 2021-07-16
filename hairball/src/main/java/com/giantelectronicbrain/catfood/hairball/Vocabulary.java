@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A vocabulary is a collection of hairball words.
+ * A vocabulary is a collection of hairball Definitions.
  * 
  * @author tharter
  *
@@ -28,7 +28,12 @@ import java.util.Map;
 public class Vocabulary implements IVocabulary {
 	private final String name;
 	private final Map<Word,Definition> definitions = new HashMap<>(); 
-	
+
+	/**
+	 * Create an empty vocabulary with the given name.
+	 * 
+	 * @param name name of this vocabulary
+	 */
 	public Vocabulary(String name) {
 		this.name = name;
 	}
@@ -76,6 +81,11 @@ public class Vocabulary implements IVocabulary {
 		} else if (!name.equals(other.name))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 	
 }

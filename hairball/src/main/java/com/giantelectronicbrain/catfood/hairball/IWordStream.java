@@ -28,6 +28,45 @@ import java.io.IOException;
 public interface IWordStream {
 
 	/**
+	 * Get the current location. This should be the string representation of a
+	 * legal bucket name for the currently parsing file/object.
+	 * 
+	 * @return a legal bucket name
+	 */
+	public String getCurrentLocation();
+	
+	/**
+	 * Get a description of the source of a word stream. This is something like
+	 * a file name or other indicator telling us where the data is coming from in
+	 * a human-readable form.
+	 * 
+	 * @return String description of source of input for the stream.
+	 */
+	public String getSource();
+	
+	/**
+	 * Get the number of lines which has been processed by this stream. This
+	 * includes the one currently being processed.
+	 * 
+	 * @return the number of lines processed so far.
+	 */
+	public int getLine();
+
+	/**
+	 * Get the column number in the current line where processing is now taking
+	 * place.
+	 * 
+	 * @return the current column number in the current line.
+	 */
+	public int getColumn();
+	
+	/**
+	 * Insure that the stream releases all resources.
+	 * @throws IOException 
+	 */
+	public void close() throws IOException;
+	
+	/**
 	 * Get the next hairball Word in the input stream.
 	 * 
 	 * @return the next word
@@ -59,4 +98,14 @@ public interface IWordStream {
 	 */
 	public abstract boolean hasMoreTokens() throws IOException;
 
+	/**
+	 * Get the text up to a delimiter pattern. This does not parse by tokens, instead
+	 * it searches the input for the pattern and returns all text up to it, then 
+	 * discards the pattern text.
+	 * 
+	 * @param match a string to match against
+	 * @return all the text up to match
+	 * @throws IOException if there is an error in input
+	 */
+	public abstract String getToDelimiter(String match) throws IOException;
 }
