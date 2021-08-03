@@ -47,4 +47,10 @@ public class StreamOutput implements Output {
 		
 		out.write(output.getBytes(StandardCharsets.UTF_8));
 	}
+
+	@Override
+	public void close() throws IOException {
+//TODO: uncomment this. We will need to make a 'ConsoleOutput' which doesn't close
+//		out.close();
+	}
 }

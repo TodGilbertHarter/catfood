@@ -29,6 +29,7 @@ import java.util.List;
 public class Context {
 	private List<Token> instructions;
 	private int instructionPointer;
+	private boolean continueFlag = true;
 
 	/**
 	 * Create a new execution context with the given instructions and default
@@ -54,6 +55,22 @@ public class Context {
 		this.instructionPointer = instructionPointer;
 	}
 
+	/**
+	 * Unset the continue flag on this Context.
+	 */
+	public void quit() {
+		this.continueFlag = false;
+	}
+
+	/**
+	 * Test the continue flag.
+	 * 
+	 * @return true if quit has been called on this context.
+	 */
+	public boolean isContinue() {
+		return this.continueFlag;
+	}
+	
 	/**
 	 * Get the current ip value.
 	 * 

@@ -28,8 +28,9 @@ public class InterpreterTokenTest {
 
 	int didIt = 0;
 	
-	public void behavior(Interpreter interp) {
+	public boolean behavior(Interpreter interp) {
 		didIt++;
+		return true;
 	}
 	
 	@Test

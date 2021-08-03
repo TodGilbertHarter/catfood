@@ -16,27 +16,41 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
-import java.io.IOException;
-
 /**
- * This is a 'black hole' output. It is good for things like setting up an interpreter
- * by reading some preliminary startup code who's output you don't want to keep.
+ * Variable tokens hold arbitrary data in the form of a Java object. This allows
+ * Its behavior is to push itself onto the parameter stack.
  * 
  * @author tharter
  *
  */
-public class NullOutput implements Output {
+public class VariableToken extends LiteralToken {
 
+	/**
+	 * Create a token which holds the object.
+	 * 
+	 * @param data
+	 */
+	public VariableToken(String name, Object data) {
+		super(name,data);
+	}
+	
 	@Override
-	public void space() throws IOException {
+	public boolean execute(Interpreter interpreter) {
+		interpreter.push(this);
+		return true;
 	}
 
 	@Override
-	public void emit(String output) throws IOException {
+	public String toString() {
+		return "VariableToken [name=" + getName() + "]";
 	}
 
-	@Override
-	public void close() throws IOException {
+	/**
+	 * Change the value of the data in this object.
+	 * 
+	 * @param data new data
+	 */
+	public void setData(Object data) {
+		this.data = data;
 	}
-
 }

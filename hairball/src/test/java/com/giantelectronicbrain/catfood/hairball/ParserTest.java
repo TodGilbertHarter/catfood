@@ -17,10 +17,6 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,7 +62,7 @@ public class ParserTest {
 			outputs.add(makeBucket(input));
 		}
 		String[] arglebargle = outputs.toArray(new String[outputs.size()]);
-		IWordStream stream = new FileCollectionWordStream(vertx,"/tmp",arglebargle, "");
+		IWordStream stream = new FileCollectionWordStream(vertx,"/tmp",arglebargle);
 		out = new ByteArrayOutputStream();
 		Output output = new StreamOutput(out);
 		dict = new Dictionary("testdict");

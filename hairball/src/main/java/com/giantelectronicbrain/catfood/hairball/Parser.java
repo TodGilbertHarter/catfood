@@ -48,7 +48,7 @@ public class Parser {
 	private ParserContext currentContext;
 	
 	public static interface ParserBehavior {
-		public abstract void handle(Word word) throws HairballException, IOException;
+		public abstract boolean handle(Word word) throws HairballException, IOException;
 	}
 	
 	private ParserBehavior parserBehavior = this::executeWord;
@@ -72,6 +72,14 @@ public class Parser {
 	}
 	
 	/**
+	 * Shutdown this parser, this should clean up open inputs and outputs, etc.
+	 * @throws IOException 
+	 */
+	public void close() throws IOException {
+		currentContext.close();
+	}
+	
+	/**
 	 * Set the current context for this parser. Also returns the old context
 	 * so that it could be restored later.
 	 * 
@@ -86,7 +94,9 @@ public class Parser {
 	
 	/**
 	 * Parse the current input word stream, executing the behavior provided.
-	 * This will continue until the word stream is exhausted.
+	 * This will continue until the word stream is exhausted, a word throws
+	 * an exception, or a token returns false. In the later case we will
+	 * exit without an exception, just as if the input was exhausted.
 	 * 
 	 * @param action action to perform on each token parsed
 	 * @return the parser context, which is the whole VM state
@@ -99,7 +109,8 @@ public class Parser {
 			Word word = wordStream.getNextWord();
 			while(word != null) {
 				log.log(Level.FINEST,"We got a word, "+word);
-				parserBehavior.handle(word);
+				boolean rv = parserBehavior.handle(word);
+				if(!rv) break; // drop out of the parsing loop if a token returns false
 				word = wordStream.getNextWord();
 			}
 			flushLitAccum(); // make sure nothing is left behind in some edge cases
@@ -118,23 +129,22 @@ public class Parser {
 		return eMsg + " in "+source+" at line "+lineNumber+", column "+columnNumber;
 	}
 	/**
-	 * Execute the interpreting mode behavior of the outer interpreter.
+	 * Set the parser into interpreting mode. In this mode we will call the
+	 * runtime behavior of definitions.
 	 * 
-	 * @throws IOException
 	 */
-	public ParserContext interpret() throws IOException, HairballException {
+	public ParserContext interpret() {
 		this.interpreting = true;
 		this.parserBehavior = this::executeWord;
 		return currentContext;
 	}
 	
 	/**
-	 * Execute the compiling mode behavior of the outer interpreter.
+	 * Set the parser into compiling mode. In this mode we will call the 
+	 * compile time behavior of definitions
 	 * 
-	 * @throws IOException
-	 * @throws HairballException 
 	 */
-	public ParserContext compile() throws IOException, HairballException {
+	public ParserContext compile() {
 		this.interpreting = false;
 		this.parserBehavior = this::compileWord;
 		return currentContext;
@@ -146,16 +156,18 @@ public class Parser {
 	 * @param word
 	 * @throws HairballException 
 	 */
-	public void executeWord(Word word) throws HairballException {
+	public boolean executeWord(Word word) throws HairballException {
+		boolean rv = true;
 		Definition definition = currentContext.getDictionary().lookUp(word);
 		if(definition != null) {
 			flushLitAccum();
 			Token runTime = definition.getRunTime();
-			currentContext.getInterpreter().execute(runTime);
+			rv = currentContext.getInterpreter().execute(runTime);
 		} else {
 			if(!isNumber(word))
 				handleLiteralWord(word);
 		}
+		return rv;
 	}
 	
 	private boolean isNumber(Word word) throws HairballException {
@@ -177,19 +189,22 @@ public class Parser {
 	 * @param word
 	 * @throws HairballException 
 	 */
-	public void compileWord(Word word) throws HairballException {
+	public boolean compileWord(Word word) throws HairballException {
+		boolean rv = true;
 		Definition definition = currentContext.getDictionary().lookUp(word);
 		if(definition != null) {
 			flushLitAccum();
 			Token compileTime = definition.getCompileTime();
+			//NOTE: putting our own definition on the stack so that compile time
+			// behavior knows which word it is handling. ALL compile time behaviors
+			// thus MUST include a drop or otherwise handle this definition! If
+			// you don't, then it will linger on the stack and break stuff.
 			currentContext.getInterpreter().push(definition);
-			currentContext.getInterpreter().execute(compileTime);
+			rv = currentContext.getInterpreter().execute(compileTime);
 		} else { // this is a literal
-//			Token lToken = new LiteralToken(word.getValue());
-//			currentContext.getDictionary().addToken(lToken);
-//			currentContext.getDictionary().addToken(emit);
 			handleLiteralWord(word);
 		}
+		return rv;
 	}
 
 	private StringBuilder litAccum = new StringBuilder();
@@ -221,6 +236,7 @@ public class Parser {
 			} catch (IOException e) {
 				throw new HairballException("Failed to write output",e);
 			}
+			return true;
 		});
 	
 	/**

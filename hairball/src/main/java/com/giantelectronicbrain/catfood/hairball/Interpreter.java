@@ -220,7 +220,7 @@ public class Interpreter {
 	 * null is returned.
 	 * 
 	 * @return The executed token, or null if the current
-	 * context is exhausted
+	 * context is exhausted, or the token returns false.
 	 * @throws HairballException 
 	 */
 	private Token executeNextToken() throws HairballException {
@@ -228,9 +228,10 @@ public class Interpreter {
 		
 		if(currentContext == null) return null; // detect end of program
 		Token nextToken = currentContext.getNextToken();
+		boolean tokenReturnValue = false;
 		if(nextToken != null)
-			nextToken.execute(this);
-		return nextToken;
+			tokenReturnValue = nextToken.execute(this);
+		return tokenReturnValue ? nextToken : null;
 	}
 
 	/**
@@ -275,8 +276,8 @@ public class Interpreter {
 	 * @param token
 	 * @throws HairballException 
 	 */
-	public void execute(Token token) throws HairballException {
-		token.execute(this);
+	public boolean execute(Token token) throws HairballException {
+		return token.execute(this);
 	}
 
 	/**

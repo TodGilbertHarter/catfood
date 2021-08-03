@@ -91,11 +91,12 @@ public class InterpreterToken implements Token {
 	 * @param interpreter the interpreter which is running our code
 	 * @throws HairballException 
 	 */
-	public void execute(Interpreter interpreter) throws HairballException {
+	public boolean execute(Interpreter interpreter) throws HairballException {
 		Context newContext = new Context(tokens,0);
 		interpreter.jumpToContext(newContext);
-		interpreter.executeContext();
+		Context ctx = interpreter.executeContext();
 		interpreter.returnFromContext();
+		return ctx.isContinue();
 	}
 
 	/**

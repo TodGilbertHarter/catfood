@@ -1,5 +1,5 @@
 /**
- * This software is Copyright (C) 2020 Tod G. Harter. All rights reserved.
+ * This software is Copyright (C) 2021 Tod G. Harter. All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,14 @@ package com.giantelectronicbrain.catfood.hairball;
  * 'static' data to be compiled into a definition. Its behavior is to push the data onto
  * the parameter stack.
  * 
+ * Note: this is an immutable class.
+ * 
  * @author tharter
  *
  */
 public class LiteralToken implements Token {
 	private final String name;
-	private final Object data;
+	protected Object data;
 
 	/**
 	 * Create a token which holds the object.
@@ -39,8 +41,9 @@ public class LiteralToken implements Token {
 	}
 	
 	@Override
-	public void execute(Interpreter interpreter) {
+	public boolean execute(Interpreter interpreter) {
 		interpreter.push(data);
+		return true;
 	}
 
 	@Override

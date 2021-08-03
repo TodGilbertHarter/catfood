@@ -26,23 +26,43 @@ import java.util.Properties;
 
 import com.giantelectronicbrain.catfood.conf.ConfigurationException;
 
+import io.vertx.core.cli.Argument;
 import io.vertx.core.cli.CLI;
 import io.vertx.core.cli.CommandLine;
 import io.vertx.core.cli.Option;
 
 /**
- * Perform configuration of Hairball.
+ * Perform configuration of Hairball. By calling Configurator.create(String[] args)
+ * the command line represented by args will be parsed, if a properties file is
+ * specified, it will be read too. Otherwise the default package properties file
+ * will be read. The options from the command line will be used to override any
+ * set in the configuration file.
  * 
  * @author tharter
  *
  */
 public class Configurator {
 
-	private static Option configOption = new Option().setLongName("config").setShortName("c");
-	private static Option dumpOption = new Option().setLongName("dump").setShortName("d").setFlag(true);
-	private static Option writeOption = new Option().setLongName("write").setShortName("w").setFlag(true);
-	private static Option baseOption = new Option().setLongName("base").setShortName("b");
-	
+	private static Option configOption = new Option().setLongName("config")
+			.setShortName("c").setDescription("use the given configuration file");
+	private static Option dumpOption = new Option().setLongName("dump")
+			.setShortName("d").setFlag(true).setDescription("dump configuration to standard out");
+	private static Option writeOption = new Option().setLongName("write")
+			.setShortName("w").setFlag(true).setDescription("write final configuration to file");
+	private static Option baseOption = new Option().setLongName("base")
+			.setShortName("b").setDescription("directory all command line arguments are relative to");
+	private static Option loopOption = new Option().setLongName("loop")
+			.setShortName("l").setDescription("loop through the input N times, print performance stats");
+	private static Option outputOption = new Option().setLongName("output")
+			.setShortName("s").setDescription("direct output to a named file");
+	private static Option helpOption = new Option().setLongName("help")
+			.setShortName("h").setFlag(true).setHelp(true);
+	private static Argument scriptFiles = new Argument()
+			.setArgName("hairball script")
+			.setMultiValued(true)
+			.setDescription("hairball script to run")
+			.setRequired(false)
+			.setIndex(0);
 	/**
 	 * Create a set of properties derived from a Properties file and command line parameters.
 	 * The command line elements will be merged with a default configuration derived either from
@@ -58,10 +78,14 @@ public class Configurator {
 	public static Object[] createConfiguration(List<String> arguments) throws ConfigurationException {
 		CLI cli = createCLI();
 		
-		CommandLine commandLine = cli.parse(arguments);
-
 		Properties config;
-		if(commandLine.isValid()) {
+		CommandLine commandLine = cli.parse(arguments);
+		if(commandLine.isAskingForHelp()) {
+			StringBuilder builder = new StringBuilder();
+			cli.usage(builder);
+			System.out.println(builder.toString());
+			return null;
+		} else if(commandLine.isValid()) {
 			if(commandLine.isOptionAssigned(configOption)) {
 				String configFileName = commandLine.getOptionValue("c");
 				File configFile = new File(configFileName);
@@ -119,6 +143,12 @@ public class Configurator {
 		if(commandLine.isOptionAssigned(baseOption)) {
 			config.setProperty("base", commandLine.getOptionValue("b"));
 		}
+		if(commandLine.isOptionAssigned(dumpOption)) {
+			config.setProperty("dump", "true");
+		}
+		if(commandLine.isOptionAssigned(loopOption)) {
+			config.setProperty("loopOption", commandLine.getRawValueForOption(loopOption));
+		}
 		return config;
 	}
 
@@ -133,6 +163,10 @@ public class Configurator {
 		cli.addOption(dumpOption);
 		cli.addOption(writeOption);
 		cli.addOption(baseOption);
+		cli.addOption(loopOption);
+		cli.addOption(outputOption);
+		cli.addOption(helpOption);
+		cli.addArgument(scriptFiles);
 		//TODO: add options here. Might also need to add usage/help/name, not sure how that works...
 		return cli;
 	}

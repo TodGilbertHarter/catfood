@@ -42,6 +42,7 @@ public abstract class BucketTest {
 	protected abstract IBucketDriver createUUT() throws BucketDriverException;
 	protected abstract void setUpBuckets() throws IOException;
 	protected abstract void cleanUpBuckets() throws IOException;
+	protected static String basePath = "./build/buckettests";
 	
 	private IBucket uut;
 	
@@ -49,7 +50,7 @@ public abstract class BucketTest {
 	public void setUp() throws BucketDriverException, IOException {
 		IBucketDriver driver  = createUUT();
 		setUpBuckets();
-		IBucketName bucketName = driver.makeBucketName("testbucket");
+		IBucketName bucketName = driver.makeBucketName(basePath+"/testbucket");
 		uut = (IBucket) driver.getBucket(bucketName).get();//   .createBucket(bucketName);
 	}
 	
@@ -62,7 +63,7 @@ public abstract class BucketTest {
 	public void testGetName() {
 		IBucketName bName = uut.getName();
 		assertNotNull(bName);
-		assertEquals("testbucket",bName.getNameString());
+		assertEquals(basePath+"/testbucket",bName.getNameString());
 	}
 	
 	@Test

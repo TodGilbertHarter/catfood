@@ -27,8 +27,9 @@ import org.junit.Test;
 public class NativeTokenTest {
 	private boolean didIt = false;
 
-	private void behavior(Interpreter interp) {
+	private boolean behavior(Interpreter interp) {
 		didIt = true;
+		return true;
 	}
 	
 	@Test

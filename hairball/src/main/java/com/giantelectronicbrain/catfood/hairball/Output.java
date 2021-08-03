@@ -40,4 +40,11 @@ public interface Output {
 	 * @throws IOException 
 	 */
 	public abstract void emit(String output) throws IOException;
+	
+	/**
+	 * Close the output. Once closed an output is no longer usable.
+	 * 
+	 * @throws IOException if the close operation fails.
+	 */
+	public abstract void close() throws IOException;
 }

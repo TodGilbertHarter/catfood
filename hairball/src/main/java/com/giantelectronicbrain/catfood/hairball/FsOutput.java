@@ -1,5 +1,5 @@
 /**
- * This software is Copyright (C) 2020 Tod G. Harter. All rights reserved.
+ * This software is Copyright (C) 2021 Tod G. Harter. All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,26 +17,49 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
+import io.vertx.core.file.FileSystem;
+import io.vertx.core.file.OpenOptions;
 
 /**
- * This is a 'black hole' output. It is good for things like setting up an interpreter
- * by reading some preliminary startup code who's output you don't want to keep.
+ * Create an output based on a Vertx fileSystem.
  * 
  * @author tharter
  *
  */
-public class NullOutput implements Output {
+public class FsOutput implements Output {
+	private final Vertx vertx;
+	private final AsyncFile file;
+	private int position = 0;
+	
+	public FsOutput(String fileName) {
+		vertx = Vertx.vertx();
+		FileSystem fileSystem = vertx.fileSystem();
+		//TODO: implement async versions of stuff
+		file = fileSystem.openBlocking(fileName, new OpenOptions() {});
+	}
 
 	@Override
 	public void space() throws IOException {
+		emit(" ");
 	}
 
 	@Override
 	public void emit(String output) throws IOException {
+		Buffer buf = Buffer.buffer(output, StandardCharsets.UTF_8.name());
+		file.write(buf, position);
+		position += buf.length();
 	}
 
 	@Override
 	public void close() throws IOException {
+		file.flush();
+		file.close();
+		vertx.close();
 	}
 
 }

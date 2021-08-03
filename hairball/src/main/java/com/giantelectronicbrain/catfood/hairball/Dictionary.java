@@ -209,11 +209,23 @@ public class Dictionary implements IVocabulary {
 		currentDefinition.name = name;
 	}
 
-	private void addToCompileTime(Token token) {
+	/**
+	 * Add a token to the compile time behavior, this is not normally called
+	 * directly, but 'doer' and 'does' may need it.
+	 * 
+	 * @param token
+	 */
+	public void addToCompileTime(Token token) {
 		currentDefinition.addCompileToken(token);
 	}
 	
-	private void addToRuntime(Token token) {
+	/**
+	 * Add a token to the run time behavior, this is not normally called
+	 * directly, but 'doer' and 'does' may need it.
+	 * 
+	 * @param token
+	 */
+	public void addToRuntime(Token token) {
 		currentDefinition.addRuntimeToken(token);
 	}
 	
@@ -229,6 +241,7 @@ public class Dictionary implements IVocabulary {
 				Definition ourDef = (Definition) interpreter.pop();
 				Token rtoken = ourDef.getRunTime();
 				interpreter.getParserContext().getDictionary().addToken(rtoken);
+				return true;
 			});
 			currentDefinition.addCompileToken(compile);
 		}

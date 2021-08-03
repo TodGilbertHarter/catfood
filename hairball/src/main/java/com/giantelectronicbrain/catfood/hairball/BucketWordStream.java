@@ -65,12 +65,12 @@ public class BucketWordStream extends WordStream {
 	 * @param objectName name of the bucket object to read
 	 * @param bucketName name of the bucket the object is in
 	 */
-	public BucketWordStream(FileSystem fileSystem, String objectName, String bucketName, String basePath) {
+	public BucketWordStream(FileSystem fileSystem, String objectName, String bucketName) {
 		super();
 		this.objectName = objectName;
 		this.fileSystem = fileSystem;
-System.out.println("bucket name is: "+bucketName+", object name is: "+objectName);		
-		driver = FsBucketDriverImpl.builder().basePath(basePath).fileSystem(fileSystem).build();
+//System.out.println("bucket name is: "+bucketName+", object name is: "+objectName);		
+		driver = FsBucketDriverImpl.builder().fileSystem(fileSystem).build();
 		this.bucketName = driver.makeBucketName(bucketName);
 		this.boName = driver.makeBucketObjectName(this.bucketName, objectName);
 		driver.readBucketObject(boName, result -> {
@@ -145,7 +145,10 @@ System.out.println("bucket name is: "+bucketName+", object name is: "+objectName
 	public String getCurrentLocation() {
 		String name = boName.getName();
 		int lidx = name.lastIndexOf('/');
-		name = name.substring(0, lidx);
+		if(lidx != -1)
+			name = name.substring(0, lidx);
+		else
+			name = ".";
 		return name;
 //		return bucketName.getNameString();
 	}

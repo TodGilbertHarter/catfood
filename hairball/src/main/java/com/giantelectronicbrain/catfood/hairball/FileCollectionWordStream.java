@@ -18,7 +18,6 @@ package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class FileCollectionWordStream implements IWordStream {
 	private final FileSystem fileSystem;
 	private final String bucketName;
 	private final List<String> objectNames;
-	private final String basePath;
+//	private final String basePath;
 	
 	private IWordStream wordStream = null;
 	
@@ -48,11 +47,10 @@ public class FileCollectionWordStream implements IWordStream {
 	 * @param bucketName path to the bucket files are in
 	 * @param objectNames list of names of files to use.
 	 */
-	public FileCollectionWordStream(Vertx vertx, String bucketName, List<String> objectNames, String basePath) {
+	public FileCollectionWordStream(Vertx vertx, String bucketName, List<String> objectNames) {
 		this.fileSystem = vertx.fileSystem();
 		this.bucketName = bucketName;
 		this.objectNames = objectNames;
-		this.basePath = basePath;
 	}
 
 	/**
@@ -62,8 +60,8 @@ public class FileCollectionWordStream implements IWordStream {
 	 * @param bucketName path to the bucket files are in
 	 * @param objectNames array of names of files to use.
 	 */
-	public FileCollectionWordStream(Vertx vertx, String bucketName, String[] objectNames, String basePath) {
-		this(vertx,bucketName,arrayToList(objectNames),basePath);		
+	public FileCollectionWordStream(Vertx vertx, String bucketName, String[] objectNames) {
+		this(vertx,bucketName,arrayToList(objectNames));		
 	}
 
 	private static List<String> arrayToList(String[] strings) {
@@ -84,7 +82,7 @@ public class FileCollectionWordStream implements IWordStream {
 			if(objectNames.size() > 0) {
 				String objectName = objectNames.remove(0);
 //System.out.println("GOT AN OBJECT OF NAME "+objectName);
-				wordStream = new BucketWordStream(fileSystem,objectName,bucketName,basePath);
+				wordStream = new BucketWordStream(fileSystem,objectName,bucketName);
 			} else {
 				return null;
 			}

@@ -17,8 +17,13 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
@@ -114,6 +119,7 @@ public class HairballVocabulary {
 				Definition ourDef = (Definition) interpreter.pop();
 				Token rtoken = ourDef.getRunTime();
 				interpreter.getParserContext().getDictionary().addToken(rtoken);
+				return true;
 			});
 
 		/**
@@ -122,6 +128,7 @@ public class HairballVocabulary {
 		 */
 		Token compileToken = new NativeToken("compileToken",(interpreter) -> {
 			interpreter.getParserContext().getDictionary().addToken((Token)interpreter.pop());
+			return true;
 		});
 		defList.add(new Definition(new Word("/HERE!"),compile,compileToken));
 		
@@ -134,6 +141,7 @@ public class HairballVocabulary {
 			int pc = (Integer) interpreter.pop();
 			Token token = (Token) interpreter.pop();
 			interpreter.getParserContext().getDictionary().putToken(token,pc);
+			return true;
 		});
 		defList.add(new Definition(new Word("/!"),compile,store));
 		
@@ -143,6 +151,7 @@ public class HairballVocabulary {
 		Token execute = new NativeToken("execute",(interpreter) -> {
 			Token token = (Token) interpreter.pop();
 			interpreter.execute(token);
+			return true;
 		});
 		defList.add(new Definition(new Word("/EXECUTE"),compile,execute));
 		
@@ -155,6 +164,7 @@ public class HairballVocabulary {
 				} catch (IOException e) {
 					throw new HairballException("Failed to write output",e);
 				}
+				return true;
 			});
 		defList.add(new Definition(new Word("/."),compile,emit));
 		
@@ -168,55 +178,147 @@ public class HairballVocabulary {
 				} catch (IOException e) {
 					throw new HairballException("Word could not read a token from input",e);
 				}
+				return true;
 			});
 		defList.add(new Definition(new Word("/W"),compile,word));
-
 		
+		/**
+		 * Given a word on the stack, convert it to a literal string on the stack.
+		 */
+		Token wordLiteral = new NativeToken("wordLiteral", (interpreter) -> {
+			Word aword = (Word) interpreter.pop();
+			String wlit = aword.getValue();
+			interpreter.push(wlit);
+			return true;
+		});
+		defList.add(new Definition(new Word("/W2L"),compile,wordLiteral));
+		/**
+		 * Parse a token from input and emit it.
+		 */
+		Token slashToken = InterpreterToken.makeToken("slashToken",word,wordLiteral);
+		defList.add(new Definition(new Word("/TOKEN"),compile,slashToken));
+		
+		/**
+		 * Close out a new dictionary entry
+		 */
 		Token define = new NativeToken("define",(interpreter) -> {
 				interpreter.getParserContext().getDictionary().define();
+				return true;
 			});
 		
 		/**
 		 * Put the parser in compiling mode.
 		 */
 		Token compiling = new NativeToken("compiling",(interpreter) -> { 
-				try {
-					interpreter.getParserContext().getParser().compile();
-				} catch (IOException e) {
-					throw new HairballException("Error during compilation",e);
-				}
+				interpreter.getParserContext().getParser().compile();
+				return true;
 			});
-		defList.add(new Definition(new Word("/COMPILING"),compile,compiling));
+		defList.add(new Definition(new Word("/COMPILING"),compiling,compiling));
 		
 		/**
 		 * Put the parser in interpreting mode.
 		 */
 		Token interpreting = new NativeToken("interpreting",(interpreter) -> {
-				try {
-					interpreter.getParserContext().getParser().interpret();
-				} catch (IOException e) {
-					throw new HairballException("Error during interpretation",e);
-				}
+				interpreter.getParserContext().getParser().interpret();
+				return true;
 			});
-		defList.add(new Definition(new Word("/INTERPRETING"),compile,interpreting));
+		defList.add(new Definition(new Word("/INTERPRETING"),interpreting,interpreting));
+		
+		/**
+		 * Put depth of stack on TOS
+		 */
+		Token depth = new NativeToken("depth", (interpreter) -> {
+			int sdepth = interpreter.getParameterStack().size();
+			interpreter.push(sdepth);
+			return true;
+		});
+		defList.add(new Definition(new Word("depth"),compile,depth));
+		/**
+		 * Drop the TOS.
+		 */
+		Token drop = new NativeToken("drop",(interpreter) -> {
+				interpreter.pop();
+				return true;
+			});
+		defList.add(new Definition(new Word("/DROP"),compile,drop));
+		/**
+		 * Duplicate the TOS		
+		 */
+		Token dup = new NativeToken("dup", (interpreter) -> {
+			Object tos = interpreter.pop();
+			interpreter.push(tos);
+			interpreter.push(tos);
+			return true;
+		});
+		defList.add(new Definition(new Word("/DUP"),compile,dup));
+		/**
+		 * Swap the TOS with with the next item on the stack.
+		 */
+		Token swap = new NativeToken("swap", (interpreter) -> {
+			Object tos = interpreter.pop();
+			Object t2 = interpreter.pop();
+			interpreter.push(tos);
+			interpreter.push(t2);
+			return true;
+		});
+		defList.add(new Definition(new Word("/SWAP"),compile,swap));
+		/**
+		 * Rotate the top 3 items on the stack.
+		 */
+		Token rot = new NativeToken("rot", (interpreter) -> {
+			Object tos = interpreter.pop();
+			Object t2 = interpreter.pop();
+			Object t3 = interpreter.pop();
+			interpreter.push(t2);
+			interpreter.push(tos);
+			interpreter.push(t3);
+			return true;
+		});
+		defList.add(new Definition(new Word("/ROT"),compile,rot));
+		Token pick = new NativeToken("pick", (interpreter) -> {
+			int place = (Integer) interpreter.pop();
+			Stack<Object> stack = interpreter.getParameterStack();
+			int index = stack.size() - place;
+			Object item = stack.remove(index);
+			stack.push(item);
+			return true;
+		});
+		defList.add(new Definition(new Word("/PICK"),compile,pick));
+
+		/**
+		 * A do-nothing word, which can be used as a placeholder, or for testing
+		 */
+		Token noop = new NativeToken("noop",(interpreter) -> { return true; });
+		defList.add(new Definition(new Word("//"), compile, noop));
+
+		/**
+		 * Put the dictionary in DOER mode where added tokens go to the compile time behavior of the
+		 * new definition, and the parser is put into interpreting mode.
+		 */
+		Token doer = new NativeToken("doer",(interpreter) -> {
+				ParserContext pc = interpreter.getParserContext();
+				pc.getDictionary().doer();
+				return true;
+			});
 		
 		/**
 		 * Put the dictionary in DOES mode where added tokens go to the runtime behavior of the
 		 * new definition.
 		 */
 		Token does = new NativeToken("does",(interpreter) -> {
-				interpreter.getParserContext().getDictionary().does();
+				ParserContext pc = interpreter.getParserContext();
+				pc.getDictionary().does();
+				return true;
 			});
-		defList.add(new Definition(new Word("/DOES"),does,does));
+		Token deferrCompile = new NativeToken("deferrCompile",(interpreter) -> {
+			interpreter.getParserContext().getDictionary().addToCompileTime(compile);
+			return true;
+		});
+		Token doesCT = InterpreterToken.makeToken("does", does);
+		defList.add(new Definition(new Word("/DOES"),compile,doesCT));
 		
-		/**
-		 * Put the dictionary in DOER mode where added tokens go to the compile time behavior of the
-		 * new definition.
-		 */
-		Token doer = new NativeToken("doer",(interpreter) -> {
-				interpreter.getParserContext().getDictionary().doer();
-			});
-		defList.add(new Definition(new Word("/DOER"),doer,doer));
+		Token doerRT = InterpreterToken.makeToken("doer", drop, doer);
+		defList.add(new Definition(new Word("/DOER"),doerRT,noop));
 		
 		/**
 		 * Start a new definition with the given name, and put the parser into
@@ -226,22 +328,34 @@ public class HairballVocabulary {
 		Token create = new NativeToken("create",(interpreter) -> {
 				interpreter.getParserContext().getDictionary()
 					.create((Word)interpreter.pop());
+				return true;
 			});
 		Token colon = InterpreterToken.makeToken("colon",word,create,compiling,does);
 		defList.add(new Definition(new Word("/:"), compile, colon));
 		
 		/**
+		 * Create a literal token, assign whatever is in TOS to it, and leave it on the stack.
+		 */
+		Token literalToken = new NativeToken("literalToken",(interpreter) -> {
+			Object contents = interpreter.pop();
+			Token nlt = new LiteralToken("",contents);
+			interpreter.push(nlt);
+			return true;
+		});
+		/**
+		 * Create an array of objects and leave it on the stack, the size of the
+		 * array is taken from the stack. The array is initially empty.
+		 */
+		Token allot = new NativeToken("allot",(interpreter) -> {
+			int length = (Integer) interpreter.pop();
+			Object[] array = new Object[length];
+			interpreter.push(array);
+			return true;
+		});
+				
+		/**
 		 * Quote some text and push it onto the stack as a literal.
 		 */
-/*		Token quoteCT = new NativeToken("quote_CT",(interpreter) -> {
-			try {
-				String quoted = interpreter.getParserContext().getWordStream().getToMatching("\"/");
-				LiteralToken lt = new LiteralToken(quoted,quoted);
-				interpreter.getParserContext().getDictionary().addToken(lt);
-			} catch (IOException e) {
-				throw new HairballException("Word could not read a token from input",e);
-			}
-		}); */
 		Token quoteRT = new NativeToken("quote",(interpreter) -> {
 			ParserLocation pl = new ParserLocation(interpreter.getParserContext().getWordStream());
 			try {
@@ -255,9 +369,84 @@ public class HairballVocabulary {
 			} catch (IOException e) {
 				throw new HairballException(pl.makeErrorMessage("Word could not read a token from input"),e);
 			}
+			return true;
 		});
 		defList.add(new Definition(new Word("/\""),compile,quoteRT));
+		Token makeLiteral = new NativeToken("makeLiteral",(interpreter) -> {
+			String value = (String) interpreter.pop();
+			LiteralToken lt = new LiteralToken("makeLiteral",value);
+			interpreter.push(lt);
+			return true;
+		});
+		defList.add(new Definition(new Word("/MAKELITERAL"),compile,makeLiteral));
 		
+		Token convert = new NativeToken("convert",(interpreter) -> {
+			String lit = (String) interpreter.pop();
+			Object litObj = null;
+			try {
+				litObj = Integer.decode(lit);
+			} catch (NumberFormatException e) {
+			}
+			if(litObj == null) {
+				try {
+					litObj = Double.parseDouble(lit);
+				} catch(NumberFormatException e) {
+				}
+			}
+			if(litObj == null) litObj = lit;
+			interpreter.push(litObj);
+			return true;
+		});
+		defList.add(new Definition(new Word("/ALLOT"),compile,allot));
+		Token token = new NativeToken("token",(interpreter) -> {
+			ParserLocation pl = new ParserLocation(interpreter.getParserContext().getWordStream());
+			try {
+				Word aword = interpreter.getParserContext().getWordStream().getNextWord();
+				String lit = aword.getValue();
+				interpreter.push(lit);
+			} catch (IOException e) {
+				throw new HairballException(pl.makeErrorMessage("Token can't parse token from input"),e);
+			}
+			return true;
+		});
+		Token constantRT = InterpreterToken.makeToken("constantRT",word,create,token,convert,literalToken,compileToken,define);
+		/**
+		 * Convert the next token to a number and leave it on TOS
+		 */
+		Token numRT = InterpreterToken.makeToken("numRT", token,convert);
+		defList.add(new Definition(new Word("/NUM"),compile,numRT));
+		/**
+		 * A word which takes the next value off the input stream and defines a word with
+		 * that name, then takes the next token from the stack. If that token can be
+		 * converted to an integer it does so, if not it is converted to a double, and
+		 * if that isn't possible it is treated as a string literal. This value is then
+		 * compiled into the runtime behavior of the newly defined word, and ends the
+		 * definition.
+		 * 
+		 * This allows the easy creation of simple constants.
+		 */
+		defList.add(new Definition(new Word("/CONSTANT"),compile,constantRT));
+		Token variableToken = new NativeToken("variableToken", (interpreter) -> {
+			VariableToken vtoken = new VariableToken("",null);
+			interpreter.push(vtoken);
+			return true;
+		});
+		Token variableRT = InterpreterToken.makeToken("variableRT", word, create, variableToken, compileToken, define);
+		defList.add(new Definition(new Word("/VARIABLE"),compile,variableRT));
+		Token lfetchRT = new NativeToken("lfetchRT",(interpreter) -> {
+			LiteralToken vt = (LiteralToken) interpreter.pop();
+			interpreter.push(vt.getData());
+			return true;
+		});
+		defList.add(new Definition(new Word("/V@"),compile,lfetchRT));
+		Token vstoreRT = new NativeToken("vstoreRT", (interpreter) -> {
+			VariableToken vt = (VariableToken) interpreter.pop();
+			Object data = interpreter.pop();
+			vt.setData(data);
+			return true;
+		});
+		defList.add(new Definition(new Word("/V!"),compile,vstoreRT));
+
 		/**
 		 * Throw an exception, taking a string from TOS and using it as the message.
 		 */
@@ -266,14 +455,6 @@ public class HairballVocabulary {
 			});
 		defList.add(new Definition(new Word("/ABORT"),compile,abort));
 		
-		/**
-		 * Drop the TOS.
-		 */
-		Token drop = new NativeToken("drop",(interpreter) -> {
-				interpreter.pop();
-			});
-		defList.add(new Definition(new Word("/DROP"),compile,drop));
-				
 		/**
 		 * End a definition, immediate word which puts us back into interpreting mode and
 		 * finalizes the current definition.
@@ -284,8 +465,8 @@ public class HairballVocabulary {
 		defList.add(new Definition(new Word(":/"), colonSlashCT, colonSlashRuntime));
 
 		/**
-		 * Output some quoted text. This will IMMEDIATELY output the text, even in compile mode, you don't
-		 * need an interpreted mode version of that behavior since it is the default behavior of Hairball. 
+		 * Output some quoted text. In Compile mode it will parse out text to a matching "/ token
+		 * and then compile it as a literal, along with emit. 
 		 */
 		Token dotQuoteCT = new NativeToken("dotQuote_CT",(interpreter) -> {
 			try {
@@ -296,7 +477,36 @@ public class HairballVocabulary {
 			} catch (IOException e) {
 				throw new HairballException("Word could not read a token from input",e);
 			}
+			return true;
 		});
+		Token slashBracketQuote_CT = new NativeToken("slashBracketQuote_CT", (interpreter) -> {
+			try {
+				String quoted = interpreter.getParserContext().getWordStream().getToMatching("\"]/");
+				LiteralToken lt = new LiteralToken("slashBraketQuote_Literal",quoted);
+				interpreter.getParserContext().getDictionary().addToken(lt);				
+			} catch (IOException e) {
+				throw new HairballException("/[\" failed to parse input",e);
+			}
+			return true;
+		});
+		Token sbq_RT_error = InterpreterToken.makeToken("sbq_RT_error", 
+				new LiteralToken("errormsg","/[\" cannot be called at runtime"),abort);
+		defList.add(new Definition(new Word("/[\""),slashBracketQuote_CT,sbq_RT_error));
+		Token getToMatching = new NativeToken("getToMatching",(interpreter) -> {
+			String target = (String) interpreter.pop();
+			try {
+				String parsed = interpreter.getParserContext().getWordStream().getToDelimiter(target);
+				interpreter.push(parsed);
+			} catch (IOException e) {
+				throw new HairballException("Failed to find "+target+" in input",e);
+			}
+			return true;
+		});
+		defList.add(new Definition(new Word("/DELIMITED"),compile,getToMatching));
+		/**
+		 * Runtime behavior is to parse out text to matching "/ token and emit it
+		 * immediately.
+		 */
 		Token dotQuoteRT = new NativeToken("dotQuote",(interpreter) -> {
 			try {
 				String quoted = interpreter.getParserContext().getWordStream().getToMatching("\"/");
@@ -305,6 +515,7 @@ public class HairballVocabulary {
 			} catch (IOException e) {
 				throw new HairballException("Word could not read a token from input",e);
 			}
+			return true;
 		});
 		defList.add(new Definition(new Word("/.\""),dotQuoteCT,dotQuoteRT));
 		
@@ -317,11 +528,6 @@ public class HairballVocabulary {
 		Token quoteSlashRT = InterpreterToken.makeToken("quoteSlash",quoteSlashErrorMsg,abort);
 		defList.add(new Definition(new Word("\"/"),quoteSlashRT,quoteSlashRT));
 		
-		/**
-		 * A do-nothing word, which can be used as a placeholder, or for testing
-		 */
-		Token noop = new NativeToken("noop",(interpreter) -> { });
-		defList.add(new Definition(new Word("//"), compile, noop));
 		
 
 		/**
@@ -330,22 +536,13 @@ public class HairballVocabulary {
 		defList.add(new Definition(new Word("/."),compile,emit));
 		
 		/**
-		 * Exit Java program. This is probably not something you want to call unless you
-		 * ran Hairball interactively.
-		 */
-		Token exit = new NativeToken("EXIT",(interpreter) -> {
-//NOTE: doesn't work with JS				System.exit((Integer)interpreter.pop());
-			});
-		defList.add(new Definition(new Word("/EXIT"),compile,exit));
-		
-		/**
 		 * Produce a parameter stack dump.
 		 */
 		Token dotS = new NativeToken("dotS",(interpreter) -> {
 				try {
-					String depth = Integer.valueOf(interpreter.getParameterStack().size()).toString();
+					String adepth = Integer.valueOf(interpreter.getParameterStack().size()).toString();
 					Output output = interpreter.getParserContext().getOutput();
-					output.emit(depth);
+					output.emit(adepth);
 					output.space();
 					Object[] stack = new Object[interpreter.getParameterStack().size()];
 					interpreter.getParameterStack().copyInto(stack);
@@ -356,12 +553,12 @@ public class HairballVocabulary {
 				} catch (IOException e) {
 					throw new HairballException(e);
 				}
+				return true;
 			});
 		defList.add(new Definition(new Word("/.S"),compile,dotS));
 		
 		Token quit = new NativeToken("quit",(interpreter)-> {
-//NOTE: doesn't work with JS				System.exit(0);
-			System.exit(0);
+			return false;
 			});
 		defList.add(new Definition(new Word("/QUIT"),compile,quit));
 		
@@ -371,6 +568,7 @@ public class HairballVocabulary {
 				} catch (IOException e) {
 					throw new HairballException("Word could not read a token from input",e);
 				}
+				return true;
 			});
 		defList.add(new Definition(new Word("/*"),commentin,commentin));
 		Token commentout = new LiteralToken("commentout","*/ must match with a quoting operator");
@@ -382,12 +580,13 @@ public class HairballVocabulary {
 				} catch (IOException e) {
 					throw new HairballException("Failed to output text",e);
 				}
+				return true;
 			});
 		defList.add(new Definition(new Word("/SPACE"),compile,spaceToken));
 		
 		/*
-		 * Source input from another file. This will grab the file name from 
-		 * input, construct a new parser context and a new parser, and then
+		 * Source input from another file. This will construct a new parser 
+		 * context and a new parser, and then
 		 * launch the parser. Output should be interpolated seamlessly into
 		 * the current output stream. 
 		 */
@@ -398,9 +597,9 @@ public class HairballVocabulary {
 			String fileName = null;
 			try {
 				String currentBucket = interpreter.getParserContext().getWordStream().getCurrentLocation();
-				fileName = interpreter.getParserContext().getWordStream().getToMatching("\"/");
-System.out.println("WTF IS IT "+currentBucket+","+fileName);
-				IWordStream wordStream = new BucketWordStream(fileSystem,fileName,"",currentBucket);
+//				fileName = interpreter.getParserContext().getWordStream().getToMatching("\"/");
+				fileName = (String) interpreter.pop();
+				IWordStream wordStream = new BucketWordStream(fileSystem,fileName,currentBucket);
 				Parser nParser = new Parser();
 				Interpreter nInterpreter = new Interpreter();
 				ParserContext nContext = new ParserContext(wordStream, cContext.getDictionary(), 
@@ -409,10 +608,71 @@ System.out.println("WTF IS IT "+currentBucket+","+fileName);
 				nParser.setParserContext(nContext);
 				nParser.parse();
 			} catch (IOException e) {
-				throw new HairballException("Failed to parse /SOURCE\" file"+fileName);
+				throw new HairballException("Failed to parse /SOURCE file"+fileName);
 			}
+			vertx.close();
+			return true;
 		});
-		defList.add(new Definition(new Word("/SOURCE\""),compile,source));
+		Token sourceQuote = InterpreterToken.makeToken("sourceQuote", quoteRT,source);
+		defList.add(new Definition(new Word("/SOURCE\""),compile,sourceQuote));
+
+		/**
+		 * Get the current Output and leave it on the stack.
+		 */
+		Token getOutput = new NativeToken("getOutput",(interpreter) -> {
+			Output out = interpreter.getParserContext().getOutput();
+			interpreter.push(out);
+			return true;
+		});
+		defList.add(new Definition(new Word("/@OUTPUT"),compile,getOutput));
+		/**
+		 * Set the parser's output to the value on the stack.
+		 */
+		Token setOutput = new NativeToken("setOutput",(interpreter) -> {
+			Output out = (Output) interpreter.pop();
+			interpreter.getParserContext().setOutput(out);
+			return true;
+		});
+		defList.add(new Definition(new Word("/OUTPUT"),compile,setOutput));
+		/**
+		 * Create an output to a file. The file name is on the stack.
+		 */
+		Token createOutput = new NativeToken("createOutput",(interpreter) -> {
+			String currentBucket = interpreter.getParserContext().getWordStream().getCurrentLocation();
+			String fileName = (String) interpreter.pop();
+			String outFile = currentBucket + "/" + fileName;
+			FsOutput output = new FsOutput(fileName);
+			interpreter.push(output);
+			return true;
+		});
+		defList.add(new Definition(new Word("/OPEN"),compile,createOutput));
+		/**
+		 * Close an Output which is on the stack.
+		 */
+		Token closeOutput = new NativeToken("closeOutput",(interpreter) -> {
+			Output output = (Output) interpreter.pop();
+			try {
+				output.close();
+			} catch (IOException e) {
+				throw new HairballException("Cannot close output",e);
+			}
+			return true;
+		});
+		defList.add(new Definition(new Word("/CLOSE"),compile,closeOutput));
+		/**
+		 * Write a string on the stack to an Output which is on the stack
+		 */
+		Token writeOutput = new NativeToken("writeOutput", (interpreter) -> {
+			Output output = (Output) interpreter.pop();
+			String text = (String) interpreter.pop();
+			try {
+				output.emit(text);
+			} catch (IOException e) {
+				throw new HairballException("Failed to write to output",e);
+			}
+			return true;
+		});
+		defList.add(new Definition(new Word("/WRITE"),compile,writeOutput));
 		
 		/**
 		 * Get a named vocabulary and put it on the top of the stack
@@ -421,6 +681,7 @@ System.out.println("WTF IS IT "+currentBucket+","+fileName);
 			String vocabName = (String) interpreter.pop();
 			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().findVocabulary(vocabName);
 			interpreter.push(vocabulary);
+			return true;
 		});
 		/**
 		 * Create a vocabulary with a given name.
@@ -429,6 +690,7 @@ System.out.println("WTF IS IT "+currentBucket+","+fileName);
 			String vocabName = (String) interpreter.pop();
 			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().createVocabulary(vocabName);
 			interpreter.push(vocabulary);
+			return true;
 		});
 		/**
 		 * Given a vocabulary, add it to the dictionaries active vocabularies
@@ -436,11 +698,13 @@ System.out.println("WTF IS IT "+currentBucket+","+fileName);
 		Token addVocabularyToStack = new NativeToken("addVocabularyToStack",(interpreter) -> {
 			IVocabulary vocab = (IVocabulary) interpreter.pop();
 			interpreter.getParserContext().getDictionary().add(vocab);
+			return true;
 		});
 		defList.add(new Definition(new Word("/ACTIVE"),compile,addVocabularyToStack));
 		Token makeVocabularyCurrent = new NativeToken("makeVocabularyCurrent",(interpreter) -> {
 			IVocabulary vocab = (IVocabulary) interpreter.pop();
 			interpreter.getParserContext().getDictionary().makeCurrent(vocab);
+			return true;
 		});
 		defList.add(new Definition(new Word("/CURRENT"),compile,makeVocabularyCurrent));
 		/**
@@ -450,8 +714,68 @@ System.out.println("WTF IS IT "+currentBucket+","+fileName);
 		defList.add(new Definition(new Word("/NEWVOCABULARY\""),compile,newVocabRT));
 		Token addVocabRT = InterpreterToken.makeToken("addVocabRT", quoteSlashRT, pushVocab);
 		defList.add(new Definition(new Word("/VOCABULARY\""),compile,addVocabRT));
+
+		// Given a word on TOS, look it up in the Dictionary and put the definition on TOS
+		Token lookup = new NativeToken("lookup", (interpreter) -> {
+			Word aword = (Word) interpreter.pop();
+			Definition def = interpreter.getParserContext().getDictionary().lookUp(aword);
+			interpreter.push(def);
+			return true;
+		});
+		// Given a definition on TOS get its runtime token
+		Token getruntime = new NativeToken("getruntime", (interpreter) -> {
+			Definition def = (Definition) interpreter.pop();
+			Token rt = def.getRunTime();
+			interpreter.push(rt);
+			return true;
+		});
+		Token getToken = InterpreterToken.makeToken("getToken",word,lookup,getruntime);
+		defList.add(new Definition(new Word("/'"),compile,getToken));
+		
+		Token now = new NativeToken("now",(interpreter) -> {
+			long nowms = System.currentTimeMillis();
+			interpreter.push(nowms);
+			return true;
+		});
+		Token formatTimeFromFormatter = new NativeToken("formatTimeFromFormatter", (interpreter) -> {
+			DateTimeFormatter dtf = (DateTimeFormatter) interpreter.pop();
+			long time = (Long) interpreter.pop();
+			ZonedDateTime zdt = Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault());
+			String dtstring = zdt.format(dtf);
+			interpreter.push(dtstring);
+			return true;
+		});
+		Token makeFormatter = new NativeToken("makeFormatter", (interpreter) -> {
+			String tformat = (String) interpreter.pop();
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern(tformat);
+			interpreter.push(dtf);
+			return true;
+		});
+		Token tickDateFormat = new VariableToken("tickDateFormat",DateTimeFormatter.ISO_DATE_TIME);
+		Token makeNow = InterpreterToken.makeToken("makeNow",now,tickDateFormat,lfetchRT,formatTimeFromFormatter);
+		Token dotNow = InterpreterToken.makeToken("dotNow", makeNow,emit);
+		/**
+		 * Output a date time representing now. This will be formatted according to the
+		 * DateTimeFormatter stored in the variable 'DateFormat
+		 */
+		defList.add(new Definition(new Word("/.NOW"),compile,dotNow));
+		/**
+		 * Put the current date/time on the stack as a millisecond epoch time
+		 */
+		defList.add(new Definition(new Word("/NOW"),compile,now));
+		/**
+		 * Make a display string for a given date time and leave on the stack
+		 */
+		defList.add(new Definition(new Word("/FORMATTIME"),compile,formatTimeFromFormatter));
+		/**
+		 * Make a DateTimeFormatter from a string.
+		 */
+		defList.add(new Definition(new Word("/MAKEFORMATTER"),compile,makeFormatter));
+		defList.add(new Definition(new Word("/'DATEFORMAT"),compile,tickDateFormat));
+		/**
+		 * Default handling of a single newline, don't emit anything
+		 */
+		Token newLine = new LiteralToken("newline","\n");
+		defList.add(new Definition(new Word("\n"),noop,noop));
 	}
-	
-
-
 }

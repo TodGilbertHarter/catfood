@@ -34,8 +34,8 @@ public class NativeToken implements Token {
 	}
 	
 	@Override
-	public void execute(Interpreter interpreter) throws HairballException {
-		behavior.run(interpreter);
+	public boolean execute(Interpreter interpreter) throws HairballException {
+		return behavior.run(interpreter);
 	}
 
 	@Override

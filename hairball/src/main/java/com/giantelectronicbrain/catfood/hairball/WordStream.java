@@ -18,8 +18,6 @@ package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,7 +110,6 @@ public abstract class WordStream implements IWordStream {
 		String more =  getNext();
 //System.out.println("more returned "+more);
 		boolean first = true;
-//		while(!(more.equals(match))) {
 		while(!(match.equals(more)) && more != null) {
 			if(!first) sb.append(' ');
 			first = false;

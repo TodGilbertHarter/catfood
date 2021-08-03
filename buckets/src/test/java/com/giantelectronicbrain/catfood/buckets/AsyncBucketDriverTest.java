@@ -44,6 +44,7 @@ public abstract class AsyncBucketDriverTest {
 	protected abstract IBucketDriver createUUT(Vertx vertx) throws BucketDriverException;
 	protected abstract void setUpBuckets() throws IOException;
 	protected abstract void cleanUpBuckets() throws IOException;
+	protected static String basePath = "./build/buckettests";
 	
 	private IBucketDriver uut;
 	protected Vertx vertx;
@@ -63,7 +64,7 @@ public abstract class AsyncBucketDriverTest {
 	
 	@Test
 	public void testCreateBucketObjectAsync(TestContext context) {
-		IBucketName bName = uut.makeBucketName("testbucket");
+		IBucketName bName = uut.makeBucketName(basePath+"/testbucket");
 		IBucketObjectName boName = uut.makeBucketObjectName(bName, "testobject2");
 		Async async = context.async();
 		uut.createBucketObject(boName, result -> {

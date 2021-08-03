@@ -58,7 +58,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@java.lang.SuppressWarnings("all")
 //	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FsBucketDriverImpl.class);
 	private final FileSystem fileSystem;
-	private final String basePath;
+//	private final String basePath;
 
 	/* (non-Javadoc)
 	 * @see com.boeing.bms.goldstandard.buckets.IBucketDriver#createBucket(com.boeing.bms.goldstandard.buckets.IBucketName)
@@ -67,7 +67,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	public IBucket createBucket(IBucketName bucketName) throws BucketDriverException {
 		try {
 			String path = bucketName.getNameString();
-			path = resolvedPath(path);
+//			path = resolvedPath(path);
 			fileSystem.mkdirBlocking(path);
 		} catch (FileSystemException e) {
 			log.warn("Exception while creating a bucket", e);
@@ -83,21 +83,21 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	public Optional<IBucket> getBucket(IBucketName bucketName) throws BucketDriverException {
 		FsBucket bucket = null;
 		String path = bucketName.getNameString();
-		path = resolvedPath(path);
+//		path = resolvedPath(path);
 		if (fileSystem.existsBlocking(path)) bucket = new FsBucket(this, (FsBucketName) bucketName);
 		return Optional.ofNullable(bucket);
 	}
 
-	private String resolvedPath(String path) {
-		return basePath + "/" + path;
-	}
+//	private String resolvedPath(String path) {
+//		return basePath + "/" + path;
+//	}
 
 	private String resolvedPath(FsBucketObjectName boName) {
 		String bop = boName.getName();
 		String bp = boName.getBucketName().getNameString();
-		if(bp.startsWith(".")) // handle case of relative bucket paths in FS
+//		if(bp.startsWith(".")) // handle case of relative bucket paths in FS
 			return bp + "/" + bop;
-		return resolvedPath(bp) + "/" + bop;
+//		return resolvedPath(bp) + "/" + bop;
 	}
 
 /*	private InputStream getInputStream(IBucketObject bucketObject) throws IOException {
@@ -123,8 +123,8 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public boolean deleteBucket(IBucketName bucketName) throws BucketDriverException {
 		try {
-			String path = bucketName.getNameString();
-			String rpath = resolvedPath(path);
+			String rpath = bucketName.getNameString();
+//			String rpath = resolvedPath(path);
 			fileSystem.deleteBlocking(rpath);
 			return true; //TODO: it would be nice to be able to actually return a meaningful result here
 		} catch (FileSystemException e) {
@@ -150,7 +150,8 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		private Iterator<String> pItr; // = Files.list(basePath).iterator();
 
 		public BucketIterator() throws IOException {
-			pItr = fileSystem.readDirBlocking(basePath).iterator();
+//			pItr = fileSystem.readDirBlocking(basePath).iterator();
+			throw new UnsupportedOperationException("cannot iterate on buckets");
 		}
 
 		@Override
@@ -230,8 +231,8 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	}
 
 	protected Iterator<IBucketObject> getBucketObjectIterator(FsBucket fsBucket) throws IOException {
-		String path = fsBucket.getName().getNameString();
-		String fullPath = resolvedPath(path);
+		String fullPath = fsBucket.getName().getNameString();
+//		String fullPath = resolvedPath(path);
 		List<String> pList = fileSystem.readDirBlocking(fullPath);
 		Iterator<String> pIter = pList.iterator();
 		return new Iterator<IBucketObject>() {
@@ -374,13 +375,6 @@ public class FsBucketDriverImpl implements IBucketDriver {
 		return this;
 	}
 
-/*	@Override
-	public ReadStream<Buffer> getReadStream(IBucketObject fsBucketObject) {
-		IBucketObjectName bucketObjectName = fsBucketObject.getName();
-		String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
-		Future<AsyncFile> ff = fileSystem.open(rPath, new OpenOptions());
-		return ff.result();
-	} */
 	@Override
 	public ReadStream<Buffer> getReadStream(IBucketObjectName bucketObjectName) {
 		String rPath = resolvedPath((FsBucketObjectName) bucketObjectName);
@@ -391,7 +385,7 @@ public class FsBucketDriverImpl implements IBucketDriver {
 	@Override
 	public IBucketDriver readBucketObject(IBucketObjectName bucketObjectName, Handler<AsyncResult<ReadStream<Buffer>>> handler) {
 		String rPath = resolvedPath((FsBucketObjectName) bucketObjectName);
-System.out.println("Resolved path is "+rPath);
+//System.err.println("Resolved path is "+rPath);
 		log.debug("Got a path of %s",rPath);
 		fileSystem.open(rPath, new OpenOptions(), result -> {
 			if (result.succeeded()) {
@@ -443,22 +437,6 @@ System.out.println("Resolved path is "+rPath);
 		return new CatfoodApplicationException(ExceptionIds.SERVER_ERROR, message, details);
 	}
 
-	/*	@Override
-	public boolean createBucketObject(IBucketObjectName bucketObjectName, InputStream content)
-			throws BucketDriverException {
-		boolean result = false;
-		try {
-			String rPath = resolvedPath((FsBucketObjectName)bucketObjectName);
-			if(!fileSystem.existsBlocking(rPath)) {
-				fileSystem.writeFileBlocking(rPath,Buffer.buffer(content.readAllBytes()));
-				result = true;
-			}
-		} catch (InvalidPathException | IOException e) {
-			log.warn("Exception while creating a bucketObject",e);
-			throw new BucketDriverException("Cannot create a bucketObject",e);
-		}
-		return result;
-	} */
 	@Override
 	public boolean createBucketObject(IBucketObjectName bucketObjectName, ReadStream<Buffer> content) throws BucketDriverException {
 		boolean result = false;

@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringBufferInputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -37,7 +39,56 @@ import org.junit.Test;
  * @author tharter
  *
  */
+@SuppressWarnings("deprecation")
 public class HairballWordsTest {
+
+	@Test
+	public void testConstantWithString() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST stuff MYCONST",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(1,pStack.size());
+		String myConst = (String) pStack.pop();
+		assertEquals("stuff",myConst);
+		String output = out.toString();
+		assertEquals("",output);	
+	}
+
+	@Test
+	public void testConstantWithFloat() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST 111.0 MYCONST",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(1,pStack.size());
+		Double myConst = (Double) pStack.pop();
+		assertEquals(new Double(111.0).doubleValue(),myConst.doubleValue(),0.0d);
+		String output = out.toString();
+		assertEquals("",output);		
+	}
+	
+	@Test
+	public void testConstantWithInteger() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST 111 MYCONST",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(1,pStack.size());
+		Integer myConst = (Integer) pStack.pop();
+		assertEquals(111,myConst.intValue());
+		String output = out.toString();
+		assertEquals("",output);		
+	}
+	
+	@Test
+	public void testToken() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/TOKEN FOOBAR /.",out);
+		uut.execute();
+		String output = out.toString();
+		assertEquals("FOOBAR",output);		
+	}
 	
 	@Test
 	public void testNoop() throws IOException, HairballException {
@@ -65,14 +116,153 @@ public class HairballWordsTest {
 	}
 	
 	@Test
+	public void testSlashTick() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/: FOO hello world :/ /VARIABLE VECTOR /' FOO VECTOR /V! VECTOR /V@ /EXECUTE"
+				,out);
+		uut.execute();
+		
+		assertEquals("hello world",out.toString());
+	}
+	
+	@Test
 	public void testQuoteSlashCompiled() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
 		Hairball uut = WordUtilities.setUp("/: QW /\" /. :/ QW this is some text \"/",out);
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
+		assertEquals(0,uut.getParamStack().size());
 	}
 	
+	@Test
+	public void testDotNow() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/.NOW",out);
+		ParserContext ctx = uut.execute();
+		
+//		assertEquals("2021-07-25T14:14:54.309-07:00[America/Los_Angeles]",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+		
+	}
+	
+	@Test
+	public void testDup() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1 /DUP",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(2,uut.getParamStack().size());
+		assertEquals(1,uut.getParamStack().pop());
+		assertEquals(1,uut.getParamStack().pop());
+	}
+
+	@Test
+	public void testSwap() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /SWAP",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(2,uut.getParamStack().size());
+		assertEquals(1,uut.getParamStack().pop());
+		assertEquals(2,uut.getParamStack().pop());
+	}
+	
+	@Test
+	public void testRot() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /NUM 3 /ROT",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(3,uut.getParamStack().size());
+		
+		assertEquals(1,uut.getParamStack().pop());
+		assertEquals(3,uut.getParamStack().pop());
+		assertEquals(2,uut.getParamStack().pop());
+	}
+	
+	@Test
+	public void testNum() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(1,uut.getParamStack().size());
+		assertEquals(1,uut.getParamStack().pop());
+	}
+	
+	@Test
+	public void testPick() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /NUM 3 /NUM 3 /PICK",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(3,uut.getParamStack().size());
+		
+		assertEquals(1,uut.getParamStack().pop());
+		assertEquals(3,uut.getParamStack().pop());
+		assertEquals(2,uut.getParamStack().pop());
+	}
+	
+	@Test
+	public void testDrop() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NUM 1 /DROP",out);
+		ParserContext ctx = uut.execute();
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void testDefineVariable()  throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR",out);
+		ParserContext ctx = uut.execute();
+
+		assertEquals("",out.toString());
+		
+		Dictionary dict = ctx.getDictionary();
+		Definition def = dict.lookUp(new Word("MYVAR"));
+		assertNotNull(def);
+		
+		Stack<Object> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+	}
+	
+	@Test
+	public void testVariableCompileTime() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ /: MYTEST MYVAR /V! :/ MYTEST MYVAR /V@ /.",out);
+		ParserContext ctx = uut.execute();
+		Stack<Object> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		assertEquals("a literal string",out.toString());
+	}
+	
+	@Test
+	public void testVariableFetch() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V! MYVAR /V@ /.",out);
+		ParserContext ctx = uut.execute();
+		Stack<Object> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		assertEquals("a literal string",out.toString());
+
+	}
+	
+	@Test
+	public void testStoreVariable()  throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V!",out);
+		ParserContext ctx = uut.execute();
+		Stack<Object> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		assertEquals("",out.toString());
+		
+		Dictionary dict = ctx.getDictionary();
+		Definition def = dict.lookUp(new Word("MYVAR"));
+		assertNotNull(def);
+		
+		ctx.getInterpreter().execute(def.getRunTime());
+		assertEquals(1,pStack.size());
+		VariableToken vToken = (VariableToken) pStack.pop();
+		assertEquals("a literal string",vToken.getData());
+	}
+
 	@Test
 	public void testHereStore() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
@@ -249,6 +439,40 @@ public class HairballWordsTest {
 		
 		String output = out.toString();
 		assertEquals("some fun stuff",output);
+	}
+
+	// This is actually a test of '/DOER /DOES' syntax
+	@Test
+	public void testGetMatching() throws IOException, HairballException {
+//		String hb2 = "/: FOO /DOER aaaaaaaaa /DOES zzzzzzzzzzz :/ /: FOO2 FOO :/"; // FOO2 ";
+		String hb = "/: /GETMATCHING /DOER /DROP /W /W2L /MAKELITERAL /HERE! :/";
+//				+ " /: /EXAMPLE <code> /GETMATCHING EXAMPLE/ /. </code> :/";
+//				+ " /EXAMPLE fee fie foo fum EXAMPLE/";
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp(hb,out);
+		Dictionary d = uut.getParser().getContext().getDictionary();
+		
+		uut.execute();
+		Definition getMatching = d.lookUp(new Word("/GETMATCHING"));
+		
+		Stack<Object> stack = uut.getReturnStack();
+		assertEquals(0,stack.size());
+//		String hbmore = " /: /EXAMPLE <code> /GETMATCHING EXAMPLE/ /. </code> :/";
+		String hbmore = " /: /EXAMPLE <code> /GETMATCHING EXAMPLE/ /DELIMITED /. </code> :/";
+		IWordStream moreWordStream = new StringWordStream(hbmore);
+		
+		uut.setInput(moreWordStream);
+		uut.execute();
+		
+		Definition example = d.lookUp(new Word("/EXAMPLE"));
+		
+		String hbmoremore = "/EXAMPLE fee fie\n foo fum EXAMPLE/";
+		IWordStream moremoreWordStream = new StringWordStream(hbmoremore);
+		uut.setInput(moremoreWordStream);
+		uut.execute();
+		
+		String output = out.toString();
+		assertEquals("<code>fee fie\n foo fum </code>",output);
 	}
 	
 	@Test

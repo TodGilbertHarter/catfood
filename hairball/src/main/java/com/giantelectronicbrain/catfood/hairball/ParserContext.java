@@ -16,7 +16,12 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
+import java.io.IOException;
+
 /**
+ * Container for the configuration state of the Parser. This lets us set up
+ * parsers and much more easily pass initialization and state around.
+ * 
  * @author tharter
  *
  */
@@ -28,8 +33,13 @@ public class ParserContext {
 	private Parser parser;
 	
 	/**
-	 * @param wordStream
-	 * @param rootDictionary
+	 * Create a new ParserContext.
+	 * 
+	 * @param wordStream the input wordStream for this parser
+	 * @param rootDictionary the dictionary used by this parser
+	 * @param interpreter the interpreter to execute words on
+	 * @param output the output stream for the parser
+	 * @param parser a pointer to the parser itself
 	 */
 	public ParserContext(IWordStream wordStream, Dictionary rootDictionary, 
 			Interpreter interpreter, Output output, Parser parser) {
@@ -40,11 +50,28 @@ public class ParserContext {
 		this.parser = parser;
 	}
 
+	/**
+	 * Shutdown the input and output associated with this context.
+	 * 
+	 * @throws IOException
+	 */
+	public void close() throws IOException {
+		this.output.close();
+		this.wordStream.close();
+	}
+	
+	/**
+	 * Get the parser.
+	 * 
+	 * @return
+	 */
 	public Parser getParser() {
 		return this.parser;
 	}
 	
 	/**
+	 * Get the output.
+	 * 
 	 * @return the output
 	 */
 	public Output getOutput() {
@@ -52,6 +79,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Set the output.
+	 * 
 	 * @param output the output to set
 	 */
 	public void setOutput(Output output) {
@@ -59,6 +88,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Get the wordStream.
+	 * 
 	 * @return the wordStream
 	 */
 	public IWordStream getWordStream() {
@@ -66,6 +97,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Set the wordStream.
+	 * 
 	 * @param wordStream the wordStream to set
 	 */
 	public void setWordStream(IWordStream wordStream) {
@@ -73,6 +106,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Get the dictionary.
+	 * 
 	 * @return the dictionary
 	 */
 	public Dictionary getDictionary() {
@@ -80,6 +115,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Set the dictionary.
+	 * 
 	 * @param dictionary the dictionary to set
 	 */
 	public void setDictionary(Dictionary dictionary) {
@@ -87,6 +124,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Get the interpreter.
+	 * 
 	 * @return the interpreter
 	 */
 	public Interpreter getInterpreter() {
@@ -94,6 +133,8 @@ public class ParserContext {
 	}
 
 	/**
+	 * Set the interpreter.
+	 * 
 	 * @param interpreter the interpreter to set
 	 */
 	public void setInterpreter(Interpreter interpreter) {

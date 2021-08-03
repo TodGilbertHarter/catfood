@@ -17,6 +17,7 @@ Hairball.
 /: DOCUMENT/ </body></html> :/
 /: /H1 <h1> :/
 /: H1/ </h1> :/
+/: /BR <br/> :/
 
 /: /INDEX" /H1 Index H1/ /SOURCE" :/
 /: /STYLES" <link rel="stylesheet" type="text/css" href=" /" /. " media="screen"/> :/
@@ -45,7 +46,7 @@ Hairball.
 /: OL/ </ol> :/
 /: /LI <li> :/
 /: LI/ </li> :/
-/: /EM <em> :/
+/: /EM /SPACE <em> :/
 /: EM/ </em> /SPACE :/
 /: /SUBSECTION <section class="subsection"> :/
 /: /SUBSECTION" /SUBSECTION /TITLE /" /. TITLE/ :/
@@ -53,7 +54,7 @@ Hairball.
 /: /TOPIC <section class="topic"> :/
 /: /TOPIC" /TOPIC /TITLE /" /. TITLE/ :/
 /: TOPIC/ </section> :/
-/: /STRONG <strong> :/
+/: /STRONG /SPACE <strong> :/
 /: STRONG/ </strong> /SPACE :/
 
 /* Table support */
@@ -83,12 +84,18 @@ Hairball.
 /: /P=" <p class=" /" /. "> :/
 /: /DIV=" <div class=" /" /. "> :/
 /: DIV/ </div> :/
-/: /CODE <code> :/
-/: CODE/ </code> :/
+/: /CODE /SPACE <pre> :/
+/: CODE/ </pre> /SPACE :/
 
 /: /TOC <toc> /TITLE Table of Contents TITLE/ :/
 /: TOC/ </toc> :/
-
+/: /EXAMPLE" /CODE /" /. CODE/ :/
+/: /LITERAL /SPACE /TOKEN /. /SPACE :/
+/: /GETMATCHING /DOER /DROP /W /W2L /MAKELITERAL /HERE! :/
+/: /EXAMPLE /CODE /GETMATCHING EXAMPLE/ /DELIMITED /. CODE/ :/
+/: EXAMPLE/ /[" Mismatch, EXAMPLE/ must follow /EXAMPLE "]/ /ABORT :/
+/* set a bit more sane format for /.NOW to use */
+/" YYYY-MM-dd "/ /MAKEFORMATTER /'DATEFORMAT /V!
 /* Enables double newline equivalency to a paragraph (implicit paragraphs). */
 /:
 

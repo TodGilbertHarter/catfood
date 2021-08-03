@@ -26,5 +26,5 @@ package com.giantelectronicbrain.catfood.hairball;
  *
  */
 public interface HairballBehavior {
-	public abstract void run(Interpreter interpreter) throws HairballException;
+	public abstract boolean run(Interpreter interpreter) throws HairballException;
 }

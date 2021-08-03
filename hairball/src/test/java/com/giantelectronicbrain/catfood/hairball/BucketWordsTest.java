@@ -51,6 +51,20 @@ public class BucketWordsTest {
 		return WordUtilities.bucketSetUpHairball(vertx, input, out);
 	}
 	
+	@Test
+	public void testSource() throws IOException, HairballException {
+		Hairball uut  = setUp("/SOURCE\" src/test/resources/test_source.hairball \"/ ");
+		ParserContext ctx = uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		Stack<?> rStack = uut.getReturnStack();
+		assertEquals(0,rStack.size());
+		Context ictx = uut.getInterpreterContext();
+		assertNull(ictx);
+		assertNotNull(ctx);
+		String output = out.toString();
+		assertEquals("some included words",output);
+	}
 
 	@Test
 	public void testNoop() throws IOException, HairballException {

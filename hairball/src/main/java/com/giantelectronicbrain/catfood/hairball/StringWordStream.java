@@ -169,7 +169,6 @@ public class StringWordStream implements IWordStream {
 	public Word getNextWord() throws IOException {
 		String next = getNext();
 		return next == null ? null : new Word(next);
-//		return next == null || next.isBlank() ? null : new Word(next);
 	}
 	
 	private String getNext() throws IOException {
@@ -178,12 +177,10 @@ public class StringWordStream implements IWordStream {
 			log.log(Level.FINEST,"input is ready, getting another word");
 			return inputScanner.next();
 		} else {
-//			input = reader.readLine();
 			log.log(Level.FINEST, "getting another line");
 			input = readLine(reader);
 			if(input != null) {
 				log.log(Level.FINEST, "new line is not null, scanning");
-//				inputScanner = new StringReader(input);
 				inputScanner = new TokenScanner(input);
 				if(inputScanner.hasNext()) {
 					log.log(Level.FINEST, "getting a new word from the new line");

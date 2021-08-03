@@ -17,6 +17,7 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -32,7 +33,9 @@ import io.vertx.core.Vertx;
 
 /**
  * Hairball mainline. This gives us a stand-alone hairball parser/REPL and a class which can be instantiate to provide
- * a complete hairball 'engine'.
+ * a complete hairball 'engine'. It will accept various arguments which allow us to redirect output, read multiple
+ * Hairball scripts from a set of files, dump the configuration, and run the job multiple times and
+ * collect performance statistics in order to do some basic benchmarking.
  * 
  * @author tharter
  *
@@ -46,22 +49,53 @@ public class Hairball {
 //	@GwtIncompatible
 	public static void main(String[] args) throws IOException, HairballException, ConfigurationException {
 		Vertx vertx = Vertx.vertx();
+		int statusCode = 0;
 		try {
 			Object[] conf = Configurator.createConfiguration(Arrays.asList(args));
+			if(conf == null) return;
 			Properties configuration = (Properties) conf[0];
 			List<String> argList = (List<String>) conf[1];
-			IWordStream wordStream = makeWordStream(vertx, argList, configuration);
-			Output output = makeOutput(configuration);
-			Hairball hairball = new Hairball(wordStream,output);
-			hairball.execute();
+			String loopOption = configuration.getProperty("loopOption");
+			int loopCount = loopOption == null ? 1 : Integer.parseInt(loopOption);
+			long startingTime = System.currentTimeMillis(); 
+			for(int i = 0; i < loopCount; i++) {
+				IWordStream wordStream = makeWordStream(vertx, argList, configuration);
+				Output output = makeOutput(configuration);
+				Hairball hairball = new Hairball(wordStream,output);
+				hairball.execute();
+			}
+			long endingTime = System.currentTimeMillis();
+			if(loopCount > 1) printElapsed(startingTime,endingTime);
 		} catch (Exception e) {
 			System.out.println(e.getLocalizedMessage());
 			e.printStackTrace();
-			System.exit(-1);
+			statusCode = -1;
+		} finally {
+			if(vertx != null) vertx.close();
 		}
-		vertx.close();
+		if(statusCode != 0)
+			System.exit(statusCode);
 	}
 	
+	/**
+	 * Output the elapsed execution time, including setup of inputs and outputs
+	 * plus the run of the parser.
+	 * 
+	 * @param startingTime
+	 * @param endingTime
+	 */
+	private static void printElapsed(long startingTime, long endingTime) {
+		long totalTime = endingTime - startingTime;
+		long millisOver = totalTime % 1000;
+		long seconds = totalTime > 0 ? totalTime / 1000 : 0;
+		long secondsOver = seconds > 0 ? seconds % 60 : 0;
+		long minutes = seconds > 0 ? seconds / 60 : 0;
+		long minutesOver = minutes > 0 ? minutes % 60 : 0;
+		long hours = minutes > 0 ? minutes / 60 : 0;
+		String result = String.format("\nElapsed time was: %02d:%02d:%02d:%03d\n", hours, minutesOver, secondsOver, millisOver);
+		System.out.println(result);
+	}
+
 	static class ServerPlatform { //implements IPlatform {
 
 //		@Override
@@ -103,7 +137,8 @@ public class Hairball {
 		else {
 			String cwd = (String) properties.get("base");
 			if(cwd == null) cwd = ".";
-			return new FileCollectionWordStream(vertx,"",args,cwd);
+			List<String> copyOfArgs = new ArrayList<>(args);
+			return new FileCollectionWordStream(vertx,cwd,copyOfArgs);
 		}
 	}
 
@@ -164,7 +199,9 @@ public class Hairball {
 	 */
 	public ParserContext execute() throws IOException, HairballException {
 		parser.interpret();
-		return parser.parse();
+		ParserContext pctx = parser.parse();
+		parser.close();
+		return pctx;
 	}
 
 	/**

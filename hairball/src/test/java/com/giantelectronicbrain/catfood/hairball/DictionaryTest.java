@@ -71,7 +71,7 @@ public class DictionaryTest {
 		uut.create(new Word("test"));
 		uut.doer();
 		assertTrue(uut.isDoer());
-		Token aToken = new NativeToken("aToken",(interp) -> {});
+		Token aToken = new NativeToken("aToken",(interp) -> {return true; });
 		uut.addToken(aToken);
 		Definition def = uut.getCurrentDefinition();
 		assertNotNull(def);
@@ -84,7 +84,7 @@ public class DictionaryTest {
 		uut.create(new Word("test"));
 		uut.does();
 		assertFalse(uut.isDoer());
-		Token aToken = new NativeToken("aToken",(interp) -> {});
+		Token aToken = new NativeToken("aToken",(interp) -> {return true; });
 		uut.addToken(aToken);
 		Definition def = uut.getCurrentDefinition();
 		assertNotNull(def);
