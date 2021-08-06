@@ -57,6 +57,12 @@ mainClassName = 'com.giantelectronicbrain.catfood.hairball.Hairball'
 //    mainClass = 'com.giantelectronicbrain.catfood.hairball.Hairball'
 //}
 
+jar {
+	manifest {
+		attributes 'Implementation-Version': version
+		}
+	}
+	
 test {
 	testLogging.showStandardStreams = true
 	systemProperty 'gwt.args', "-logdir build -deploy $buildDir/gwt/deploy -extra $buildDir/gwt/extra -workDir $buildDir/gwt/ -war $buildDir/gwt/war"

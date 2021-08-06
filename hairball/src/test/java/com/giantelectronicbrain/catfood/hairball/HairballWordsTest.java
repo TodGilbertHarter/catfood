@@ -52,6 +52,20 @@ public class HairballWordsTest {
 	}
 	
 	@Test
+	public void testVersion() throws IOException, HairballException {
+		Hairball.VERSION = "foo"; // just for testing purposes
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/VERSION",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(1,pStack.size());
+		String version = (String) pStack.pop();
+		assertEquals("foo",version);
+		String output = out.toString();
+		assertEquals("",output);
+	}
+	
+	@Test
 	public void testNewVocabulary() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
 		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB",out);

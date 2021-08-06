@@ -17,6 +17,8 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -778,5 +780,11 @@ public class HairballVocabulary {
 		Token newLine = new LiteralToken("newline","\n");
 		Token newLine_RT = InterpreterToken.makeToken("newLine_RT",newLine,emit);
 		defList.add(new Definition(new Word("/NEWLINE"),compile,newLine_RT));
+		
+		Token version = new NativeToken("version", (interpreter) -> {
+			interpreter.push(Hairball.VERSION);
+			return true;
+		});
+		defList.add(new Definition(new Word("/VERSION"),compile,version));
 	}
 }

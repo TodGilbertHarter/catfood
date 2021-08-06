@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.conf.ConfigurationException;
@@ -45,6 +47,7 @@ public class Hairball {
 	private final Dictionary rootDictionary = new Dictionary("root");
 	private final Parser parser;
 	private final Interpreter interpreter;
+	public static String VERSION = null; // Hairball version string, get it here
 
 //	@GwtIncompatible
 	public static void main(String[] args) throws IOException, HairballException, ConfigurationException {
@@ -55,6 +58,7 @@ public class Hairball {
 			if(conf == null) return;
 			Properties configuration = (Properties) conf[0];
 			List<String> argList = (List<String>) conf[1];
+			VERSION = getVersion();
 			String loopOption = configuration.getProperty("loopOption");
 			int loopCount = loopOption == null ? 1 : Integer.parseInt(loopOption);
 			long startingTime = System.currentTimeMillis(); 
@@ -77,6 +81,18 @@ public class Hairball {
 			System.exit(statusCode);
 	}
 	
+	/**
+	 * Gets the implementation version from the package. This should be the version
+	 * of Hairball which is running, although it may be wrong if you are not running
+	 * a packaged version of the application, I'm not sure...
+	 * 
+	 * @return Hairball version string
+	 */
+	private static String getVersion() {
+		Package aPackage = Hairball.class.getPackage();
+		return aPackage.getImplementationVersion();
+	}
+
 	/**
 	 * Output the elapsed execution time, including setup of inputs and outputs
 	 * plus the run of the parser.
