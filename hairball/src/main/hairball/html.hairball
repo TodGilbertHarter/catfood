@@ -97,6 +97,9 @@ Hairball.
 /: /GETMATCHING /DOER /DROP /W /W2L /MAKELITERAL /HERE! :/
 /: /EXAMPLE /CODE /GETMATCHING EXAMPLE/ /DELIMITED /. CODE/ :/
 /: EXAMPLE/ /[" Mismatch, EXAMPLE/ must follow /EXAMPLE "]/ /ABORT :/
+/: /COMMENT <!-- :/
+/: COMMENT/ --> :/
+/: /.VERSION /VERSION /. :/
 /* set a bit more sane format for /.NOW to use */
 /" YYYY-MM-dd "/ /MAKEFORMATTER /'DATEFORMAT /V!
 /* Enables double newline equivalency to a paragraph (implicit paragraphs). */

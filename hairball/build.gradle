@@ -44,7 +44,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 group = 'com.giantelectronicbrain'
-//version = '0.0.1-SNAPSHOT'
+def implVersion = version.toString().substring(0,version.toString().indexOf('-'));
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -59,7 +59,7 @@ mainClassName = 'com.giantelectronicbrain.catfood.hairball.Hairball'
 
 jar {
 	manifest {
-		attributes 'Implementation-Version': version
+		attributes 'Implementation-Version': implVersion
 		}
 	}
 	
