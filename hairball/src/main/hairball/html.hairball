@@ -6,6 +6,9 @@ Hairball HTML definitions. These definitions define common markup syntax in the 
 of HTML. It can be included as the first input file when generating HTML output in
 Hairball.
 */
+/NEWVOCABULARY /HTML
+/VOCABULARY /HTML /ACTIVE
+/VOCABULARY /HTML /CURRENT
 /:
 
 // :/ /* Prevent spurious <p> tags. */

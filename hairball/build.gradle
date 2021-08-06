@@ -113,3 +113,9 @@ task buildDocs(type: Exec) {
 	dependsOn 'build'
 	commandLine 'src/main/documentation/buildhtmldocs.sh'
 }
+
+task buildReadMe_MD(type: Exec) {
+	dependsOn 'build'
+	commandLine 'src/main/documentation/buildreadme.sh'
+}
+

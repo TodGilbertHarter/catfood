@@ -259,7 +259,7 @@ public class Dictionary implements IVocabulary {
 	 */
 	public void add(IVocabulary vocabulary) {
 		addToVocabularyList(vocabulary); // make sure it is known to us
-		vocabularies.push(vocabulary);
+		vocabularies.add(0,vocabulary); // .push(vocabulary);
 		if(currentVocabulary == null) makeCurrent(vocabulary);
 	}
 	
@@ -289,11 +289,11 @@ public class Dictionary implements IVocabulary {
 	
 	/**
 	 * Remove the most recently added vocabulary from the dictionary search
-	 * order. Note that this does not modify the current dictionary.
+	 * order. Note that this does not modify the current vocabulary.
 	 * 
 	 */
-	public void remove() {
-		vocabularies.pop();
+	public IVocabulary remove() {
+		return vocabularies.remove(0); // .pop();
 	}
 
 	/**
@@ -306,7 +306,7 @@ public class Dictionary implements IVocabulary {
 	public void remove(IVocabulary vocabulary) {
 		if(vocabularies.contains(vocabulary))
 			while(vocabularies.size() != 0) {
-				IVocabulary popped = vocabularies.pop();
+				IVocabulary popped = vocabularies.remove(0); //  .pop();
 				if(popped.equals(vocabulary)) return;
 			}
 	}

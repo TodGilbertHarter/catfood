@@ -678,8 +678,8 @@ public class HairballVocabulary {
 		 * Get a named vocabulary and put it on the top of the stack
 		 */
 		Token pushVocab = new NativeToken("pushVocab", (interpreter) -> {
-			String vocabName = (String) interpreter.pop();
-			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().findVocabulary(vocabName);
+			Word vocabName = (Word) interpreter.pop();
+			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().findVocabulary(vocabName.getValue());
 			interpreter.push(vocabulary);
 			return true;
 		});
@@ -687,9 +687,9 @@ public class HairballVocabulary {
 		 * Create a vocabulary with a given name.
 		 */
 		Token createVocab = new NativeToken("createVocab",(interpreter) -> {
-			String vocabName = (String) interpreter.pop();
-			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().createVocabulary(vocabName);
-			interpreter.push(vocabulary);
+			Word vocabName = (Word) interpreter.pop();
+			IVocabulary vocabulary = interpreter.getParserContext().getDictionary().createVocabulary(vocabName.getValue());
+//			interpreter.push(vocabulary);
 			return true;
 		});
 		/**
@@ -710,10 +710,10 @@ public class HairballVocabulary {
 		/**
 		 * Create a new vocabulary by parsing input and adding it to the known vocabularies
 		 */
-		Token newVocabRT = InterpreterToken.makeToken("newVocabRT", quoteSlashRT, createVocab);
-		defList.add(new Definition(new Word("/NEWVOCABULARY\""),compile,newVocabRT));
-		Token addVocabRT = InterpreterToken.makeToken("addVocabRT", quoteSlashRT, pushVocab);
-		defList.add(new Definition(new Word("/VOCABULARY\""),compile,addVocabRT));
+		Token newVocabRT = InterpreterToken.makeToken("newVocabRT", word, createVocab);
+		defList.add(new Definition(new Word("/NEWVOCABULARY"),compile,newVocabRT));
+		Token addVocabRT = InterpreterToken.makeToken("addVocabRT", word, pushVocab);
+		defList.add(new Definition(new Word("/VOCABULARY"),compile,addVocabRT));
 
 		// Given a word on TOS, look it up in the Dictionary and put the definition on TOS
 		Token lookup = new NativeToken("lookup", (interpreter) -> {
@@ -776,6 +776,7 @@ public class HairballVocabulary {
 		 * Default handling of a single newline, don't emit anything
 		 */
 		Token newLine = new LiteralToken("newline","\n");
-		defList.add(new Definition(new Word("\n"),noop,noop));
+		Token newLine_RT = InterpreterToken.makeToken("newLine_RT",newLine,emit);
+		defList.add(new Definition(new Word("/NEWLINE"),compile,newLine_RT));
 	}
 }

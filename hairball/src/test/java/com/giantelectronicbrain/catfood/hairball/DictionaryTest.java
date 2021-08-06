@@ -42,6 +42,24 @@ public class DictionaryTest {
 	}
 	
 	@Test
+	public void searchMultipleVocabularies() {
+		Word myWord = new Word("mydef");
+		Definition myDef = new Definition(myWord,null,null);
+		uut.add(myDef);
+		Definition actual = uut.lookUp(myWord);
+		assertEquals(myDef,actual);
+
+		Vocabulary anotherVoc = new Vocabulary("TEST2");
+		uut.add(anotherVoc);
+		uut.makeCurrent(anotherVoc);
+		Definition anotherDef = new Definition(myWord,null,null);
+		uut.add(anotherDef);
+		
+		Definition lookedUp = uut.lookUp(myWord);
+		assertTrue(lookedUp == anotherDef);
+	}
+	
+	@Test
 	public void addAdds() {
 		Word myWord = new Word("mydef");
 		Definition myDef = new Definition(myWord,null,null);

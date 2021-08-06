@@ -43,6 +43,80 @@ import org.junit.Test;
 public class HairballWordsTest {
 
 	@Test
+	public void testNewline() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NEWLINE",out);
+		uut.execute();
+		String output = out.toString();
+		assertEquals("\n",output);
+	}
+	
+	@Test
+	public void testNewVocabulary() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		Dictionary dict = uut.getParser().getContext().getDictionary();
+		IVocabulary myVocab = dict.findVocabulary("MYVOCAB");
+		assertEquals("MYVOCAB",myVocab.getName());
+		String output = out.toString();
+		assertEquals("",output);
+	}
+
+	@Test
+	public void testVocabulary() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(1,pStack.size());
+		IVocabulary myVocab = (IVocabulary) pStack.pop();
+		assertEquals("MYVOCAB",myVocab.getName());
+		String output = out.toString();
+		assertEquals("",output);
+	}
+	
+	@Test
+	public void testMakeVocabularyActive() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB /ACTIVE",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		Dictionary dict = uut.getParser().getContext().getDictionary();
+		IVocabulary myVocab = dict.findVocabulary("MYVOCAB");
+		assertEquals("MYVOCAB",myVocab.getName());
+		myVocab = dict.remove();
+		assertEquals("MYVOCAB",myVocab.getName());
+		String output = out.toString();
+		assertEquals("",output);
+	}
+
+	@Test
+	public void testMakeVocabularyCurrent() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB "
+				+ "/VOCABULARY MYVOCAB /ACTIVE "
+				+ "/VOCABULARY MYVOCAB /CURRENT "
+				+ "/: FOOBAR stuff :/ FOOBAR",out);
+		uut.execute();
+		Stack<?> pStack = uut.getParamStack();
+		assertEquals(0,pStack.size());
+		Dictionary dict = uut.getParser().getContext().getDictionary();
+		IVocabulary myVocab = dict.findVocabulary("MYVOCAB");
+		assertEquals("MYVOCAB",myVocab.getName());
+		myVocab = dict.getCurrent();
+		assertNotNull(myVocab);
+		assertEquals("MYVOCAB",myVocab.getName());
+		Definition foobar = myVocab.lookUp(new Word("FOOBAR"));
+		assertNotNull(foobar);
+		String output = out.toString();
+		assertEquals("stuff",output);
+	}
+	
+	@Test
 	public void testConstantWithString() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
 		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST stuff MYCONST",out);
