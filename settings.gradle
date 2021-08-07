@@ -12,6 +12,7 @@
 include 'server'
 include 'client'
 include 'database'
+include 'hairball_core'
 include 'hairball'
 include 'buckets'
 include 'core'

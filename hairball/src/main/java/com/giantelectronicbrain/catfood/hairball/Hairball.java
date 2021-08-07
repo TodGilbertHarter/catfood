@@ -22,16 +22,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
-import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 import java.util.logging.Logger;
 
+import com.giantelectronicbrain.catfood.IPlatform;
 import com.giantelectronicbrain.catfood.conf.ConfigurationException;
 
 import io.vertx.core.Vertx;
-
-//import com.giantelectronicbrain.catfood.client.IPlatform;
-//import com.google.gwt.core.shared.GwtIncompatible;
 
 /**
  * Hairball mainline. This gives us a stand-alone hairball parser/REPL and a class which can be instantiate to provide
@@ -49,7 +45,6 @@ public class Hairball {
 	private final Interpreter interpreter;
 	public static String VERSION = null; // Hairball version string, get it here
 
-//	@GwtIncompatible
 	public static void main(String[] args) throws IOException, HairballException, ConfigurationException {
 		Vertx vertx = Vertx.vertx();
 		int statusCode = 0;
@@ -112,7 +107,7 @@ public class Hairball {
 		System.out.println(result);
 	}
 
-	static class ServerPlatform { //implements IPlatform {
+	static class ServerPlatform implements IPlatform {
 
 //		@Override
 		public boolean isClient() {
@@ -132,7 +127,6 @@ public class Hairball {
 	 * @param args
 	 * @return
 	 */
-//	@GwtIncompatible
 	private static Output makeOutput(Properties properties) {
 		//TODO: support directing output to other places besides STDOUT
 		return new ConsoleOutput();
@@ -146,7 +140,6 @@ public class Hairball {
 	 * @param args
 	 * @return
 	 */
-//	@GwtIncompatible
 	private static IWordStream makeWordStream(Vertx vertx, List<String> args, Properties properties) {
 		if(args == null || args.size() == 0)
 			return new ConsoleWordStream("\n>");
