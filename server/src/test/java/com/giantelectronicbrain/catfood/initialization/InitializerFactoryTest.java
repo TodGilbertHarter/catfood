@@ -23,8 +23,10 @@ import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.giantelectronicbrain.catfood.SeparateClassloaderTestRunner;
 
 /**
  * Note that this effectively tests Initializer as well, so we will not bother to 

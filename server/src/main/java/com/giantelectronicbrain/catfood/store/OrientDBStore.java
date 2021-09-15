@@ -17,9 +17,9 @@
 
 package com.giantelectronicbrain.catfood.store;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
-import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.initialization.IInitializer;
 import com.giantelectronicbrain.catfood.initialization.InitializationException;
 import com.giantelectronicbrain.catfood.initialization.InitializerFactory;

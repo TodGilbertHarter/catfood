@@ -17,8 +17,8 @@
 
 package com.giantelectronicbrain.catfood.store;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
-import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 
 /**
  * Interface for CatFood Database modules to implement.

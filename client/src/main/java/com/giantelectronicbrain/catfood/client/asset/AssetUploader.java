@@ -19,7 +19,7 @@ package com.giantelectronicbrain.catfood.client.asset;
 import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.client.Client;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkView;
 import com.giantelectronicbrain.catfood.client.facility.SignalBroker;
 import com.giantelectronicbrain.catfood.client.facility.ViewableComponent;

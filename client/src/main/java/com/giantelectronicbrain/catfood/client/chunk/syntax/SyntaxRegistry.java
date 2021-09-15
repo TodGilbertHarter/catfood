@@ -19,7 +19,7 @@ package com.giantelectronicbrain.catfood.client.chunk.syntax;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.hairball.Hairball;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.html.Html;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.markdown.MarkDownIt;

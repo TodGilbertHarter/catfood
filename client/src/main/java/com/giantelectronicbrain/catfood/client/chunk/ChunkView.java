@@ -32,6 +32,7 @@ import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
 import com.giantelectronicbrain.catfood.client.fluent.Viewable;
 import com.giantelectronicbrain.catfood.client.menu.MenuBarButton;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 
 /**
  * Simple view of a chunk. 

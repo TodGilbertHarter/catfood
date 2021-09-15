@@ -17,7 +17,7 @@
 
 package com.giantelectronicbrain.catfood;
 
-import com.giantelectronicbrain.catfood.client.Client;
+//import com.giantelectronicbrain.catfood.Client;
 import com.giantelectronicbrain.catfood.compiler.GWTCompiler;
 import com.giantelectronicbrain.catfood.exceptions.CatfoodApplicationException;
 import com.giantelectronicbrain.catfood.exceptions.ErrorResult;
@@ -157,7 +157,8 @@ public class ServerVerticle extends AbstractVerticle {
 		
 		GWTCompiler.folderSource = "client/src/main/java";
 		GWTCompiler.setTargetFolder("webroot/content");
-		Handler<RoutingContext> gwtHandler = GWTCompiler.with(new Client(), "/", debugClient, true, vertx);
+//		Handler<RoutingContext> gwtHandler = GWTCompiler.with(Client.class.getName(), "/", debugClient, true, vertx);
+		Handler<RoutingContext> gwtHandler = GWTCompiler.with("com.giantelectronicbrain.catfood.client.Client", "/", debugClient, true, vertx);
 		router.get("/").handler(gwtHandler);
 		// in case a client loads one of the internal routes, then give them the main page
 		router.get("/edit/*").handler(context -> context.reroute("/")); 

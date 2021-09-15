@@ -24,14 +24,13 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringBufferInputStream;
-import java.time.format.DateTimeFormatter;
 import java.util.Stack;
+import java.util.logging.Logger;
 
-import org.junit.Ignore;
 import org.junit.Test;
+
+import com.giantelectronicbrain.catfood.IPlatform;
 
 /**
  * Tests of the words in the Hairball core vocabulary.
@@ -42,10 +41,48 @@ import org.junit.Test;
 @SuppressWarnings("deprecation")
 public class HairballWordsTest {
 
+	public static class TestPlatform implements IPlatform {
+
+		@Override
+		public boolean isClient() {
+			return false;
+		}
+
+		@Override
+		public Logger getLogger(String name) {
+			return Logger.getLogger(name);
+		}
+
+		@Override
+		public String getVersion() {
+			return "N/A";
+		}
+		
+	}
+	/**
+	 * Create a hairball with its input coming from the given string. This should
+	 * be sufficient for many tests.
+	 * 
+	 * @param inputData
+	 * @return
+	 */
+	public static Hairball setUp(String inputData, OutputStream out) {
+		TestPlatform tp = new TestPlatform();
+		Hairball.PLATFORM = tp;
+		Output output = new StreamOutput(out);
+		IWordStream input = null;
+//		try {
+			input = new StringWordStream(inputData);
+//		} catch (NoClassDefFoundError e) {
+//			e.printStackTrace();
+//		}
+		return new Hairball(tp, input, output);
+	}
+
 	@Test
 	public void testNewline() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NEWLINE",out);
+		Hairball uut = setUp("/NEWLINE",out);
 		uut.execute();
 		String output = out.toString();
 		assertEquals("\n",output);
@@ -55,7 +92,7 @@ public class HairballWordsTest {
 	public void testVersion() throws IOException, HairballException {
 		Hairball.VERSION = "N/A"; // just for testing purposes
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/VERSION",out);
+		Hairball uut = setUp("/VERSION",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(1,pStack.size());
@@ -68,7 +105,7 @@ public class HairballWordsTest {
 	@Test
 	public void testNewVocabulary() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB",out);
+		Hairball uut = setUp("/NEWVOCABULARY MYVOCAB",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -82,7 +119,7 @@ public class HairballWordsTest {
 	@Test
 	public void testVocabulary() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB",out);
+		Hairball uut = setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(1,pStack.size());
@@ -95,7 +132,7 @@ public class HairballWordsTest {
 	@Test
 	public void testMakeVocabularyActive() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB /ACTIVE",out);
+		Hairball uut = setUp("/NEWVOCABULARY MYVOCAB /VOCABULARY MYVOCAB /ACTIVE",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -111,7 +148,7 @@ public class HairballWordsTest {
 	@Test
 	public void testMakeVocabularyCurrent() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NEWVOCABULARY MYVOCAB "
+		Hairball uut = setUp("/NEWVOCABULARY MYVOCAB "
 				+ "/VOCABULARY MYVOCAB /ACTIVE "
 				+ "/VOCABULARY MYVOCAB /CURRENT "
 				+ "/: FOOBAR stuff :/ FOOBAR",out);
@@ -133,7 +170,7 @@ public class HairballWordsTest {
 	@Test
 	public void testConstantWithString() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST stuff MYCONST",out);
+		Hairball uut = setUp("/CONSTANT MYCONST stuff MYCONST",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(1,pStack.size());
@@ -146,7 +183,7 @@ public class HairballWordsTest {
 	@Test
 	public void testConstantWithFloat() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST 111.0 MYCONST",out);
+		Hairball uut = setUp("/CONSTANT MYCONST 111.0 MYCONST",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(1,pStack.size());
@@ -159,7 +196,7 @@ public class HairballWordsTest {
 	@Test
 	public void testConstantWithInteger() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/CONSTANT MYCONST 111 MYCONST",out);
+		Hairball uut = setUp("/CONSTANT MYCONST 111 MYCONST",out);
 		uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(1,pStack.size());
@@ -172,7 +209,7 @@ public class HairballWordsTest {
 	@Test
 	public void testToken() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/TOKEN FOOBAR /.",out);
+		Hairball uut = setUp("/TOKEN FOOBAR /.",out);
 		uut.execute();
 		String output = out.toString();
 		assertEquals("FOOBAR",output);		
@@ -181,7 +218,7 @@ public class HairballWordsTest {
 	@Test
 	public void testNoop() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("//",out);
+		Hairball uut = setUp("//",out);
 		ParserContext ctx = uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -197,7 +234,7 @@ public class HairballWordsTest {
 	@Test
 	public void testQuoteSlashInterpreted() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/\" this is some text \"/ /.",out);
+		Hairball uut = setUp("/\" this is some text \"/ /.",out);
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
@@ -206,7 +243,7 @@ public class HairballWordsTest {
 	@Test
 	public void testSlashTick() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: FOO hello world :/ /VARIABLE VECTOR /' FOO VECTOR /V! VECTOR /V@ /EXECUTE"
+		Hairball uut = setUp("/: FOO hello world :/ /VARIABLE VECTOR /' FOO VECTOR /V! VECTOR /V@ /EXECUTE"
 				,out);
 		uut.execute();
 		
@@ -216,7 +253,7 @@ public class HairballWordsTest {
 	@Test
 	public void testQuoteSlashCompiled() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: QW /\" /. :/ QW this is some text \"/",out);
+		Hairball uut = setUp("/: QW /\" /. :/ QW this is some text \"/",out);
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
@@ -226,7 +263,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDotNow() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/.NOW",out);
+		Hairball uut = setUp("/.NOW",out);
 		ParserContext ctx = uut.execute();
 		
 //		assertEquals("2021-07-25T14:14:54.309-07:00[America/Los_Angeles]",out.toString());
@@ -237,7 +274,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDup() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1 /DUP",out);
+		Hairball uut = setUp("/NUM 1 /DUP",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(2,uut.getParamStack().size());
 		assertEquals(1,uut.getParamStack().pop());
@@ -247,7 +284,7 @@ public class HairballWordsTest {
 	@Test
 	public void testSwap() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /SWAP",out);
+		Hairball uut = setUp("/NUM 1 /NUM 2 /SWAP",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(2,uut.getParamStack().size());
 		assertEquals(1,uut.getParamStack().pop());
@@ -257,7 +294,7 @@ public class HairballWordsTest {
 	@Test
 	public void testRot() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /NUM 3 /ROT",out);
+		Hairball uut = setUp("/NUM 1 /NUM 2 /NUM 3 /ROT",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(3,uut.getParamStack().size());
 		
@@ -269,7 +306,7 @@ public class HairballWordsTest {
 	@Test
 	public void testNum() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1",out);
+		Hairball uut = setUp("/NUM 1",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(1,uut.getParamStack().size());
 		assertEquals(1,uut.getParamStack().pop());
@@ -278,7 +315,7 @@ public class HairballWordsTest {
 	@Test
 	public void testPick() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1 /NUM 2 /NUM 3 /NUM 3 /PICK",out);
+		Hairball uut = setUp("/NUM 1 /NUM 2 /NUM 3 /NUM 3 /PICK",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(3,uut.getParamStack().size());
 		
@@ -290,7 +327,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDrop() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/NUM 1 /DROP",out);
+		Hairball uut = setUp("/NUM 1 /DROP",out);
 		ParserContext ctx = uut.execute();
 		assertEquals(0,uut.getParamStack().size());
 	}
@@ -298,7 +335,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDefineVariable()  throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR",out);
+		Hairball uut = setUp("/VARIABLE MYVAR",out);
 		ParserContext ctx = uut.execute();
 
 		assertEquals("",out.toString());
@@ -314,7 +351,7 @@ public class HairballWordsTest {
 	@Test
 	public void testVariableCompileTime() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ /: MYTEST MYVAR /V! :/ MYTEST MYVAR /V@ /.",out);
+		Hairball uut = setUp("/VARIABLE MYVAR /\" a literal string \"/ /: MYTEST MYVAR /V! :/ MYTEST MYVAR /V@ /.",out);
 		ParserContext ctx = uut.execute();
 		Stack<Object> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -324,7 +361,7 @@ public class HairballWordsTest {
 	@Test
 	public void testVariableFetch() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V! MYVAR /V@ /.",out);
+		Hairball uut = setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V! MYVAR /V@ /.",out);
 		ParserContext ctx = uut.execute();
 		Stack<Object> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -335,7 +372,7 @@ public class HairballWordsTest {
 	@Test
 	public void testStoreVariable()  throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V!",out);
+		Hairball uut = setUp("/VARIABLE MYVAR /\" a literal string \"/ MYVAR /V!",out);
 		ParserContext ctx = uut.execute();
 		Stack<Object> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -354,7 +391,7 @@ public class HairballWordsTest {
 	@Test
 	public void testHereStore() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/HERE!",out);
+		Hairball uut = setUp("/HERE!",out);
 
 		Stack<Object> pStack = uut.getParamStack();
 		LiteralToken literalToken = new LiteralToken("literal","this is a literal");
@@ -384,7 +421,7 @@ public class HairballWordsTest {
 	@Test
 	public void testStore() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/HERE! /!",out);
+		Hairball uut = setUp("/HERE! /!",out);
 
 		Stack<Object> pStack = uut.getParamStack();
 		LiteralToken l2 = new LiteralToken("another","another literal");
@@ -417,7 +454,7 @@ public class HairballWordsTest {
 	@Test
 	public void testExecute() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/EXECUTE",out);
+		Hairball uut = setUp("/EXECUTE",out);
 
 		Token token = new LiteralToken("42",42);
 		Stack<Object> pStack = uut.getParamStack();
@@ -432,7 +469,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDot() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/.",out);
+		Hairball uut = setUp("/.",out);
 		Stack<Object> pStack = uut.getParamStack();
 		String literal = "this is a literal";
 		pStack.push(literal);
@@ -449,7 +486,7 @@ public class HairballWordsTest {
 	@Test
 	public void testW() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/W stuff",out);
+		Hairball uut = setUp("/W stuff",out);
 		
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -465,7 +502,7 @@ public class HairballWordsTest {
 	@Test
 	public void testSpace() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/SPACE",out);
+		Hairball uut = setUp("/SPACE",out);
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -480,7 +517,7 @@ public class HairballWordsTest {
 	@Test
 	public void testCompileSpace()  throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: /EM /SPACE <em> :/ /: EM/ </em> :/ TEST /EM TEST EM/ TEST",out);
+		Hairball uut = setUp("/: /EM /SPACE <em> :/ /: EM/ </em> :/ TEST /EM TEST EM/ TEST",out);
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -495,7 +532,7 @@ public class HairballWordsTest {
 	@Test
 	public void testDotQuote() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/.\" some fun stuff \"/",out);
+		Hairball uut = setUp("/.\" some fun stuff \"/",out);
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -510,7 +547,7 @@ public class HairballWordsTest {
 	@Test
 	public void testColon() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: TEST some fun stuff :/\n",out);
+		Hairball uut = setUp("/: TEST some fun stuff :/\n",out);
 		
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -537,7 +574,7 @@ public class HairballWordsTest {
 //				+ " /: /EXAMPLE <code> /GETMATCHING EXAMPLE/ /. </code> :/";
 //				+ " /EXAMPLE fee fie foo fum EXAMPLE/";
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp(hb,out);
+		Hairball uut = setUp(hb,out);
 		Dictionary d = uut.getParser().getContext().getDictionary();
 		
 		uut.execute();
@@ -566,7 +603,7 @@ public class HairballWordsTest {
 	@Test
 	public void testAbort() {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/\" some words \"/ /ABORT",out);
+		Hairball uut = setUp("/\" some words \"/ /ABORT",out);
 		try {
 			uut.execute();
 			fail("must throw error");
@@ -582,7 +619,7 @@ public class HairballWordsTest {
 	@Test
 	public void doesHairballWork() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: /EM <em> :/\n"
+		Hairball uut = setUp("/: /EM <em> :/\n"
 				+ "/: EM/ </em> :/",out);
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -605,7 +642,7 @@ public class HairballWordsTest {
 	@Test
 	public void stuffThatBlowsUpForSomeReason() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
-		Hairball uut = WordUtilities.setUp("/: /DOCUMENT <HTML><HEAD><TITLE> /\" /. </TITLE> :/\n" +
+		Hairball uut = setUp("/: /DOCUMENT <HTML><HEAD><TITLE> /\" /. </TITLE> :/\n" +
 								"/: /BODY </HEAD><BODY> :/\n" +
 								"/: DOCUMENT/ </BODY></HTML> :/\n" +
 								"/DOCUMENT this is a test \"/\n" +

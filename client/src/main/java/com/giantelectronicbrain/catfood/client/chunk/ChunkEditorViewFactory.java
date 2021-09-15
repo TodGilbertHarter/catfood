@@ -20,6 +20,7 @@ import static com.giantelectronicbrain.catfood.client.fluent.Fluent.Div;
 
 import java.util.function.Consumer;
 
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.fluent.Att;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;

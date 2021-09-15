@@ -20,6 +20,7 @@ import com.github.nmorel.gwtjackson.client.JsonSerializationContext;
 import com.github.nmorel.gwtjackson.client.JsonSerializer;
 import com.github.nmorel.gwtjackson.client.JsonSerializerParameters;
 import com.github.nmorel.gwtjackson.client.stream.JsonWriter;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 
 /**
  * @author tharter

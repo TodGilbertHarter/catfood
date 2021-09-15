@@ -17,18 +17,15 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
-
-import io.vertx.core.Vertx;
-import io.vertx.core.file.FileSystem;
 
 /**
  * Define the core 'native' word set. These are mostly native words implemented
@@ -785,5 +782,29 @@ public class HairballVocabulary {
 			return true;
 		});
 		defList.add(new Definition(new Word("/VERSION"),compile,version));
+		
+		/* Create a Map<Object,Object> and put it on the stack */
+		Token makeMap = new NativeToken("makemap", (interpreter) -> {
+			var foo = new HashMap<Object,Object>();
+			interpreter.push(foo);
+			return true;
+		});
+		Token mapStore = new NativeToken("mapStore", (interpreter) -> {
+			var map = (Map<Object,Object>) interpreter.pop();
+			var key = (Object) interpreter.pop();
+			var value = (Object) interpreter.pop();
+			map.put(key, value);
+			return true;
+		});
+		Token mapFetch = new NativeToken("mapFetch", (interpreter) -> {
+			var map = (Map<Object,Object>) interpreter.pop();
+			var key = (Object) interpreter.pop();
+			var value = map.get(key);
+			interpreter.push(value);
+			return true;
+		});
+		defList.add(new Definition(new Word("/MAKEMAP"),compile,makeMap));
+		defList.add(new Definition(new Word("/MAP@"),compile,mapFetch));
+		defList.add(new Definition(new Word("/MAP!"),compile,mapStore));
 	}
 }

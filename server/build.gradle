@@ -36,7 +36,8 @@ buildscript {
 }
 
 plugins {
-  id "fr.brouillard.oss.gradle.jgitver" //version "0.10.0-rc03"
+	id "fr.brouillard.oss.gradle.jgitver" //version "0.10.0-rc03"
+	id "com.github.johnrengelman.shadow" version "6.0.0"
 }
 
 apply plugin: 'io.vertx.vertx-plugin'
@@ -58,9 +59,22 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+configurations {
+//	server
+//	all*.exclude group: 'ru.finam'
+	runtime.exclude group: 'ru.finam'
+}
+
 task copyDependencies(type: Copy) {
 	from configurations.compileOnly
 	into "$buildDir/dependencies"
+}
+
+test {
+//	useJUnitPlatform()
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 build.dependsOn(copyDependencies)
@@ -89,10 +103,13 @@ dependencies {
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.+'
 	implementation 'io.vertx:vertx-web'
 	implementation 'io.vertx:vertx-web-templ-freemarker'
-	implementation 'com.google.gwt:gwt-user:2.9.0'
+//	implementation 'com.google.gwt:gwt-user:2.9.0'
+//	implementation 'com.google.gwt:gwt-dev:2.9.0'
 	implementation 'com.orientechnologies:orientdb-jdbc:3.1.2'
 	implementation 'com.orientechnologies:orientdb-server:3.1.2'
-	implementation project(':client') //path: ':client', configuration: 'shadowJars')
+	implementation project(':client')
+//	server project(':client') //path: ':client', configuration: 'shadowJars')
+//	server 'org.projectlombok:lombok:1.18.20'
 	implementation project(':core')
 	implementation project(':buckets')
 //	implementation group: 'com.giantelectronicbrain', name: 'client', version: '0.0.1-SNAPSHOT', changing: true
@@ -100,6 +117,7 @@ dependencies {
     implementation 'io.vertx:vertx-web-templ-thymeleaf'
     implementation 'com.amazonaws:aws-java-sdk-s3'
     testImplementation 'io.vertx:vertx-unit:4.0.0'
+    compileOnly 'ru.finam:slf4j-gwt:1.7.7.1'
 }
 
 vertx {

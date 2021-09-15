@@ -24,6 +24,8 @@ import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.xhr.client.XMLHttpRequest;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 
 /**
  * Async store and fetch for Chunks. This should only need to be

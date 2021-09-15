@@ -109,14 +109,20 @@ public class Hairball {
 
 	static class ServerPlatform implements IPlatform {
 
-//		@Override
+		@Override
 		public boolean isClient() {
 			return false;
 		}
 
-//		@Override
+		@Override
 		public Logger getLogger(String name) {
 			return Logger.getLogger(name);
+		}
+
+		@Override
+		public String getVersion() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 	}

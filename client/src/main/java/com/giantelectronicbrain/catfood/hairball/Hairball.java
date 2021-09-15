@@ -18,10 +18,9 @@ package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
 import java.util.Stack;
-import java.util.logging.Logger;
 
+import com.giantelectronicbrain.catfood.client.GWTPlatform;
 import com.giantelectronicbrain.catfood.client.IPlatform;
-import com.google.gwt.core.shared.GwtIncompatible;
 
 /**
  * Hairball mainline. This gives us a stand-alone hairball parser/REPL and a class which can be instantiate to provide
@@ -31,51 +30,10 @@ import com.google.gwt.core.shared.GwtIncompatible;
  *
  */
 public class Hairball {
-	public static IPlatform PLATFORM = new ServerPlatform();
+	public static IPlatform PLATFORM = new GWTPlatform();
 	private final Dictionary rootDictionary = new Dictionary("root");
-//	private WordStream wordStream;
 	private final Parser parser;
 	private final Interpreter interpreter;
-
-	@GwtIncompatible
-	public static void main(String[] args) throws IOException, HairballException {
-		WordStream wordStream = makeWordStream(args);
-		Output output = makeOutput(args);
-		Hairball hairball = new Hairball(wordStream,output);
-		hairball.execute();
-	}
-	
-	static class ServerPlatform implements IPlatform {
-
-		@Override
-		public boolean isClient() {
-			return false;
-		}
-
-		@Override
-		public Logger getLogger(String name) {
-			return Logger.getLogger(name);
-		}
-		
-	}
-	
-	/**
-	 * @param args
-	 * @return
-	 */
-	@GwtIncompatible
-	private static Output makeOutput(String[] args) {
-		return new ConsoleOutput();
-	}
-
-	/**
-	 * @param args
-	 * @return
-	 */
-	@GwtIncompatible
-	private static WordStream makeWordStream(String[] args) {
-		return new ConsoleWordStream("\n>");
-	}
 
 	public Hairball(WordStream wordStream, Output output) {
 		this();

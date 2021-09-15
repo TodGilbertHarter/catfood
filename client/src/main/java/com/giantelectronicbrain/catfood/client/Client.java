@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkController;
-import com.giantelectronicbrain.catfood.client.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
 import com.giantelectronicbrain.catfood.client.dialog.Dialog;
 import com.giantelectronicbrain.catfood.client.facility.Component;

@@ -34,7 +34,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
-import com.giantelectronicbrain.catfood.client.IClient;
+import com.giantelectronicbrain.catfood.IClient;
+import com.giantelectronicbrain.catfood.client.Client;
 import com.giantelectronicbrain.catfood.figwheely.FigWheelyServer;
 
 import io.vertx.core.Context;
@@ -51,7 +52,8 @@ import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 public class GWTCompiler {
 	private final static Logger log = LoggerFactory.getLogger(GWTCompiler.class);
 
-	private Class<?> classs;
+//	private Class<?> classs;
+	private String classs;
 	private boolean debug;
 	private boolean withHtml;
 
@@ -76,9 +78,13 @@ public class GWTCompiler {
 
 	static {
 		librariesGwt = new ArrayList<>();
-		librariesGwt.add("live.connector.vertxui.Vertxui");
+//		librariesGwt.add("live.connector.vertxui.Vertxui");
+		librariesGwt.add("com.github.nmorel.gwtjackson.GwtJackson");
 		librariesGwt.add("com.google.gwt.logging.Logging");
+		librariesGwt.add("ru.finam.slf4jgwt.logging.gwt.Logging");
+		librariesGwt.add("ru.finam.slf4jgwt.api.API");
 		librariesGwt.add("com.giantelectronicbrain.catfood.hairball");
+		librariesGwt.add("com.giantelectronicbrain.catfood");
 //		librariesGwt.add("commonmark");
 	}
 
@@ -119,7 +125,8 @@ public class GWTCompiler {
 		folderBuild = targetFolder;
 	}
 
-	private GWTCompiler(Class<?> classs, boolean debug, boolean withHtml) {
+//	private GWTCompiler(Class<?> classs, boolean debug, boolean withHtml) {
+	private GWTCompiler(String classs, boolean debug, boolean withHtml) {
 		this.classs = classs;
 		this.debug = debug;
 		this.withHtml = withHtml;
@@ -155,14 +162,15 @@ public class GWTCompiler {
 	 *            with a generated .html file or not (advisable)
 	 * @return the static file handler.
 	 */
-	public static Handler<RoutingContext> with(IClient iClient, String urlWithoutAsterix, boolean debug,
+	public static Handler<RoutingContext> with(String iClient, String urlWithoutAsterix, boolean debug,
 			boolean withHtml, Vertx vertx) {
 
-		Class<? extends IClient> classs = iClient.getClass();
+//		Class<? extends IClient> classs = iClient.getClass();
 		
 		// Look for a sourcefolder. If none, we are in production so we don't do
 		// anything at all.
-		String clientFile = classs.getName().replace(".", "/") + ".java";
+//		String clientFile = classs.getName().replace(".", "/") + ".java";
+		String clientFile = iClient.replace(".", "/") + ".java";
 		Stream.of("src", "src/main", "src/main/java", "src/test", "src/test/java", folderSource).forEach(location -> {
 			if (location != null && new File(location + "/" + clientFile).exists()) {
 				folderSource = location;
@@ -177,10 +185,11 @@ public class GWTCompiler {
 			}
 			log.info("Production mode: all OK, no source folder found, not translating from java to javascript.");
 		} else { // inside IDE
-			GWTCompiler translated = new GWTCompiler(classs, debug, withHtml);
+			GWTCompiler translated = new GWTCompiler(iClient, debug, withHtml);
 
 			if (FigWheelyServer.started) {
-				String clientFolder = (folderSource + "/" + classs.getName()).replace(".", "/");
+//				String clientFolder = (folderSource + "/" + classs.getName()).replace(".", "/");
+				String clientFolder = (folderSource + "/" + iClient).replace(".", "/");
 				clientFolder = clientFolder.substring(0, clientFolder.lastIndexOf("client") + 6);
 				FigWheelyServer.addWatchable(urlWithoutAsterix + "a/a.nocache.js", clientFolder, translated);
 			}
@@ -194,7 +203,7 @@ public class GWTCompiler {
 		}
 	}
 
-	private static Handler<RoutingContext> createTemplateHandler(Vertx vertx, IClient iClient) {
+	private static Handler<RoutingContext> createTemplateHandler(Vertx vertx, String iClient) {
 		ThymeleafTemplateEngine engine = ThymeleafTemplateEngine.create(vertx);
 		engine.setMode(TemplateMode.HTML);
 		TemplateEngine tEngine = engine.getThymeleafTemplateEngine();
@@ -205,7 +214,7 @@ public class GWTCompiler {
 		tEngine.setTemplateResolver(resolver);
 		TemplateHandler handler = TemplateHandler.create(engine);
 		return (r) -> { 
-			r.put("catfoodclient", iClient);
+			r.put("catfoodclient", new Client());
 			handler.handle(r); 
 		};
 	}
@@ -244,7 +253,7 @@ public class GWTCompiler {
 		}
 
 		// Write the .gml.xml file
-		String className = classs.getName();
+		String className = classs; //.getName();
 //		final String xmlFile = "gwtTemp";
 		final String xmlFile = "a";
 		// as path: the "client" package in the name of the classpath of the
@@ -299,9 +308,10 @@ public class GWTCompiler {
 				? (System.getProperty("java.class.path").contains(";") ? ";" : ":")
 				: System.getenv("path.separator");
 		String classpath = System.getProperty("java.class.path");
-		String lombokPath = new File(classpath).getAbsoluteFile().getParent() + "/lombok-1.18.12.jar";
+		String lombokPath = new File(classpath).getAbsoluteFile().getParent() + "/lombok-1.18.20.jar";
+		String ru_finamPath = new File(classpath).getAbsoluteFile().getParent() + "/slf4j-gwt-1.7.7.1.jar";
 //		classpath = '"' + separator + classpath + separator + new File(folderSource).getAbsolutePath()  + separator + '"';
-		classpath = '"' + separator + lombokPath + separator + classpath + separator + new File(folderSource).getAbsolutePath()  + separator + '"';
+		classpath = '"' + separator + ru_finamPath + separator + lombokPath + separator + classpath + separator + new File(folderSource).getAbsolutePath()  + separator + '"';
 		log.debug("Classpath = {}", classpath);
 
 		// Check whether the classpath contains gwt
@@ -314,7 +324,7 @@ public class GWTCompiler {
 		// Run GWT
 		try {
 //			String commandline = "java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
-//			String commandline = "java -javaagent:/home/tharter/projects/catfood/gitvui/build/catfood/lib/lombok-1.18.12.jar=ECJ -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
+//			String commandline = "java -javaagent:/home/tharter/projects/catfood/gitvui/build/catfood/lib/lombok-1.18.20.jar=ECJ -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
 			String commandline = "java -javaagent:"+lombokPath+"=ECJ -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
 			log.debug("Starting GWT with commandline: {}",commandline);
 			Process process = Runtime.getRuntime().exec(commandline);
@@ -440,7 +450,7 @@ public class GWTCompiler {
 		}
 		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><meta charset=\"" + charset + "\">");
 		try {
-			Method getScripts = classs.getDeclaredMethod("getScripts");
+			Method getScripts = Client.class.getDeclaredMethod("getScripts");
 			for (String script : (ArrayList<String>) getScripts.invoke(null, (Object[]) null)) {
 				html.append("<script src='");
 				html.append(script);
@@ -454,7 +464,7 @@ public class GWTCompiler {
 			throw new IllegalArgumentException("Could not access public static ArrayList<String> getScripts()", e);
 		}
 		try {
-			Method getCss = classs.getDeclaredMethod("getCss");
+			Method getCss = Client.class.getDeclaredMethod("getCss");
 			for (String css : (ArrayList<String>) getCss.invoke(null, (Object[]) null)) {
 				html.append("<link rel=stylesheet href='");
 				html.append(css);

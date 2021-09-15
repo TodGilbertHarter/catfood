@@ -19,8 +19,8 @@ package com.giantelectronicbrain.catfood.client.chunk.syntax.markdown;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.Syntax;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.SyntaxRegistry;
 

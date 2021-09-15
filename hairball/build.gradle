@@ -111,6 +111,7 @@ dependencies {
 //	testRuntime files('src/main/java')
 	testImplementation 'junit:junit:4.12'
 	implementation 'io.vertx:vertx-core:4.0.3'
+	implementation project(':hairball_core')
 	implementation project(':buckets')
     implementation project(':core')
 }

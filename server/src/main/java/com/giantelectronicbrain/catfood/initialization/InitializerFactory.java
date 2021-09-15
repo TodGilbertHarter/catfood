@@ -145,7 +145,9 @@ public class InitializerFactory {
 		String assetStoreType = config.getProperty(ASSET_STORE_TYPE, IAssetStore.STORE_TYPE_FS);
 		IAssetStore assetStore = null;
 		if(IAssetStore.STORE_TYPE_FS.equals(assetStoreType)) {
+System.out.println("WHAT THE FUCK, DID WE GET HERE????");
 			String basePath = config.getProperty(ASSET_STORE_LOCATION);
+			initializerInstance.set(ASSET_STORE_LOCATION, basePath);
 			assetStore = new FSAssetStore(basePath,fileSystem);
 			initializerInstance.set(ASSET_STORE, assetStore);
 		} else if(IAssetStore.STORE_TYPE_S3.equals(assetStoreType)){

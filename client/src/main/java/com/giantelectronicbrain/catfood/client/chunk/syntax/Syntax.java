@@ -16,7 +16,7 @@
 */
 package com.giantelectronicbrain.catfood.client.chunk.syntax;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 
 /**
  * @author tharter

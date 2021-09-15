@@ -22,8 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.client.Client;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.Syntax;
 import com.giantelectronicbrain.catfood.client.chunk.syntax.SyntaxRegistry;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;

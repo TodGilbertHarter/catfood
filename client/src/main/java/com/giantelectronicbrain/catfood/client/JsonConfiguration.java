@@ -16,7 +16,7 @@
 */
 package com.giantelectronicbrain.catfood.client;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkDeserializer;
 import com.giantelectronicbrain.catfood.client.chunk.ChunkSerializer;
 import com.github.nmorel.gwtjackson.client.AbstractConfiguration;

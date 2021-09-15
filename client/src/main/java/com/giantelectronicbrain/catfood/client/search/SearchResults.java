@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.client.Client;
 import com.giantelectronicbrain.catfood.client.Router;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.chunk.Repository;
 import com.giantelectronicbrain.catfood.client.facility.Signal;
 import com.giantelectronicbrain.catfood.client.facility.SignalBroker;

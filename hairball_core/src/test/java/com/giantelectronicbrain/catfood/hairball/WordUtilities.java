@@ -16,19 +16,10 @@
 */
 package com.giantelectronicbrain.catfood.hairball;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringBufferInputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.giantelectronicbrain.catfood.IPlatform;
-
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.file.FileSystem;
 
 /**
  * This is general code which is going to be used in various places to test

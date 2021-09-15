@@ -17,7 +17,7 @@
 package com.giantelectronicbrain.catfood.client.search;
 
 import com.giantelectronicbrain.catfood.client.Router;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 
 import elemental2.dom.Event;

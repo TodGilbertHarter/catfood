@@ -16,7 +16,9 @@
 */
 package com.giantelectronicbrain.catfood.client.chunk;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 import com.github.nmorel.gwtjackson.client.JsonDeserializationContext;
 import com.github.nmorel.gwtjackson.client.JsonDeserializer;
 import com.github.nmorel.gwtjackson.client.JsonDeserializerParameters;

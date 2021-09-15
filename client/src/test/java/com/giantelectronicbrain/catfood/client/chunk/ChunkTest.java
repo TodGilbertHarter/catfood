@@ -19,7 +19,9 @@ package com.giantelectronicbrain.catfood.client.chunk;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;

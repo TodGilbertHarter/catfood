@@ -38,7 +38,8 @@ public class FSAssetStore implements IAssetStore {
 	private final FsBucketDriverImpl bucketDriver;
 
 	public FSAssetStore(String basePath, FileSystem fileSystem) {
-		bucketDriver = FsBucketDriverImpl.builder().basePath(basePath).fileSystem(fileSystem).build();
+//		bucketDriver = FsBucketDriverImpl.builder().basePath(basePath).fileSystem(fileSystem).build();
+		bucketDriver = FsBucketDriverImpl.builder().fileSystem(fileSystem).build();
 	}
 	
 	private IBucketName getBucketName() {

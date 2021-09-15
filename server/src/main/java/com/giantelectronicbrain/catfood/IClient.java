@@ -14,33 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.client.chunk.syntax.html;
+package com.giantelectronicbrain.catfood;
 
-import com.giantelectronicbrain.catfood.chunk.Chunk;
-import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
-import com.giantelectronicbrain.catfood.client.chunk.syntax.Syntax;
-import com.giantelectronicbrain.catfood.client.chunk.syntax.SyntaxRegistry;
+import java.util.List;
 
 /**
- * Markdown syntax handler. This one attempts to use markdown-it, but it doesn't really work...
+ * Interface which represents the client application. 
  * 
  * @author tharter
  *
  */
-public class Html implements Syntax {
+public interface IClient {
 
-	public Html() {
-	}
+	public List<String> getScripts();
 	
-	@Override
-	public String generateHTML(Chunk chunk) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<h1>");
-		sb.append(chunk.getName());
-		sb.append("</h1>");
-		sb.append("<div>");
-		sb.append(chunk.getContent());
-		sb.append("</div>");
-		return sb.toString();
-	}
+	public List<String> getCss();
+	
+	public String getApplicationTitle();
+	
 }

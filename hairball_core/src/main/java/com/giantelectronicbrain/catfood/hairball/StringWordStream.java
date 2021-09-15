@@ -19,7 +19,6 @@ package com.giantelectronicbrain.catfood.hairball;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  *
  */
 public class StringWordStream implements IWordStream {
-	private static final Logger log = Hairball.PLATFORM.getLogger(StringWordStream.class.getName());
+//	private static final Logger log = Hairball.PLATFORM.getLogger(StringWordStream.class.getName());
 
 	private String input = "";
 	private TokenScanner inputScanner;
@@ -149,7 +148,7 @@ public class StringWordStream implements IWordStream {
 				buff.append(ch);
 				ch = read();
 			}
-			log.log(Level.FINEST, "got to end of line, returning");
+//			log.log(Level.FINEST, "got to end of line, returning");
 			return isThereData ? buff.toString() : null;
 		}
 		
@@ -172,18 +171,18 @@ public class StringWordStream implements IWordStream {
 	}
 	
 	private String getNext() throws IOException {
-		log.log(Level.FINEST, "Entering getNext");
+//		log.log(Level.FINEST, "Entering getNext");
 		if(inputScanner.hasNext()) {
-			log.log(Level.FINEST,"input is ready, getting another word");
+//			log.log(Level.FINEST,"input is ready, getting another word");
 			return inputScanner.next();
 		} else {
-			log.log(Level.FINEST, "getting another line");
+//			log.log(Level.FINEST, "getting another line");
 			input = readLine(reader);
 			if(input != null) {
-				log.log(Level.FINEST, "new line is not null, scanning");
+//				log.log(Level.FINEST, "new line is not null, scanning");
 				inputScanner = new TokenScanner(input);
 				if(inputScanner.hasNext()) {
-					log.log(Level.FINEST, "getting a new word from the new line");
+//					log.log(Level.FINEST, "getting a new word from the new line");
 					return inputScanner.next();
 				}
 				return "\n\n"; // we got double returns, which is a special token for us
@@ -202,14 +201,14 @@ public class StringWordStream implements IWordStream {
 	 */
 	private String readLine(Reader reader) throws IOException {
 		boolean isThereData = false;
-		log.log(Level.FINEST,"Entering readLine");
+//		log.log(Level.FINEST,"Entering readLine");
 		StringBuffer buff = new StringBuffer();
 		char ch = (char) reader.read();
 		while(ch != Character.valueOf((char)-1)) {
 			isThereData = true;
 			buff.append(ch);
 			if(ch == '\n') {
-				log.log(Level.FINEST,"got a newline, returning data");
+//				log.log(Level.FINEST,"got a newline, returning data");
 				lineNumber++;
 				return buff.toString();
 			}

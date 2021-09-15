@@ -17,7 +17,9 @@
 package com.giantelectronicbrain.catfood.client.chunk;
 
 import com.giantelectronicbrain.catfood.client.Router;
-import com.giantelectronicbrain.catfood.client.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.Chunk;
+import com.giantelectronicbrain.catfood.chunk.Chunk.Language;
+import com.giantelectronicbrain.catfood.chunk.ChunkId;
 import com.giantelectronicbrain.catfood.client.facility.Facility;
 import com.giantelectronicbrain.catfood.client.fluent.Fluent;
 import com.giantelectronicbrain.catfood.client.fluent.ViewOn;
