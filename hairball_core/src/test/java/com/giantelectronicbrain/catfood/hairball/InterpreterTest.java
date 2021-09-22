@@ -26,6 +26,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.giantelectronicbrain.catfood.hairball.WordUtilities.TestPlatform;
+
 /**
  * Test the hairball inner interpreter.
  * 
@@ -45,6 +47,7 @@ public class InterpreterTest {
 	
 	@Before
 	public void setUp() {
+		Hairball.PLATFORM = new TestPlatform();
 		lastExecuted = -1;
 		this.uut = new Interpreter();
 		

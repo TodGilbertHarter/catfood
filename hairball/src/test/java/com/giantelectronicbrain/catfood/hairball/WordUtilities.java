@@ -44,12 +44,12 @@ public class WordUtilities {
 	 * @param inputData
 	 * @return
 	 */
-	public static Hairball setUp(String inputData, OutputStream out) {
+	public static StandAloneHairball setUp(String inputData, OutputStream out) {
 		InputStream in = new StringBufferInputStream(inputData);
 //		OutputStream out = new ByteArrayOutputStream();
 		Output output = new StreamOutput(out);
 		IWordStream input = new BufferedWordStream(in);
-		return new Hairball(input, output);
+		return new StandAloneHairball(input, output);
 	}
 
 	public static BucketWordStream bucketSetUp(Vertx vertx, String input) {
@@ -62,10 +62,10 @@ public class WordUtilities {
 		return new BucketWordStream(fs, fname, "/tmp");
 	}
 	
-	public static Hairball bucketSetUpHairball(Vertx vertx, String inputData, OutputStream out) {
+	public static StandAloneHairball bucketSetUpHairball(Vertx vertx, String inputData, OutputStream out) {
 		IWordStream input = bucketSetUp(vertx, inputData);
 		Output output = new StreamOutput(out);
-		return new Hairball(input, output);
+		return new StandAloneHairball(input, output);
 	}
 
 	public static String makeBucket(FileSystem fs, String input) {
@@ -86,10 +86,10 @@ public class WordUtilities {
 		return new FileCollectionWordStream(vertx,"/tmp",arglebargle);
 	}
 
-	public static Hairball FileCollectionSetUpHairball(Vertx vertx, String[] inputs, OutputStream out) {
+	public static StandAloneHairball FileCollectionSetUpHairball(Vertx vertx, String[] inputs, OutputStream out) {
 		IWordStream input = setUp(vertx,inputs);
 		Output output = new StreamOutput(out);
-		return new Hairball(input, output);
+		return new StandAloneHairball(input, output);
 		
 	}
 }

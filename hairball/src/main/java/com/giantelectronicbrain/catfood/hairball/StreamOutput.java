@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  *
  */
 public class StreamOutput implements Output {
-	private static final Logger log = Hairball.PLATFORM.getLogger(StreamOutput.class.getName());
+	private static final Logger log = StandAloneHairball.PLATFORM.getLogger(StreamOutput.class.getName());
 
 	OutputStream out;
 	

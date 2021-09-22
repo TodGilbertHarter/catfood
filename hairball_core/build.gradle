@@ -35,13 +35,14 @@ buildscript {
 
 plugins {
 	id "fr.brouillard.oss.gradle.jgitver" //version "0.10.0-rc03"
-	id "com.github.johnrengelman.shadow" version "7.0.0"
+//	id "com.github.johnrengelman.shadow" version "7.0.0"
 	id 'maven-publish'
 }
 
 apply plugin: 'eclipse'
-apply plugin: 'java'
-apply plugin: 'application'
+//apply plugin: 'java'
+apply plugin: 'java-library'
+//apply plugin: 'application'
 
 group = 'com.giantelectronicbrain'
 def implVersion = version.toString().substring(0,version.toString().indexOf('-'));
@@ -51,13 +52,8 @@ targetCompatibility = JavaVersion.VERSION_11
 
 String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.04-tgh'
 
-mainClassName = 'com.giantelectronicbrain.catfood.hairball.Hairball'
+//mainClassName = 'com.giantelectronicbrain.catfood.hairball.Hairball'
 
-test {
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}
 //application {
 //    mainClass = 'com.giantelectronicbrain.catfood.hairball.Hairball'
 //}
@@ -69,9 +65,13 @@ jar {
 	}
 	
 test {
-	testLogging.showStandardStreams = true
+	testLogging {
+		showStandardStreams = true
+		exceptionFormat = 'full'
+	}
 	systemProperty 'gwt.args', "-logdir build -deploy $buildDir/gwt/deploy -extra $buildDir/gwt/extra -workDir $buildDir/gwt/ -war $buildDir/gwt/war"
-	onOutput { descriptor, event ->
+	onOutput { 
+		descriptor, event ->
 		logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
 	}
 	

@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 public abstract class WordStream implements IWordStream {
 
-	private static final Logger log = Hairball.PLATFORM.getLogger(WordStream.class.getName());
+	private static final Logger log = StandAloneHairball.PLATFORM.getLogger(WordStream.class.getName());
 
 	private String input = "";
 	private Scanner inputScanner;

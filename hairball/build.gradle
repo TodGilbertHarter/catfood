@@ -49,9 +49,9 @@ def implVersion = version.toString().substring(0,version.toString().indexOf('-')
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.04-tgh'
+//String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property('vertxUIVersion') : '1.04-tgh'
 
-mainClassName = 'com.giantelectronicbrain.catfood.hairball.Hairball'
+mainClassName = 'com.giantelectronicbrain.catfood.hairball.StandAloneHairball'
 
 //application {
 //    mainClass = 'com.giantelectronicbrain.catfood.hairball.Hairball'
@@ -114,6 +114,7 @@ dependencies {
 	implementation project(':hairball_core')
 	implementation project(':buckets')
     implementation project(':core')
+    implementation 'org.apache.pdfbox:pdfbox:2.0.4'
 }
 
 task buildDocs(type: Exec) {

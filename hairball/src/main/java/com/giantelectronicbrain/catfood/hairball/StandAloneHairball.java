@@ -38,7 +38,7 @@ import io.vertx.core.Vertx;
  * @author tharter
  *
  */
-public class Hairball {
+public class StandAloneHairball {
 	public static ServerPlatform PLATFORM = new ServerPlatform();
 	private final Dictionary rootDictionary = new Dictionary("root");
 	private final Parser parser;
@@ -60,7 +60,7 @@ public class Hairball {
 			for(int i = 0; i < loopCount; i++) {
 				IWordStream wordStream = makeWordStream(vertx, argList, configuration);
 				Output output = makeOutput(configuration);
-				Hairball hairball = new Hairball(wordStream,output);
+				StandAloneHairball hairball = new StandAloneHairball(wordStream,output);
 				hairball.execute();
 			}
 			long endingTime = System.currentTimeMillis();
@@ -84,7 +84,7 @@ public class Hairball {
 	 * @return Hairball version string
 	 */
 	private static String getVersion() {
-		Package aPackage = Hairball.class.getPackage();
+		Package aPackage = StandAloneHairball.class.getPackage();
 		return aPackage.getImplementationVersion();
 	}
 
@@ -163,7 +163,7 @@ public class Hairball {
 	 * @param wordStream IWordStream where input comes from
 	 * @param output Output where we send output.
 	 */
-	public Hairball(IWordStream wordStream, Output output) {
+	public StandAloneHairball(IWordStream wordStream, Output output) {
 		this();
 		setIO(wordStream, output);
 	}
@@ -172,8 +172,8 @@ public class Hairball {
 	 * Create a Hairball instance. This doesn't have any associated output stream or
 	 * input IWordStream. Those will have to be supplied by a call to setIO.
 	 */
-	public Hairball() {
-		IVocabulary hbVocab = HairballVocabulary.create();
+	public StandAloneHairball() {
+		IVocabulary hbVocab = ExtendHairballVocabulary.create();
 		rootDictionary.add(hbVocab);
 		interpreter = new Interpreter();
 		parser = new Parser();

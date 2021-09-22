@@ -1,5 +1,5 @@
 /**
- * This software is Copyright (C) 2020 Tod G. Harter. All rights reserved.
+ * This software is Copyright (C) 2021 Tod G. Harter. All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,29 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.giantelectronicbrain.catfood.hairball;
+package com.giantelectronicbrain.catfood.hairball.tokens;
 
-import java.io.IOException;
+import com.giantelectronicbrain.catfood.hairball.HairballException;
+import com.giantelectronicbrain.catfood.hairball.Interpreter;
+import com.giantelectronicbrain.catfood.hairball.Token;
 
 /**
- * This is a 'black hole' output. It is good for things like setting up an interpreter
- * by reading some preliminary startup code who's output you don't want to keep.
- * 
+ * Drop the TOS
+ *
  * @author tharter
  *
  */
-public class NullOutput implements Output {
-
+public class Drop implements Token {
+	public static final Drop INSTANCE = new Drop();
+	
 	@Override
-	public void space() throws IOException {
+	public boolean execute(Interpreter interpreter) throws HairballException {
+		interpreter.pop();
+		return true;
 	}
 
 	@Override
-	public void emit(String output) throws IOException {
-	}
-
-	@Override
-	public void close() throws IOException {
+	public String getName() {
+		return "Drop";
 	}
 
 }

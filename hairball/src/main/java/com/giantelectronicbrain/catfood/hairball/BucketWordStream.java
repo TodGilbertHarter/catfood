@@ -47,7 +47,7 @@ import io.vertx.core.streams.ReadStream;
  * 
  */
 public class BucketWordStream extends WordStream {
-	private static final Logger log = Hairball.PLATFORM.getLogger(BucketWordStream.class.getName());
+	private static final Logger log = StandAloneHairball.PLATFORM.getLogger(BucketWordStream.class.getName());
 
 	private final FileSystem fileSystem;
 	private final String objectName;

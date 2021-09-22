@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import com.giantelectronicbrain.catfood.hairball.tokens.Compile;
+import com.giantelectronicbrain.catfood.hairball.tokens.Drop;
+
 /**
  * Define the core 'native' word set. These are mostly native words implemented
  * in Java. This is the minimal word set needed to have a functional
@@ -36,53 +39,6 @@ import java.util.Stack;
  *
  */
 public class HairballVocabulary {
-	
-	/**
-	 * This is used to hold information on where in the input the interpreter
-	 * is at a given time. It can be used to generate error messages, etc.
-	 * 
-	 * @author tharter
-	 *
-	 */
-	private static class ParserLocation {
-		final String source;
-		final int column;
-		final int line;
-		
-		/**
-		 * Create a parser location.
-		 * 
-		 * @param source
-		 * @param line
-		 * @param column
-		 */
-		public ParserLocation(String source, int line, int column) {
-			this.source = source;
-			this.line = line;
-			this.column = column;
-		}
-		
-		/**
-		 * Create a parser location with the values taken from the given IWordStream.
-		 * 
-		 * @param wordStream The IWordStream to get the location from.
-		 */
-		public ParserLocation(IWordStream wordStream) {
-			this(wordStream.getSource(),wordStream.getLine(),wordStream.getColumn());
-		}
-		
-		/**
-		 * Make an error message indicating source and location of an error in hairball source.
-		 * 
-		 * @param eMsg the actual error
-		 * @param wordStream stream being parsed when it happened
-		 * @return complete message
-		 */
-		private String makeErrorMessage(String eMsg) {
-			return eMsg + " in "+this.source+" at line "+this.line+", column "+this.column;
-		}
-
-	}
 	
 	/**
 	 * Static factory to create the one and only needed instance of this class.
@@ -104,22 +60,7 @@ public class HairballVocabulary {
 	 */
 	private static final List<Definition> defList = new ArrayList<>();
 	static {
-		/**
-		 * Default compile time behavior for words, take the runtime
-		 * behavior token and insert it into the current definition's
-		 * token list. Which list that will be is determined by the
-		 * mode, DOER or DOES.
-		 * 
-		 * Note that there is no actual Hairball definition for this, it
-		 * is effectively how compiling mode does its job and could be thought
-		 * of as the compile time behavior of the parser.
-		 */
-		Token compile = new NativeToken("compile",(interpreter) -> {
-				Definition ourDef = (Definition) interpreter.pop();
-				Token rtoken = ourDef.getRunTime();
-				interpreter.getParserContext().getDictionary().addToken(rtoken);
-				return true;
-			});
+		Token compile = Compile.INSTANCE;
 
 		/**
 		 * Compile the token on the top of the stack. this simply adds the token to the
@@ -231,15 +172,12 @@ public class HairballVocabulary {
 			interpreter.push(sdepth);
 			return true;
 		});
-		defList.add(new Definition(new Word("depth"),compile,depth));
+		defList.add(new Definition(new Word("/DEPTH"),compile,depth));
 		/**
 		 * Drop the TOS.
 		 */
-		Token drop = new NativeToken("drop",(interpreter) -> {
-				interpreter.pop();
-				return true;
-			});
-		defList.add(new Definition(new Word("/DROP"),compile,drop));
+		Token drop = Drop.INSTANCE;
+		defList.add(new Definition(new Word("/DROP"),Compile.INSTANCE,Drop.INSTANCE));
 		/**
 		 * Duplicate the TOS		
 		 */
@@ -806,5 +744,21 @@ public class HairballVocabulary {
 		defList.add(new Definition(new Word("/MAKEMAP"),compile,makeMap));
 		defList.add(new Definition(new Word("/MAP@"),compile,mapFetch));
 		defList.add(new Definition(new Word("/MAP!"),compile,mapStore));
+		
+		Token onePlus = new NativeToken("oneplus", (interpreter) -> {
+			var value = (int) interpreter.pop();
+			value = value + 1;
+			interpreter.push(value);
+			return true;
+		});
+		defList.add(new Definition(new Word("/1+"),compile,onePlus));
+		
+		Token setEmit = new NativeToken("setemit",(interpreter) -> {
+			Parser parser = interpreter.getParserContext().getParser();
+			Token newEmitter = (Token) interpreter.pop();
+			parser.setEmit(newEmitter);
+			return true;
+		});
+		defList.add(new Definition(new Word("/SETEMITTER"),compile,setEmit));
 	}
 }

@@ -46,7 +46,7 @@ public class BucketWordsTest {
 	Vertx vertx;
 	OutputStream out;
 	
-	public Hairball setUp(String input) {
+	public StandAloneHairball setUp(String input) {
 		vertx = Vertx.vertx();
 		out = new ByteArrayOutputStream();
 		return WordUtilities.bucketSetUpHairball(vertx, input, out);
@@ -58,7 +58,7 @@ public class BucketWordsTest {
 	 * TODO: fix this!
 	 */
 	public void testSource() throws IOException, HairballException {
-		Hairball uut  = setUp("/SOURCE\" src/test/resources/test_source.hairball \"/ ");
+		StandAloneHairball uut  = setUp("/SOURCE\" src/test/resources/test_source.hairball \"/ ");
 		ParserContext ctx = uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -73,7 +73,7 @@ public class BucketWordsTest {
 
 	@Test
 	public void testNoop() throws IOException, HairballException {
-		Hairball uut = setUp("//");
+		StandAloneHairball uut = setUp("//");
 		ParserContext ctx = uut.execute();
 		Stack<?> pStack = uut.getParamStack();
 		assertEquals(0,pStack.size());
@@ -88,7 +88,7 @@ public class BucketWordsTest {
 
 	@Test
 	public void testQuoteSlashInterpreted() throws IOException, HairballException {
-		Hairball uut = setUp("/\" this is some text \"/ /.");
+		StandAloneHairball uut = setUp("/\" this is some text \"/ /.");
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
@@ -96,7 +96,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testQuoteSlashCompiled() throws IOException, HairballException {
-		Hairball uut = setUp("/: QW /\" /. :/ QW this is some text \"/");
+		StandAloneHairball uut = setUp("/: QW /\" /. :/ QW this is some text \"/");
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
@@ -104,7 +104,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testHereStore() throws IOException, HairballException {
-		Hairball uut = setUp("/HERE!");
+		StandAloneHairball uut = setUp("/HERE!");
 
 		Stack<Object> pStack = uut.getParamStack();
 		LiteralToken literalToken = new LiteralToken("literal","this is a literal");
@@ -133,7 +133,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testStore() throws IOException, HairballException {
-		Hairball uut = setUp("/HERE! /!");
+		StandAloneHairball uut = setUp("/HERE! /!");
 
 		Stack<Object> pStack = uut.getParamStack();
 		LiteralToken l2 = new LiteralToken("another","another literal");
@@ -165,7 +165,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testExecute() throws IOException, HairballException {
-		Hairball uut = setUp("/EXECUTE");
+		StandAloneHairball uut = setUp("/EXECUTE");
 
 		Token token = new LiteralToken("42",42);
 		Stack<Object> pStack = uut.getParamStack();
@@ -179,7 +179,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testDot() throws IOException, HairballException {
-		Hairball uut = setUp("/.");
+		StandAloneHairball uut = setUp("/.");
 		Stack<Object> pStack = uut.getParamStack();
 		String literal = "this is a literal";
 		pStack.push(literal);
@@ -195,7 +195,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testW() throws IOException, HairballException {
-		Hairball uut = setUp("/W stuff");
+		StandAloneHairball uut = setUp("/W stuff");
 		
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -210,7 +210,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testSpace() throws IOException, HairballException {
-		Hairball uut = setUp("/SPACE");
+		StandAloneHairball uut = setUp("/SPACE");
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -224,7 +224,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testCompileSpace()  throws IOException, HairballException {
-		Hairball uut = setUp("/: /EM /SPACE <em> :/ /: EM/ </em> :/ TEST /EM TEST EM/ TEST");
+		StandAloneHairball uut = setUp("/: /EM /SPACE <em> :/ /: EM/ </em> :/ TEST /EM TEST EM/ TEST");
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -238,7 +238,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testDotQuote() throws IOException, HairballException {
-		Hairball uut = setUp("/.\" some fun stuff \"/");
+		StandAloneHairball uut = setUp("/.\" some fun stuff \"/");
 
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -252,7 +252,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testColon() throws IOException, HairballException {
-		Hairball uut = setUp("/: TEST some fun stuff :/\n");
+		StandAloneHairball uut = setUp("/: TEST some fun stuff :/\n");
 		
 		Stack<Object> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -273,7 +273,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void testAbort() {
-		Hairball uut = setUp("/\" some words \"/ /ABORT");
+		StandAloneHairball uut = setUp("/\" some words \"/ /ABORT");
 		try {
 			uut.execute();
 			fail("must throw error");
@@ -288,7 +288,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void doesHairballWork() throws IOException, HairballException {
-		Hairball uut = setUp("/: /EM <em> :/\n"
+		StandAloneHairball uut = setUp("/: /EM <em> :/\n"
 				+ "/: EM/ </em> :/");
 		Stack<?> pStack = uut.getParamStack();
 		ParserContext ctx = uut.execute();
@@ -311,7 +311,7 @@ public class BucketWordsTest {
 	
 	@Test
 	public void stuffThatBlowsUpForSomeReason() throws IOException, HairballException {
-		Hairball uut = setUp("/: /DOCUMENT <HTML><HEAD><TITLE> /\" /. </TITLE> :/\n" +
+		StandAloneHairball uut = setUp("/: /DOCUMENT <HTML><HEAD><TITLE> /\" /. </TITLE> :/\n" +
 								"/: /BODY </HEAD><BODY> :/\n" +
 								"/: DOCUMENT/ </BODY></HTML> :/\n" +
 								"/DOCUMENT this is a test \"/\n" +

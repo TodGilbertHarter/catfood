@@ -66,7 +66,7 @@ public class ParserTest {
 		out = new ByteArrayOutputStream();
 		Output output = new StreamOutput(out);
 		dict = new Dictionary("testdict");
-		IVocabulary hbVocab = HairballVocabulary.create();
+		IVocabulary hbVocab = ExtendHairballVocabulary.create();
 		dict.add(hbVocab);
 		nVocab = new Vocabulary("testvocab");
 		dict.add(nVocab);

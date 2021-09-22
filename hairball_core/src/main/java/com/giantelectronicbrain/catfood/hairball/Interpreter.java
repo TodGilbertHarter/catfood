@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  *
  */
 public class Interpreter {
-	private static final Logger log = Hairball.PLATFORM.getLogger(Interpreter.class.getName());
+	private static Logger log;
 
 	private final Stack<Object> parameterStack;
 	private final Stack<Object> returnStack;
@@ -63,6 +63,7 @@ public class Interpreter {
 	 * hairball program.
 	 */
 	public Interpreter() {
+		log = Hairball.PLATFORM.getLogger(Interpreter.class.getName());
 		this.parameterStack = new Stack<>();
 		this.returnStack = new Stack<>();
 	}

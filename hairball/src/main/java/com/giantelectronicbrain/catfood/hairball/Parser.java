@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.giantelectronicbrain.catfood.hairball.tokens.Drop;
+import com.giantelectronicbrain.catfood.hairball.tokens.Emit;
+
 /**
  * Hairball outer interpreter. The outer interpreter is responsible for interpreting
  * program input in a ParserContext and invoking the appropriate behaviors of
@@ -42,16 +45,35 @@ import java.util.logging.Logger;
  */
 
 public class Parser {
-	private static final Logger log = Hairball.PLATFORM.getLogger(Parser.class.getName());
+	private static final Logger log = StandAloneHairball.PLATFORM.getLogger(Parser.class.getName());
 
 	private boolean interpreting = true;
 	private ParserContext currentContext;
-	
+	private Token emit = Emit.INSTANCE;
+	private ParserBehavior parserBehavior = this::executeWord;
+		
 	public static interface ParserBehavior {
 		public abstract boolean handle(Word word) throws HairballException, IOException;
 	}
 	
-	private ParserBehavior parserBehavior = this::executeWord;
+	/**
+	 * Set the version of emit which is used by the parser to emit literals in
+	 * interpreting mode.
+	 * 
+	 * @param anEmitter a Token which, when executed, emits whatever is on the 
+	 * top of the stack. All it actually has to do is consume TOS.
+	 * 
+	 * @return the previous emit implementation for this parser.
+	 */
+	public Token setEmit(Token anEmitter) {
+		Token oldEmitter = this.emit;
+		this.emit = anEmitter;
+		return oldEmitter;
+	}
+	
+	public Token getEmit() {
+		return this.emit;
+	}
 	
 	/**
 	 * Create a parser with the given ParserContext.
@@ -171,15 +193,17 @@ public class Parser {
 	}
 	
 	private boolean isNumber(Word word) throws HairballException {
+		String value = word.getValue();
+		if(value.startsWith("#"))
+			try {
+				Integer v = Integer.valueOf(value.substring(1));
+				currentContext.getInterpreter().push(v);
+				flushLitAccum();
+				return true;
+			} catch(NumberFormatException e) {
+				return false;
+			}
 		return false;
-/*		try {
-			Integer v = Integer.valueOf(word.getValue());
-			currentContext.getInterpreter().push(v);
-			flushLitAccum();
-			return true;
-		} catch(NumberFormatException e) {
-			return false;
-		} */
 	}
 	
 	/**
@@ -225,19 +249,10 @@ public class Parser {
 				emit.execute(currentContext.getInterpreter());
 			} else {
 				currentContext.getDictionary().addToken(token);
-				currentContext.getDictionary().addToken(emit);
+				currentContext.getDictionary().addToken(Emit.INSTANCE); //TODO: shouldn't this be vectored too?
 			}
 		}
 	}
-	
-	private static final Token emit = new NativeToken("emit",(interpreter) -> {
-			try {
-				interpreter.getParserContext().getOutput().emit((String)interpreter.pop());
-			} catch (IOException e) {
-				throw new HairballException("Failed to write output",e);
-			}
-			return true;
-		});
 	
 	/**
 	 * Get the current parser context for this parser.
