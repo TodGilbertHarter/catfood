@@ -45,7 +45,7 @@ apply plugin: 'java-library'
 //apply plugin: 'application'
 
 group = 'com.giantelectronicbrain'
-def implVersion = version.toString().substring(0,version.toString().indexOf('-'));
+//def implVersion = version.toString().substring(0,version.toString().indexOf('-'));
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -60,7 +60,7 @@ String vertxUIVersion = project.hasProperty('vertxUIVersion') ? project.property
 
 jar {
 	manifest {
-		attributes 'Implementation-Version': implVersion
+		attributes 'Implementation-Version': project.ext.base_tag
 		}
 	}
 	
