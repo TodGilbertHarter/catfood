@@ -10,6 +10,7 @@
 /AUTHOR by<br/> Tod Harter /SPACE /.NOW AUTHOR/
 /COPYRIGHT Copyright &copy; 2021 Tod Harter All Rights reserved COPYRIGHT/
 HEADER/
+/SOURCE" toc.hairball "/
 /SOURCE" introduction.hairball "/
 /SOURCE" hairball_syntax.hairball "/
 /SOURCE" hairball_concepts.hairball "/

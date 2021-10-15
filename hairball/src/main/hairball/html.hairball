@@ -13,6 +13,10 @@ Hairball.
 
 // :/ /* Prevent spurious <p> tags. */
 
+/VARIABLE /CURRENTID 
+#0 /CURRENTID /V!
+/: /ID /SPACE /CURRENTID /V@ /1+ /CURRENTID /V! id=" /CURRENTID /V@ /. " :/
+
 /: /P <p> :/
 /: P/ </p> :/
 /: /DOCUMENT" <html><head><title> /" /. </title> :/
@@ -26,7 +30,7 @@ Hairball.
 /: /STYLES" <link rel="stylesheet" type="text/css" href=" /" /. " media="screen"/> :/
 /: /HEADER <header> :/
 /: HEADER/ </header> :/
-/: /CHAPTER <section class="chapter"><details> :/
+/: /CHAPTER <section class="chapter" /ID ><details open="true"> :/
 /: /SUMMARY <summary> :/
 /: SUMMARY/ </summary> :/
 /: /SUMMARY" /SUMMARY /" /. SUMMARY/ :/
@@ -40,7 +44,7 @@ Hairball.
 /: AUTHOR/ </author> :/
 /: /COPYRIGHT <copyright> :/
 /: COPYRIGHT/ </copyright> :/
-/: /SECTION <section class="section"> :/
+/: /SECTION <section class="section" /ID > :/
 /: /SECTION" /SECTION /TITLE /" /. TITLE/ :/
 /: SECTION/ </section> :/
 /: /UL <ul> :/
@@ -51,10 +55,10 @@ Hairball.
 /: LI/ </li> :/
 /: /EM /SPACE <em> :/
 /: EM/ </em> /SPACE :/
-/: /SUBSECTION <section class="subsection"> :/
+/: /SUBSECTION <section class="subsection" /ID > :/
 /: /SUBSECTION" /SUBSECTION /TITLE /" /. TITLE/ :/
 /: SUBSECTION/ </section> :/
-/: /TOPIC <section class="topic"> :/
+/: /TOPIC <section class="topic" /ID > :/
 /: /TOPIC" /TOPIC /TITLE /" /. TITLE/ :/
 /: TOPIC/ </section> :/
 /: /STRONG /SPACE <strong> :/
@@ -100,6 +104,9 @@ Hairball.
 /: /COMMENT <!-- :/
 /: COMMENT/ --> :/
 /: /.VERSION /VERSION /. :/
+/: /FLEXROW <div class="flexrow"> :/
+/: /FLEXCELL <div class="flexcell"> :/
+
 /* set a bit more sane format for /.NOW to use */
 /" YYYY-MM-dd "/ /MAKEFORMATTER /'DATEFORMAT /V!
 /* Enables double newline equivalency to a paragraph (implicit paragraphs). */

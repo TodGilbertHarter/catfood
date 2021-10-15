@@ -17,6 +17,7 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * This is a 'black hole' output. It is good for things like setting up an interpreter
@@ -37,6 +38,11 @@ public class NullOutput implements Output {
 
 	@Override
 	public void close() throws IOException {
+	}
+
+	@Override
+	public OutputStream getOutputStream() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("NullOutput does not support streams");
 	}
 
 }

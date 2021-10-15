@@ -17,6 +17,7 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import io.vertx.core.Vertx;
@@ -60,6 +61,11 @@ public class FsOutput implements Output {
 		file.flush();
 		file.close();
 		vertx.close();
+	}
+
+	@Override
+	public OutputStream getOutputStream() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("FsOutput doesn't support streams");
 	}
 
 }

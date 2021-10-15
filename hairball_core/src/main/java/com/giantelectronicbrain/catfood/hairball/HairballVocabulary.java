@@ -29,6 +29,7 @@ import java.util.Stack;
 
 import com.giantelectronicbrain.catfood.hairball.tokens.Compile;
 import com.giantelectronicbrain.catfood.hairball.tokens.Drop;
+import com.giantelectronicbrain.catfood.hairball.tokens.Quote;
 
 /**
  * Define the core 'native' word set. These are mostly native words implemented
@@ -293,21 +294,8 @@ public class HairballVocabulary {
 		/**
 		 * Quote some text and push it onto the stack as a literal.
 		 */
-		Token quoteRT = new NativeToken("quote",(interpreter) -> {
-			ParserLocation pl = new ParserLocation(interpreter.getParserContext().getWordStream());
-			try {
-				String quoted = interpreter.getParserContext().getWordStream().getToDelimiter("\"/");
-				if(quoted == null) {
-					String eMsg = pl.makeErrorMessage("/\" failed to find matching \"/");
-					throw new HairballException(eMsg);
-				}
-				quoted = quoted.stripTrailing();
-				interpreter.push(quoted);
-			} catch (IOException e) {
-				throw new HairballException(pl.makeErrorMessage("Word could not read a token from input"),e);
-			}
-			return true;
-		});
+		Token quoteRT = Quote.INSTANCE;
+		
 		defList.add(new Definition(new Word("/\""),compile,quoteRT));
 		Token makeLiteral = new NativeToken("makeLiteral",(interpreter) -> {
 			String value = (String) interpreter.pop();

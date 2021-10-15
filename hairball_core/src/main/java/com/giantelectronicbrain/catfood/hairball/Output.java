@@ -17,6 +17,7 @@
 package com.giantelectronicbrain.catfood.hairball;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * API contract for an output sink.
@@ -25,6 +26,15 @@ import java.io.IOException;
  *
  */
 public interface Output {
+	
+	/**
+	 * Get an underlying OutputStream. Some Outputs may not support this.
+	 * 
+	 * @return OutputStream a stream which outputs to the same place as this output.
+	 * 
+	 * @throws UnsupportedOperationException if this Output doesn't support streams.
+	 */
+	public OutputStream getOutputStream() throws UnsupportedOperationException;
 	
 	/**
 	 * Output a space character.

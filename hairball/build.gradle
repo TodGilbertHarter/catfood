@@ -113,7 +113,8 @@ dependencies {
 	implementation project(':hairball_core')
 	implementation project(':buckets')
     implementation project(':core')
-    implementation 'org.apache.pdfbox:pdfbox:2.0.4'
+//    implementation 'org.apache.pdfbox:pdfbox:3.0.0-alpha2'
+    implementation 'com.helger:ph-pdf-layout4:5.2.1'
 }
 
 task buildDocs(type: Exec) {

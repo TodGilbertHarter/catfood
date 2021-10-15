@@ -29,10 +29,14 @@ import java.util.logging.Logger;
 public class StreamOutput implements Output {
 	private static final Logger log = StandAloneHairball.PLATFORM.getLogger(StreamOutput.class.getName());
 
-	OutputStream out;
+	private final OutputStream out;
 	
 	public StreamOutput(OutputStream out) {
 		this.out = out;
+	}
+	
+	public OutputStream getOutputStream() {
+		return this.out;
 	}
 
 	public void space() throws IOException {

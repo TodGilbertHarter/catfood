@@ -122,6 +122,16 @@ public class Interpreter {
 	public Object pop() {
 		return parameterStack.pop();
 	}
+	
+	/**
+	 * Get a copy of the TOS. Useful for native tokens to save a bit of
+	 * stack wizardry.
+	 * 
+	 * @return TOS of parameter stack
+	 */
+	public Object peek() {
+		return parameterStack.peek();
+	}
 
 	/**
 	 * Remove the top item from the return stack.

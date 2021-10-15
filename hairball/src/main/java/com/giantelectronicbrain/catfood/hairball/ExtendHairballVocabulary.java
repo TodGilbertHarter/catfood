@@ -111,6 +111,11 @@ public class ExtendHairballVocabulary {
 		Token sourceQuote = InterpreterToken.makeToken("sourceQuote", quoteRT,source);
 		defList.add(new Definition(new Word("/SOURCE\""),compile,sourceQuote));
 
+		Token version = new NativeToken("version", (interpreter) -> {
+			interpreter.push(StandAloneHairball.VERSION);
+			return true;
+		});
+		defList.add(new Definition(new Word("/VERSION"),compile,version));
 
 	}
 }
