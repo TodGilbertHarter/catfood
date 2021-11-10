@@ -279,6 +279,16 @@ public class Dictionary implements IVocabulary {
 	}
 
 	/**
+	 * Get the offset where the next token will be added to the current definition.
+	 * This will always return the value for the runtime behavior of the definition.
+	 * 
+	 * @return current offset.
+	 */
+	public int here() {
+		return this.currentDefinition.runTime.size();
+	}
+	
+	/**
 	 * Get the current vocabulary. It may be null if none is defined.
 	 * 
 	 * @return

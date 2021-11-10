@@ -76,7 +76,8 @@ public class HairballWordsTest {
 //		} catch (NoClassDefFoundError e) {
 //			e.printStackTrace();
 //		}
-		return new Hairball(tp, input, output);
+		Hairball newhb = new Hairball(tp, input, output);
+		return newhb;
 	}
 
 	@Test
@@ -257,6 +258,36 @@ public class HairballWordsTest {
 		uut.execute();
 		
 		assertEquals("this is some text",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void testIfThenTrueBranch() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = setUp("/: /TEST /IF we did it /SPACE /THEN and it worked :/ /TRUE /TEST",out);
+		uut.execute();
+		
+		assertEquals("we did it and it worked",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void testIfThenFalseBranch() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = setUp("/: /TEST /IF we did it /SPACE /THEN and it worked :/ /FALSE /TEST",out);
+		uut.execute();
+		
+		assertEquals("and it worked",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void testFalse() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = setUp("/FALSE /.",out);
+		uut.execute();
+		
+		assertEquals("false",out.toString());
 		assertEquals(0,uut.getParamStack().size());
 	}
 	

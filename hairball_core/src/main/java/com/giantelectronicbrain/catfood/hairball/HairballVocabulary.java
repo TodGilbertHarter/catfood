@@ -298,7 +298,7 @@ public class HairballVocabulary {
 		
 		defList.add(new Definition(new Word("/\""),compile,quoteRT));
 		Token makeLiteral = new NativeToken("makeLiteral",(interpreter) -> {
-			String value = (String) interpreter.pop();
+			var value = interpreter.pop();
 			LiteralToken lt = new LiteralToken("makeLiteral",value);
 			interpreter.push(lt);
 			return true;
@@ -748,5 +748,53 @@ public class HairballVocabulary {
 			return true;
 		});
 		defList.add(new Definition(new Word("/SETEMITTER"),compile,setEmit));
+		
+		Token isNull = new NativeToken("isNull", (interpreter)-> {
+			Parser parser = interpreter.getParserContext().getParser();
+			var value = interpreter.pop();
+			interpreter.push(value == null);
+			return true;
+		});
+		defList.add(new Definition(new Word("/ISNULL"),compile,isNull));
+
+		/* given an IP value and a boolean on the stack, set the IP if the boolean is false,
+		 * this is the runtime behavior for an IF. */
+		Token branch = new NativeToken("branch", (interpreter) -> {
+			int branchTarget = (Integer) interpreter.pop();
+			boolean flag = (Boolean) interpreter.pop();
+			if(!flag) interpreter.setIp(branchTarget);
+			return true;
+		});
+		/* drops a dummy literal into the current definition, which will be replaced later
+		 * by the branch point when we execute THEN. Leave its offset on the stack.
+		 */
+		Token if_compileTime = new NativeToken("if_ct", (interpreter) ->{
+			Dictionary dictionary = interpreter.getParserContext().getDictionary();
+			int thenTarget = dictionary.here();
+			dictionary.addToken(new LiteralToken("dummy",0));
+			interpreter.push(thenTarget);
+			swap.execute(interpreter);
+			compile.execute(interpreter);
+			return true;
+		});
+		defList.add(new Definition(new Word("/IF"),if_compileTime,branch));
+		
+		Token then_compileTime = new NativeToken("then_compiletime",(interpreter) -> {
+			Dictionary dictionary = interpreter.getParserContext().getDictionary();
+			var foo = interpreter.pop();
+			int thenTarget = (Integer) interpreter.pop();
+			int thenOffset = dictionary.here();
+			dictionary.putToken(new LiteralToken("thenOffset",thenOffset),thenTarget);
+			dictionary.addToken(noop);
+//			interpreter.push(foo);
+			return true;
+		});
+		defList.add(new Definition(new Word("/THEN"),then_compileTime,noop));
+
+		Token t = new LiteralToken("true",Boolean.TRUE);
+		defList.add(new Definition(new Word("/TRUE"),compile,t));
+		Token f = new LiteralToken("false",Boolean.FALSE);
+		defList.add(new Definition(new Word("/FALSE"),compile,f));
 	}
+	
 }
