@@ -282,6 +282,41 @@ public class HairballWordsTest {
 	}
 	
 	@Test
+	public void testBracketMakeLiteralBracket() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+//		Hairball uut = setUp("/: /TEST /IF // /THEN and it worked :/ /FALSE /TEST",out);
+		Hairball uut = setUp("/: /TEST /[\" foo foo foo \"]/ /. :/ /TEST",out);
+		uut.execute();
+		
+		assertEquals("foo foo foo",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void testIfMore() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+//		Hairball uut = setUp("/: /TEST /IF // /THEN and it worked :/ /FALSE /TEST",out);
+		Hairball uut = setUp("/: /TEST /IF /[\" foo foo foo \"]/ /. /THEN :/ /TRUE /TEST",out);
+		uut.execute();
+		
+		assertEquals("foo foo foo",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+	
+	@Test
+	public void wtfIsGoingOnHere() throws IOException, HairballException {
+		OutputStream out = new ByteArrayOutputStream();
+		Hairball uut = setUp("/VARIABLE /REFMAP /MAKEMAP /REFMAP /V! " +
+							 "/: /MAKEREFERENCE /CURRENTID /V@ /SWAP /REFMAP /V@ /MAP! :/ " + 
+							 "/: /FETCHREFERENCE /REFMAP /V@ /MAP@ /DUP /ISNULL /IF /[\" badref \"]/ /THEN // :/" + 
+							 "/\" this is some text\"/ /FETCHREFERENCE",out);
+		uut.execute();
+		
+//		assertEquals("foo foo foo",out.toString());
+		assertEquals(0,uut.getParamStack().size());
+	}
+
+	@Test
 	public void testFalse() throws IOException, HairballException {
 		OutputStream out = new ByteArrayOutputStream();
 		Hairball uut = setUp("/FALSE /.",out);

@@ -68,10 +68,12 @@ public class HairballVocabulary {
 		 * current dictionary entry.
 		 */
 		Token compileToken = new NativeToken("compileToken",(interpreter) -> {
+//			interpreter.pop();
 			interpreter.getParserContext().getDictionary().addToken((Token)interpreter.pop());
 			return true;
 		});
 		defList.add(new Definition(new Word("/HERE!"),compile,compileToken));
+		defList.add(new Definition(new Word("/[COMPILE]"),compileToken,compileToken));
 		
 		/**
 		 * Store a token at an arbitrary location in the current definition. This might be useful
@@ -133,6 +135,17 @@ public class HairballVocabulary {
 			return true;
 		});
 		defList.add(new Definition(new Word("/W2L"),compile,wordLiteral));
+		/**
+		 * Given a string, make a word.
+		 */
+		Token makeWord = new NativeToken("makeWord", (interpreter) -> {
+			String lit = (String) interpreter.pop();
+			Word aword = new Word(lit);
+			interpreter.push(aword);
+			return true;
+		});
+		defList.add(new Definition(new Word("/L2W"),compile,makeWord));
+		
 		/**
 		 * Parse a token from input and emit it.
 		 */
@@ -272,15 +285,6 @@ public class HairballVocabulary {
 		defList.add(new Definition(new Word("/:"), compile, colon));
 		
 		/**
-		 * Create a literal token, assign whatever is in TOS to it, and leave it on the stack.
-		 */
-		Token literalToken = new NativeToken("literalToken",(interpreter) -> {
-			Object contents = interpreter.pop();
-			Token nlt = new LiteralToken("",contents);
-			interpreter.push(nlt);
-			return true;
-		});
-		/**
 		 * Create an array of objects and leave it on the stack, the size of the
 		 * array is taken from the stack. The array is initially empty.
 		 */
@@ -304,6 +308,8 @@ public class HairballVocabulary {
 			return true;
 		});
 		defList.add(new Definition(new Word("/MAKELITERAL"),compile,makeLiteral));
+		Token brackMakeLiteralBrack = InterpreterToken.makeToken("[MAKELITERAL]",drop,makeLiteral);
+		defList.add(new Definition(new Word("/[MAKELITERAL]"),brackMakeLiteralBrack,makeLiteral));
 		
 		Token convert = new NativeToken("convert",(interpreter) -> {
 			String lit = (String) interpreter.pop();
@@ -334,7 +340,7 @@ public class HairballVocabulary {
 			}
 			return true;
 		});
-		Token constantRT = InterpreterToken.makeToken("constantRT",word,create,token,convert,literalToken,compileToken,define);
+		Token constantRT = InterpreterToken.makeToken("constantRT",word,create,token,convert,makeLiteral,compileToken,define);
 		/**
 		 * Convert the next token to a number and leave it on TOS
 		 */
@@ -406,6 +412,7 @@ public class HairballVocabulary {
 		});
 		Token slashBracketQuote_CT = new NativeToken("slashBracketQuote_CT", (interpreter) -> {
 			try {
+				interpreter.pop();
 				String quoted = interpreter.getParserContext().getWordStream().getToMatching("\"]/");
 				LiteralToken lt = new LiteralToken("slashBraketQuote_Literal",quoted);
 				interpreter.getParserContext().getDictionary().addToken(lt);				
@@ -472,7 +479,7 @@ public class HairballVocabulary {
 					Object[] stack = new Object[interpreter.getParameterStack().size()];
 					interpreter.getParameterStack().copyInto(stack);
 					for(Object obj : stack) {
-						output.emit(obj.toString());
+						output.emit(obj.toString()); //TODO: fix if this is a null
 						output.emit("\n");
 					}
 				} catch (IOException e) {
@@ -625,6 +632,9 @@ public class HairballVocabulary {
 			return true;
 		});
 		defList.add(new Definition(new Word("/ACTIVE"),compile,addVocabularyToStack));
+		/**
+		 * Given a vocabulary the current target for definitions.
+		 */
 		Token makeVocabularyCurrent = new NativeToken("makeVocabularyCurrent",(interpreter) -> {
 			IVocabulary vocab = (IVocabulary) interpreter.pop();
 			interpreter.getParserContext().getDictionary().makeCurrent(vocab);
@@ -636,8 +646,22 @@ public class HairballVocabulary {
 		 */
 		Token newVocabRT = InterpreterToken.makeToken("newVocabRT", word, createVocab);
 		defList.add(new Definition(new Word("/NEWVOCABULARY"),compile,newVocabRT));
+		/**
+		 * The following word in the input stream is a vocabulary name, put the corresponding
+		 * vocabulary on the stack.
+		 */
 		Token addVocabRT = InterpreterToken.makeToken("addVocabRT", word, pushVocab);
 		defList.add(new Definition(new Word("/VOCABULARY"),compile,addVocabRT));
+
+		Token vocabFetchRT = InterpreterToken.makeToken("/vocab@", makeWord,pushVocab);
+		defList.add(new Definition(new Word("/VOCAB@"),compile,vocabFetchRT));
+		
+		Token inactivateVocabRT = new NativeToken("/INACTIVE", (interpreter) -> {
+			IVocabulary vocab = (IVocabulary) interpreter.pop();
+			interpreter.getParserContext().getDictionary().remove(vocab);
+			return true;
+		});
+		defList.add(new Definition(new Word("/INACTIVE"),compile,inactivateVocabRT));
 
 		// Given a word on TOS, look it up in the Dictionary and put the definition on TOS
 		Token lookup = new NativeToken("lookup", (interpreter) -> {
@@ -795,6 +819,22 @@ public class HairballVocabulary {
 		defList.add(new Definition(new Word("/TRUE"),compile,t));
 		Token f = new LiteralToken("false",Boolean.FALSE);
 		defList.add(new Definition(new Word("/FALSE"),compile,f));
+		Token not = new NativeToken("not",(interpreter)-> {
+			boolean value = (boolean) interpreter.pop();
+			value = !value;
+			interpreter.push(value);
+			return true;
+		});
+		defList.add(new Definition(new Word("/NOT"),compile,not));
+		
+		Token trim = new NativeToken("trim", (interpreter) -> {
+			String str = (String) interpreter.pop();
+			str = str.strip();
+			interpreter.push(str);
+			return true;
+		});
+		defList.add(new Definition(new Word("/TRIM"),compile,trim));
 	}
+	
 	
 }
